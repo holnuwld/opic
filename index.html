@@ -1,0 +1,3608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>OPIc 포켓 스터디 (2026)</title>
+  <style>
+    :root {
+      --bg: #f3f5f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --primary-border: #bfdbfe;
+      --accent: #0d9488;
+      --accent-soft: #f0fdfa;
+      --warn: #d97706;
+      --warn-soft: #fef3c7;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.08);
+      --shadow-player: 0 -6px 24px rgba(15, 23, 42, 0.14);
+      --radius-card: 16px;
+      --radius-inner: 12px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      padding-bottom: calc(64px + var(--safe-bottom));
+      position: relative;
+    }
+
+    /* Header & Utility Bar */
+    .top-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+      padding: 10px 12px 8px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .progress-pill {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .utility-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: nowrap;
+    }
+
+    .util-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      min-height: 30px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .util-btn:active {
+      transform: scale(0.96);
+    }
+
+    .util-btn.is-active {
+      background: #ffffff;
+      color: #1e3a8a;
+      border-color: #ffffff;
+    }
+
+    .util-btn.filler-btn {
+      background: #fbbf24;
+      color: #451a03;
+      border-color: #f59e0b;
+    }
+
+    .voice-select-top {
+      flex: 1;
+      min-width: 0;
+      height: 30px;
+      background: rgba(15, 23, 42, 0.35);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .voice-select-top option {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    /* Sticky Topic Tabs */
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(243, 245, 249, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 7px 12px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tab-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-pill {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-sub);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+      cursor: pointer;
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s;
+    }
+
+    .tab-pill .tab-count {
+      font-size: 10.5px;
+      font-weight: 700;
+      background: var(--bg);
+      color: var(--text-muted);
+      padding: 1px 5px;
+      border-radius: 999px;
+    }
+
+    .tab-pill.is-active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .tab-pill.is-active .tab-count {
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+    }
+
+    /* Tab Top Controls */
+    .tab-controls {
+      padding: 7px 12px 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .play-all-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-play-all,
+    .btn-play-random {
+      flex: 1;
+      appearance: none;
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 9px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 40px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22);
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn-play-random {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.22);
+    }
+
+    .btn-play-all:active,
+    .btn-play-random:active {
+      transform: scale(0.98);
+    }
+
+    .btn-play-all.is-playing,
+    .btn-play-random.is-playing {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.22);
+    }
+
+    .btn-play-all:disabled,
+    .btn-play-random:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .mode-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 4px;
+      border-radius: 7px;
+      cursor: pointer;
+      min-height: 30px;
+      transition: all 0.15s;
+    }
+
+    .mode-btn.is-active {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Card List */
+    .card-list {
+      padding: 8px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-card);
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .q-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .q-card.is-active-card {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), var(--shadow-md);
+    }
+
+    .q-card.is-done {
+      border-color: #bbf7d0;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 7px 10px 6px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fafbfd;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .item-num {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 2px 6px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+
+    .type-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+
+    .badge-rp { background: #ede9fe; color: #6d28d9; }
+    .badge-exp { background: #dbeafe; color: #1d4ed8; }
+    .badge-desc { background: #ccfbf1; color: #0f766e; }
+    .badge-link { background: #fef3c7; color: #b45309; }
+    .badge-proc { background: #fce7f3; color: #be185d; }
+
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .icon-toggle {
+      appearance: none;
+      border: none;
+      background: transparent;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.42;
+      transition: opacity 0.15s, background 0.15s, transform 0.1s;
+    }
+
+    .icon-toggle:active {
+      transform: scale(0.92);
+    }
+
+    .icon-toggle.is-on {
+      opacity: 1;
+      background: #f1f5f9;
+    }
+
+    /* Accordion Row (Question & Answer) */
+    .qa-block {
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .qa-block:last-child {
+      border-bottom: none;
+    }
+
+    .qa-block.is-playing-block > .qa-row {
+      background: #eff6ff;
+    }
+
+    .qa-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .qa-row:active {
+      background: #f8fafc;
+    }
+
+    .btn-play-item {
+      appearance: none;
+      border: 1.5px solid var(--primary-border);
+      background: var(--primary-soft);
+      color: var(--primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .btn-play-item:active {
+      transform: scale(0.93);
+    }
+
+    .btn-play-item.is-answer {
+      border-color: #99f6e4;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .btn-play-item.is-playing {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      animation: pulseRing 1.4s infinite;
+    }
+
+    .btn-play-item.is-answer.is-playing {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.35); }
+      70% { box-shadow: 0 0 0 7px rgba(37, 99, 235, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+
+    .qa-summary-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .qa-tag {
+      font-size: 10.5px;
+      font-weight: 900;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qa-tag.tag-q {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .qa-tag.tag-a {
+      background: #ccfbf1;
+      color: #115e59;
+    }
+
+    .qa-keywords {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .open-arrow {
+      font-size: 14px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      padding: 2px;
+    }
+
+    .step-mini {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-right: 5px;
+      vertical-align: 1px;
+      letter-spacing: 0.01em;
+    }
+
+    .step-intro { background: #e0e7ff; color: #3730a3; }
+    .step-body { background: #cffafe; color: #155e75; }
+    .step-outro { background: #dcfce7; color: #166534; }
+
+    /* Full-Screen Script Popup */
+    .popup-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: calc(44px + var(--safe-bottom));
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 45;
+      display: none;
+      justify-content: center;
+    }
+
+    .popup-backdrop.is-open {
+      display: flex;
+    }
+
+    .script-popup {
+      --popup-font-size: 16px;
+      width: 100%;
+      max-width: 480px;
+      height: 100%;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+    }
+
+    .popup-toolbar {
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .popup-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .popup-title-area {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .popup-num {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #ffffff;
+      background: var(--primary);
+      padding: 2px 7px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .popup-num.is-answer {
+      background: var(--accent);
+    }
+
+    .popup-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .popup-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pop-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      height: 34px;
+      padding: 0 9px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    .pop-btn:active {
+      transform: scale(0.96);
+    }
+
+    .pop-btn.is-active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .pop-btn.pop-play {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .pop-btn.pop-play.is-playing {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .pop-switch-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-sub);
+      font-size: 11.5px;
+      font-weight: 700;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 7px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .popup-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 14px 20px;
+      cursor: pointer;
+    }
+
+    .script-popup.is-editing .popup-body {
+      cursor: default;
+    }
+
+    .popup-kw-line {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
+      margin-bottom: 12px;
+    }
+
+    .popup-para-block {
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .popup-para-block:last-of-type {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .popup-en-script {
+      font-size: var(--popup-font-size);
+      line-height: 1.54;
+      color: var(--text);
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .popup-ko-para {
+      margin: 5px 0 0;
+      font-size: max(11px, calc(var(--popup-font-size) * 0.74));
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    body.hide-ko .popup-ko-para {
+      display: none;
+    }
+
+    .popup-tap-hint {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* Popup Edit Form */
+    .popup-edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .edit-label {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .edit-input,
+    .edit-textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--surface);
+      resize: vertical;
+    }
+
+    .edit-input:focus,
+    .edit-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .edit-save-btn {
+      flex: 2;
+      appearance: none;
+      border: none;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .edit-cancel-btn,
+    .edit-reset-btn {
+      flex: 1;
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text-sub);
+      font-size: 12.5px;
+      font-weight: 700;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .edit-reset-btn {
+      color: var(--danger);
+    }
+
+    /* Highlighting & Blind Mode */
+    .hl-filler {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .hl-expr {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: 700;
+      border-bottom: 1.5px solid #38bdf8;
+    }
+
+    body.blind-on .hl-expr:not(.is-revealed) {
+      background: #cbd5e1;
+      color: transparent;
+      border-bottom: 1.5px dashed #64748b;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    body.blind-on .hl-expr.is-revealed {
+      background: #dcfce7;
+      color: #166534;
+      border-bottom-color: #22c55e;
+      cursor: pointer;
+    }
+
+    /* Interactive TTS Sentences */
+    .tts-sentence {
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 1px 2px;
+      transition: background 0.15s;
+    }
+
+    .tts-sentence:active {
+      background: #e2e8f0;
+    }
+
+    .tts-sentence.is-speaking {
+      background: #fde047;
+      color: #0f172a;
+      box-shadow: 0 0 0 2px #facc15;
+    }
+
+    body.blind-on .tts-sentence.is-speaking .hl-expr:not(.is-revealed) {
+      color: transparent;
+      background: #94a3b8;
+    }
+
+    /* Sticky Bottom Single-Line Mini Player */
+    .mini-player {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 6px 10px calc(6px + var(--safe-bottom));
+      z-index: 50;
+      box-shadow: var(--shadow-player);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .player-now {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #93c5fd;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .p-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      height: 32px;
+      min-width: 30px;
+      padding: 0 6px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .p-btn:active {
+      transform: scale(0.95);
+    }
+
+    .p-btn.p-main {
+      background: #2563eb;
+      border-color: #3b82f6;
+      min-width: 34px;
+      font-weight: 800;
+    }
+
+    .p-btn.is-on {
+      background: #0d9488;
+      border-color: #14b8a6;
+    }
+
+    .rate-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fde68a;
+      font-size: 11px;
+      font-weight: 800;
+      height: 32px;
+      padding: 0 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Bottom Sheet Modal (Filler Cheat Sheet) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 80;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      max-width: 480px;
+      max-height: 82vh;
+      background: var(--surface);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sheet-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .sheet-close {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .sheet-body {
+      padding: 14px 16px calc(24px + var(--safe-bottom));
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .filler-group-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0 0 8px;
+    }
+
+    .filler-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filler-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .filler-chip:active {
+      background: var(--primary-soft);
+    }
+
+    .filler-en {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .filler-ko {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .filler-say {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(56px + var(--safe-bottom));
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(15, 23, 42, 0.92);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 999px;
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .toast.is-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header & Utility Bar -->
+    <header class="top-header">
+      <div class="header-row">
+        <h1 class="app-title">🎧 OPIc 포켓 스터디</h1>
+        <span id="progressPill" class="progress-pill">완료 0/31</span>
+      </div>
+      <div class="utility-bar">
+        <button type="button" id="btnToggleKo" class="util-btn">한글 OFF</button>
+        <button type="button" id="btnToggleBlind" class="util-btn">블라인드 OFF</button>
+        <select id="voiceSelect" class="voice-select-top" aria-label="여성 원어민 TTS 음성 선택">
+          <option value="">음성 로딩...</option>
+        </select>
+        <button type="button" id="btnOpenFillers" class="util-btn filler-btn">💡 필러</button>
+      </div>
+    </header>
+
+    <!-- Sticky Topic Tabs -->
+    <nav class="sticky-nav" aria-label="주제별 탭">
+      <div id="tabBar" class="tab-bar"></div>
+    </nav>
+
+    <!-- Tab Top Controls -->
+    <section class="tab-controls">
+      <div class="play-all-row">
+        <button type="button" id="btnPlayTab" class="btn-play-all">▶ 전체 재생 (31)</button>
+        <button type="button" id="btnPlayRandom" class="btn-play-random">🔀 랜덤 재생</button>
+      </div>
+      <div class="mode-row" role="group" aria-label="연속 재생 방식">
+        <button type="button" class="mode-btn is-active" data-mode="qa">Q+A 연속</button>
+        <button type="button" class="mode-btn" data-mode="a">A 답변만</button>
+        <button type="button" class="mode-btn" data-mode="q">Q 질문만</button>
+      </div>
+    </section>
+
+    <!-- Question/Script Cards -->
+    <main id="cardList" class="card-list"></main>
+  </div>
+
+  <!-- Sticky Bottom 1-Line Mini Player -->
+  <aside class="mini-player" aria-label="오디오 미니 플레이어">
+    <div id="playerNow" class="player-now">대기 중</div>
+    <div class="player-controls">
+      <button type="button" id="btnPrev" class="p-btn" aria-label="이전 문항">⏮</button>
+      <button type="button" id="btnPlayPause" class="p-btn p-main" aria-label="재생/일시정지">▶</button>
+      <button type="button" id="btnStop" class="p-btn" aria-label="정지">⏹</button>
+      <button type="button" id="btnNext" class="p-btn" aria-label="다음 문항">⏭</button>
+      <button type="button" id="btnRepeat" class="p-btn" aria-label="1문항 반복">🔁</button>
+      <button type="button" id="btnRate" class="rate-btn" aria-label="재생 속도">1.0x</button>
+    </div>
+  </aside>
+
+  <!-- Full-Screen Script Popup -->
+  <div id="scriptPopupBackdrop" class="popup-backdrop" aria-hidden="true">
+    <section id="scriptPopup" class="script-popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+      <header class="popup-toolbar">
+        <div class="popup-title-row">
+          <div class="popup-title-area">
+            <span id="popupBadge" class="popup-num">#01 A</span>
+            <span id="popupTitle" class="popup-title">제목</span>
+          </div>
+          <button type="button" id="btnPopupSwitchPart" class="pop-switch-btn" aria-label="질문/답변 전환">Q⇄A</button>
+        </div>
+        <div class="popup-actions">
+          <button type="button" id="btnFontDown" class="pop-btn" aria-label="글자 축소">A-</button>
+          <button type="button" id="btnFontUp" class="pop-btn" aria-label="글자 확대">A+</button>
+          <button type="button" id="btnPopupTranslate" class="pop-btn" aria-label="문단별 번역">🌐 번역</button>
+          <button type="button" id="btnPopupEdit" class="pop-btn" aria-label="스크립트 수정">✏️ Edit</button>
+          <button type="button" id="btnPopupPlay" class="pop-btn pop-play" aria-label="현재 스크립트 재생">▶</button>
+        </div>
+      </header>
+      <div id="popupBody" class="popup-body"></div>
+    </section>
+  </div>
+
+  <!-- Filler Cheat Sheet Modal -->
+  <div id="fillerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="bottom-sheet">
+      <div class="sheet-header">
+        <h2 id="sheetTitle" class="sheet-title">💡 오픽 만능 필러 & 감정표현</h2>
+        <button type="button" id="btnCloseFillers" class="sheet-close" aria-label="닫기">✕</button>
+      </div>
+      <div id="fillerSheetBody" class="sheet-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const TABS = [
+      { id: "all", label: "전체" },
+      { id: "survey", label: "선택주제" },
+      { id: "travel", label: "여행·해변" },
+      { id: "roleplay", label: "롤플레이" },
+      { id: "special", label: "특별경험·고장" },
+      { id: "daily", label: "일상·영화·건강" },
+      { id: "starred", label: "⭐ 복습노트" }
+    ];
+
+    const FILLER_GROUPS = [
+      {
+        title: "⏱️ 자연스러운 연결 & 시간 벌기 (Fillers)",
+        items: [
+          { en: "Well, let me tell you about...", ko: "음, ~에 대해 말씀드릴게요" },
+          { en: "You know, how often do you get a chance like that?", ko: "있잖아요, 그런 기회가 얼마나 흔하겠어요?" },
+          { en: "Turns out, it was my mistake.", ko: "알고 보니 제 실수였어요." },
+          { en: "Let's just say it wasn't his best moment.", ko: "그냥 그의 최고의 순간은 아니었다고 해두죠." },
+          { en: "I know this is short notice, but...", ko: "갑작스러운 연락이라 미안하지만..." }
+        ]
+      },
+      {
+        title: "😲 감정 폭발 & 생생한 리액션 (IH/AL 치트키)",
+        items: [
+          { en: "Oh my gosh, it was absolutely mind-blowing!", ko: "세상에, 정말 압도적이었어요!" },
+          { en: "My jaw almost hit the table.", ko: "입이 떡 벌어질 뻔했어요." },
+          { en: "I swear my soul left my body for a second.", ko: "순간 영혼이 빠져나가는 줄 알았어요." },
+          { en: "I was thrilled and really looking forward to it.", ko: "정말 신나고 잔뜩 기대하고 있었어요." },
+          { en: "I was honestly disappointed, but I don't regret it.", ko: "솔직히 아쉬웠지만 후회하진 않아요." }
+        ]
+      },
+      {
+        title: "🎬 깔끔한 마무리 & 교훈 (Closing)",
+        items: [
+          { en: "All in all, it was a wonderful place to visit.", ko: "전반적으로 방문하기 정말 좋은 곳이었어요." },
+          { en: "Overall, it was a pretty enjoyable day.", ko: "전반적으로 꽤 즐거운 하루였어요." },
+          { en: "Looking back, those were definitely highlights of my childhood.", ko: "돌아보면 어린 시절의 가장 빛나는 추억이었어요." },
+          { en: "Since then, I always double-check when I book tickets.", ko: "그 이후로 예매할 때마다 항상 두 번 확인해요." },
+          { en: "Things happen, and family comes first.", ko: "살다 보면 이런 일도 있고, 가족이 최우선이죠." }
+        ]
+      }
+    ];
+
+    const OPIC_DATA = [
+      {
+        id: 1,
+        category: "daily",
+        badge: "과거경험",
+        title: "건강한 음식 경험",
+        qKeywords: "Last healthy food · Where & with whom · Taste & health benefits",
+        qEn: "Now, tell me about the last time you actually ate some healthy food. Where did you eat it and who did you eat it with? How did it taste and what good did it do for you? Give me all the details.",
+        qKo: "최근에 실제로 건강한 음식을 먹었던 때에 대해 말해주세요. 어디서 누구와 먹었나요? 맛은 어땠고 어떤 좋은 점이 있었나요? 자세히 설명해주세요.",
+        aKeywords: "🤒 Son's stomachache ➔ 🥣 Veggie porridge (mild) ➔ 😊 Relaxed & warm",
+        aSections: [
+          {
+            step: "도입",
+            summary: "지난달 아들 배탈로 가볍고 건강한 식사 주문",
+            enHtml: "The last time I had a healthy meal was last month. My son <span class=\"hl-expr\">had an upset stomach</span> that day, so he didn't want to eat anything <span class=\"hl-expr\">too greasy or heavy</span>. My family decided to order something light and healthy for him instead of cooking.",
+            ko: "지난달에 건강한 식사를 한 적이 있습니다. 그날 아들이 배탈이 나서 너무 기름지거나 무거운 음식을 먹고 싶어 하지 않았습니다. 우리 가족은 요리하는 대신 아들을 위해 가볍고 건강한 음식을 주문하기로 했습니다."
+          },
+          {
+            step: "전개",
+            summary: "야채죽의 재료, 소화 장점과 깔끔·순한 맛 묘사",
+            enHtml: "We ordered <span class=\"hl-expr\">vegetable porridge</span> from a Korean porridge chain. It's a healthy dish made with rice, carrots, zucchini, and mushrooms, and it's <span class=\"hl-expr\">easy to digest</span>. Something people often eat when they're not feeling well. That porridge tasted really <span class=\"hl-expr\">clean and mild</span>. It didn't have strong spices, but it was <span class=\"hl-expr\">warm and comforting</span>. The rice was cooked just right.",
+            ko: "한 한국 죽 전문점에서 야채죽을 주문했습니다. 쌀, 당근, 애호박, 버섯으로 만든 건강식으로 소화가 잘되며, 몸이 안 좋을 때 사람들이 자주 찾는 음식입니다. 그 죽은 맛이 정말 깔끔하고 순했습니다. 강한 향신료는 없었지만 따뜻하고 속을 편안하게 해 주었습니다. 밥알도 알맞게 잘 익었습니다."
+          },
+          {
+            step: "결론",
+            summary: "속 더부룩함 해소 및 가족 모두의 만족",
+            enHtml: "After the meal, we felt <span class=\"hl-expr\">much more relaxed and less bloated</span>. My son also enjoyed it, and we all agreed it was <span class=\"hl-expr\">the right choice for that day</span>. It was a simple meal, but it made us all feel warm and healthy.",
+            ko: "식사 후 우리는 훨씬 편안해졌고 속 더부룩함도 덜했습니다. 아들도 맛있게 먹었고, 우리 모두 그날 최고의 선택이었다고 생각했습니다. 소박한 식사였지만 우리 모두를 따뜻하고 건강하게 만들어 준 식사였습니다."
+          }
+        ],
+        aEnPlain: "The last time I had a healthy meal was last month. My son had an upset stomach that day, so he didn't want to eat anything too greasy or heavy. My family decided to order something light and healthy for him instead of cooking. We ordered vegetable porridge from a Korean porridge chain. It's a healthy dish made with rice, carrots, zucchini, and mushrooms, and it's easy to digest. Something people often eat when they're not feeling well. That porridge tasted really clean and mild. It didn't have strong spices, but it was warm and comforting. The rice was cooked just right. After the meal, we felt much more relaxed and less bloated. My son also enjoyed it, and we all agreed it was the right choice for that day. It was a simple meal, but it made us all feel warm and healthy."
+      },
+      {
+        id: 2,
+        category: "travel",
+        badge: "묘사/경험",
+        title: "기억에 남는 해변",
+        qKeywords: "Memorable beach · What it was like · Detailed impression",
+        qEn: "Tell me about a beautiful or memorable beach you've been to. What was the beach like? Tell me about your observation or impression of the beach in detail.",
+        qKo: "가봤던 아름답거나 기억에 남는 해변에 대해 말해주세요. 그 해변은 어땠나요? 해변을 보며 느낀 점이나 인상을 자세히 이야기해주세요.",
+        aKeywords: "🏖️ Daecheon Beach (wide) ➔ 🚶 Lively & relaxed crowd ➔ 🌅 Painting-like sunset",
+        aSections: [
+          {
+            step: "도입",
+            summary: "지난여름 보령 대천해수욕장의 넓고 탁 트인 첫인상",
+            enHtml: "<span class=\"hl-filler\">Let me tell you about</span> my visit to Daecheon Beach with my family last summer. It was located in a city called Boryeong. <span class=\"hl-expr\">Upon arriving, the first thing I noticed was</span> how wide and open the beach felt. The beach <span class=\"hl-expr\">stretched far in both directions</span>, and the view was just stunning. <span class=\"hl-filler\">Oh,</span> it seemed endless.",
+            ko: "지난여름 가족과 함께 다녀온 대천 해수욕장에 대해 말씀드리겠습니다. 보령이라는 도시에 위치해 있습니다. 도착하자마자 가장 먼저 눈에 띈 것은 해변이 정말 넓고 탁 트여 있다는 점이었습니다. 해변이 양옆으로 길게 뻗어 있었고 풍경이 정말 환상적이었습니다. 끝없이 펼쳐진 것처럼 보였습니다."
+          },
+          {
+            step: "전개",
+            summary: "여유롭고 활기찬 사람들과 그림 같은 일몰",
+            enHtml: "The place was <span class=\"hl-expr\">pretty lively</span> with lots of people walking around or just relaxing. Everyone seemed to be enjoying the moment. They looked so relaxed and happy. <span class=\"hl-expr\">The thing that really got my attention was</span> the sunset over the horizon. The sky changed colors beautifully as the sun went down. It <span class=\"hl-expr\">looked like a painting</span> and it was almost unreal.",
+            ko: "그곳은 주변을 걷거나 휴식을 취하는 많은 사람들로 꽤 활기찼습니다. 모두가 그 순간을 즐기고 있는 것 같았습니다. 다들 너무 여유롭고 행복해 보였습니다. 제 시선을 사로잡은 것은 수평선 너머로 지는 일몰이었습니다. 해가 지면서 하늘이 아름다운 색으로 물들었습니다. 한 폭의 그림 같았고 비현실적일 정도로 아름다웠습니다."
+          },
+          {
+            step: "결론",
+            summary: "전반적 만족감 및 재방문 희망",
+            enHtml: "<span class=\"hl-filler\">All in all,</span> it was a wonderful place to visit. <span class=\"hl-expr\">If I get the chance, I'd love to go back someday.</span>",
+            ko: "전반적으로 정말 방문하기 좋은 곳이었습니다. 기회가 된다면 언젠가 꼭 다시 가고 싶습니다."
+          }
+        ],
+        aEnPlain: "Let me tell you about my visit to Daecheon Beach with my family last summer. It was located in a city called Boryeong. Upon arriving, the first thing I noticed was how wide and open the beach felt. The beach stretched far in both directions, and the view was just stunning. Oh, it seemed endless. The place was pretty lively with lots of people walking around or just relaxing. Everyone seemed to be enjoying the moment. They looked so relaxed and happy. The thing that really got my attention was the sunset over the horizon. The sky changed colors beautifully as the sun went down. It looked like a painting and it was almost unreal. All in all, it was a wonderful place to visit. If I get the chance, I'd love to go back someday."
+      },
+      {
+        id: 3,
+        category: "roleplay",
+        badge: "롤플레이-해결",
+        title: "가족이 아파서 약속 취소",
+        qKeywords: "Family ill on dinner party day · Leave message to friend · Explain & reschedule",
+        qEn: "I'm sorry, but there's a problem that I need you to resolve. On the day of your dinner party, one of your family members becomes ill. Call your friend and leave a message. Explain what has happened and then propose the plan to have dinner together in the near future.",
+        qKo: "해결해야 할 문제가 있습니다. 저녁 모임 당일 가족 중 한 명이 아픕니다. 친구에게 전화해 메시지를 남기세요. 무슨 일이 생겼는지 설명하고 조만간 다시 저녁을 함께 먹을 계획을 제안하세요.",
+        aKeywords: "📞 Cancel dinner tonight ➔ 🤒 Son got COVID-19 (fever) ➔ 📅 Reschedule next weekend?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "친구 제이미에게 오늘 저녁 취소 양해 인사",
+            enHtml: "Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know <span class=\"hl-expr\">this is short notice</span>, but I don't think we can <span class=\"hl-expr\">make it tonight</span>.",
+            ko: "안녕 제이미, 나 헤더야. 오늘 저녁 식사 때문에 전화했어. 갑작스러운 연락이라 미안하지만, 오늘 저녁은 못 갈 것 같아."
+          },
+          {
+            step: "전개",
+            summary: "아들의 코로나 양성 판정 및 고열·기침 설명",
+            enHtml: "My son <span class=\"hl-expr\">tested positive for COVID-19</span> this morning. He's <span class=\"hl-expr\">running a high fever</span> and has been coughing a lot. I think it's best for him to rest.",
+            ko: "오늘 아침에 아들이 코로나19 양성 판정을 받았거든. 열도 많이 나고 기침도 심하게 해. 푹 쉬게 해주는 게 좋을 것 같아."
+          },
+          {
+            step: "결론",
+            summary: "다음 주말 재조정 제안 및 회신 요청",
+            enHtml: "<span class=\"hl-filler\">So,</span> I was hoping we could <span class=\"hl-expr\">reschedule our dinner</span>. Would next weekend work for you? Or if you let me know when you are available, we can <span class=\"hl-expr\">figure something out</span>. I'll try to be flexible. K, give me a call when you get this. Bye.",
+            ko: "그래서 저녁 약속을 다시 잡았으면 해. 다음 주말 괜찮아? 아니면 언제 시간 되는지 알려주면 맞춰볼게. 내가 최대한 시간 맞춰볼게. 메시지 확인하면 전화 줘. 안녕."
+          }
+        ],
+        aEnPlain: "Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My son tested positive for COVID-19 this morning. He's running a high fever and has been coughing a lot. I think it's best for him to rest. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye."
+      },
+      {
+        id: 4,
+        category: "roleplay",
+        badge: "롤플레이-질문",
+        title: "다른 커플 집에 초대",
+        qKeywords: "Invite another couple for dinner · Ask family 3–4 questions · Best day, time & menu",
+        qEn: "I'd like to give you a situation and ask you to act it out. You want to invite another couple to your home for dinner. Ask your family member three or four questions to find out when the best day and time is to have your friends come for dinner.",
+        qKo: "상황을 하나 드릴 테니 연기해 보세요. 다른 커플을 집에 저녁 식사로 초대하려 합니다. 친구들이 오기에 가장 좋은 요일과 시간을 정하기 위해 가족에게 서너 가지 질문을 하세요.",
+        aKeywords: "👫 Invite Jamie's couple ➔ 📅 Free Sunday at 7-ish? ➔ 🍽️ What food to prepare?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "초대 의사 확인 및 이번 주 일요일 가능 여부 질문",
+            enHtml: "Honey, do you remember Jamie? If you are okay with it, I was thinking of <span class=\"hl-expr\">inviting her couple over for dinner</span>. What do you think? Great! So, <span class=\"hl-expr\">what day works best for you</span>? I heard they're free this Sunday. Would that work for you, too?",
+            ko: "여보, 제이미 기억나? 당신만 괜찮다면 그 부부를 집에 초대해서 저녁을 같이 먹을까 하는데, 어떻게 생각해? 좋아! 그럼 언제가 가장 좋아? 이번 주 일요일에 시간 된다고 들었는데, 당신도 괜찮아?"
+          },
+          {
+            step: "전개",
+            summary: "저녁 7시 전후 시간대 조율",
+            enHtml: "Then what time do you think is good? <span class=\"hl-expr\">Is 7-ish okay</span>? I think it's a nice time, <span class=\"hl-expr\">not too early, not too late</span>.",
+            ko: "그럼 몇 시쯤이 좋을까? 7시쯤 어때? 너무 이르지도 늦지도 않고 딱 좋은 시간인 것 같아."
+          },
+          {
+            step: "결론",
+            summary: "저녁 메뉴 질문 및 결정 완료",
+            enHtml: "<span class=\"hl-filler\">And oh yeah,</span> what should we prepare for dinner? If we can't decide right now, I can just ask them what kind of food they like. <span class=\"hl-expr\">All right, it's all set.</span>",
+            ko: "그리고 아, 저녁 메뉴로는 뭘 준비할까? 지금 결정 못 하겠으면 그 친구들한테 어떤 음식 좋아하는지 물어볼게. 좋아, 그럼 그렇게 하자."
+          }
+        ],
+        aEnPlain: "Honey, do you remember Jamie? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too? Then what time do you think is good? Is 7-ish okay? I think it's a nice time, not too early, not too late. And oh yeah, what should we prepare for dinner? If we can't decide right now, I can just ask them what kind of food they like. All right, it's all set."
+      },
+      {
+        id: 5,
+        category: "roleplay",
+        badge: "롤플레이-해결",
+        title: "빌린 MP3 플레이어 고장",
+        qKeywords: "Broke friend's borrowed MP3 player · Explain how & current state · Offer 2–3 options",
+        qEn: "I'm sorry, but there's a problem that I need you to resolve. You borrowed your friend's MP3 player, but you broke it. Call your friend and explain the situation how it broke and the current condition of the MP3 player. And then offer two or three options to get your friend a working MP3 player.",
+        qKo: "해결해야 할 문제가 있습니다. 친구에게 빌린 MP3 플레이어를 망가뜨렸습니다. 친구에게 전화해 어떻게 망가졌는지와 현재 상태를 설명하세요. 그리고 작동하는 MP3를 돌려주기 위한 두세 가지 대안을 제시하세요.",
+        aKeywords: "📱 Dropped borrowed MP3 ➔ 💥 Cracked & won't turn on ➔ 🛠️ Fix it or buy new one?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "제이크에게 전화 목적 및 파손 사과",
+            enHtml: "Hello Jake, it's me Heather. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it.",
+            ko: "안녕 제이크, 나 헤더야. 지난주에 빌린 MP3 플레이어 때문에 전화했어. 미안한데, 내가 고장 낸 것 같아."
+          },
+          {
+            step: "전개",
+            summary: "실수로 떨어뜨린 경위와 화면 금·전원 꺼짐 상태 설명",
+            enHtml: "I <span class=\"hl-expr\">dropped it by mistake</span> when I was using it. It <span class=\"hl-expr\">slipped out of my hands</span> and hit the ground pretty hard. Now it's <span class=\"hl-expr\">not working properly</span>. The screen is cracked and it <span class=\"hl-expr\">won't turn on at all</span>.",
+            ko: "사용하다가 실수로 떨어뜨렸거든. 손에서 미끄러져서 바닥에 꽤 세게 부딪혔어. 지금 제대로 작동을 안 해. 화면에 금이 가고 전원도 아예 안 켜져."
+          },
+          {
+            step: "결론",
+            summary: "서비스센터 수리 또는 새 제품 구매 대안 제시",
+            enHtml: "<span class=\"hl-filler\">So,</span> I'm wondering if I can <span class=\"hl-expr\">get it fixed at the service center</span>. If it can be fixed, I'll <span class=\"hl-expr\">take care of it right away</span>. <span class=\"hl-filler\">Oh, okay...</span> Or, here's another option: why don't I buy you a new one? Do you want the same model? Thank you for your understanding. I'm so sorry again.",
+            ko: "그래서 서비스 센터에 맡겨서 수리할 수 있는지 알아보려고 해. 수리가 가능하면 내가 바로 처리할게. 아, 그래... 아니면 다른 방법도 있어. 내가 새 걸로 하나 사주는 건 어때? 똑같은 모델로 사줄까? 이해해 줘서 고마워. 다시 한번 정말 미안해."
+          }
+        ],
+        aEnPlain: "Hello Jake, it's me Heather. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it. I dropped it by mistake when I was using it. It slipped out of my hands and hit the ground pretty hard. Now it's not working properly. The screen is cracked and it won't turn on at all. So, I'm wondering if I can get it fixed at the service center. If it can be fixed, I'll take care of it right away. Oh, okay... Or, here's another option: why don't I buy you a new one? Do you want the same model? Thank you for your understanding. I'm so sorry again."
+      },
+      {
+        id: 6,
+        category: "roleplay",
+        badge: "롤플레이-질문",
+        title: "영화 예약 문의",
+        qKeywords: "Take a friend to a movie · Call theater & ask 3–4 questions · Tickets, movie & price",
+        qEn: "I'd like to give you a situation and ask you to act it out. You want to take a friend to a movie. Call the movie theater and ask three to four questions to get all the information you need to get tickets.",
+        qKo: "상황을 하나 드릴 테니 연기해 보세요. 친구와 영화를 보러 가려고 합니다. 영화관에 전화해 티켓을 예매하는 데 필요한 정보를 얻기 위해 서너 가지 질문을 하세요.",
+        aKeywords: "🎟️ Book 2 tickets (7 p.m.) ➔ 🎬 Recommend 'The Odyssey'? ➔ 💰 Price & any discounts?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "메가박스 확인 및 내일 저녁 7시 티켓 2장 희망",
+            enHtml: "Hello, is this Megabox? I'm calling to ask about buying movie tickets. <span class=\"hl-filler\">Well,</span> I'm planning to watch a movie with my friend tomorrow, so I'd like to book two tickets. If possible, I prefer a <span class=\"hl-expr\">showtime around 7:00 p.m.</span>",
+            ko: "안녕하세요, 메가박스인가요? 영화 예매 관련해서 문의드리려고 전화했습니다. 내일 친구와 영화를 볼 예정이라 표 2장을 예매하고 싶은데요. 가능하면 저녁 7시 전후 시간대를 선호합니다."
+          },
+          {
+            step: "전개",
+            summary: "예매 가능한 영화 및 인기작 '오디세이' 추천 문의",
+            enHtml: "<span class=\"hl-filler\">Okay,</span> what kinds of movie tickets are available for tomorrow? <span class=\"hl-expr\">Could you give me any recommendations?</span> I've heard the movie \"The Odyssey\" is really popular. Would you suggest it, too?",
+            ko: "네, 내일 예매 가능한 영화는 어떤 것들이 있나요? 추천해주실 만한 영화가 있을까요? \"오디세이\"라는 영화가 인기 많다고 들었는데, 그 영화도 추천하시나요?"
+          },
+          {
+            step: "결론",
+            summary: "2장 가격 및 특별 할인 혜택 문의",
+            enHtml: "Then, can you tell me the price of two tickets for that movie? Are there any <span class=\"hl-expr\">special deals or discounts available</span>? It would be nice if I could <span class=\"hl-expr\">get a good deal</span>. Thank you for your information. Bye.",
+            ko: "그리고 그 영화 티켓 2장 가격이 어떻게 되나요? 적용 가능한 특별 할인 혜택이나 이벤트가 있나요? 할인받을 수 있으면 좋겠네요. 안내 감사합니다. 안녕히 계세요."
+          }
+        ],
+        aEnPlain: "Hello, is this Megabox? I'm calling to ask about buying movie tickets. Well, I'm planning to watch a movie with my friend tomorrow, so I'd like to book two tickets. If possible, I prefer a showtime around 7:00 p.m. Okay, what kinds of movie tickets are available for tomorrow? Could you give me any recommendations? I've heard the movie \"The Odyssey\" is really popular. Would you suggest it, too? Then, can you tell me the price of two tickets for that movie? Are there any special deals or discounts available? It would be nice if I could get a good deal. Thank you for your information. Bye."
+      },
+      {
+        id: 7,
+        category: "roleplay",
+        badge: "롤플레이-해결",
+        title: "잘못된 티켓 교환/환불",
+        qKeywords: "Sold wrong tickets at theater · Explain situation to booth · Offer 2–3 alternatives",
+        qEn: "I'm sorry, but there's a problem that I need you to resolve. You and your friend have just arrived at the theater, but you just discovered that you've been sold the wrong tickets. Ask the ticket seller in a booth, explain the situation and offer two or three alternatives to the problem.",
+        qKo: "해결해야 할 문제가 있습니다. 친구와 극장에 막 도착했는데 잘못된 티켓을 받았다는 사실을 알게 되었습니다. 매표소 직원에게 상황을 설명하고 문제를 해결할 두세 가지 대안을 제시하세요.",
+        aKeywords: "🎫 Booked 7 p.m. → got 9 p.m. ➔ 🔄 Exchange for 7 p.m.? ➔ 💸 Sold out → Cancel & refund",
+        aSections: [
+          {
+            step: "도입",
+            summary: "3시간 전 온라인 예매한 7시 표가 9시로 잘못 나온 상황 설명",
+            enHtml: "Excuse me, I'm here about my tickets. I'm sorry, but <span class=\"hl-expr\">there is something wrong with</span> the tickets. I think I got the wrong tickets. I <span class=\"hl-expr\">originally booked for</span> the 7:00 p.m. movie, but these tickets are for the 9:00 p.m. show. I made the booking online about 3 hours ago.",
+            ko: "실례합니다, 방금 발권한 티켓 때문에 문의드립니다. 죄송한데 티켓에 문제가 있는 것 같아요. 잘못된 티켓을 받은 것 같습니다. 원래 저녁 7시 영화로 예매했는데, 이 티켓은 9시 상영 티켓으로 되어 있네요. 3시간 전쯤 온라인으로 예매했습니다."
+          },
+          {
+            step: "전개",
+            summary: "7시 상영표로 교환 가능 여부 확인",
+            enHtml: "<span class=\"hl-filler\">So,</span> <span class=\"hl-expr\">is there any chance I could get an exchange</span>? Are tickets still available for 7:00 p.m.?",
+            ko: "혹시 7시 티켓으로 교환이 가능할까요? 아직 7시 영화 좌석이 남아있나요?"
+          },
+          {
+            step: "결론",
+            summary: "매진 시 취소 및 환불 요청",
+            enHtml: "<span class=\"hl-filler\">Oh, that's too bad.</span> Or, could I just cancel the tickets and <span class=\"hl-expr\">get a refund</span>? I don't think my friend and I can watch the 9:00 p.m. movie today. We have other plans later. Okay, thank you for your help.",
+            ko: "아, 매진이라니 아쉽네요. 그럼 티켓을 취소하고 환불받을 수 있을까요? 오늘 밤 9시 영화는 저희가 볼 수 없을 것 같아요. 이후에 다른 일정이 있거든요. 네, 도와주셔서 감사합니다."
+          }
+        ],
+        aEnPlain: "Excuse me, I'm here about my tickets. I'm sorry, but there is something wrong with the tickets. I think I got the wrong tickets. I originally booked for the 7:00 p.m. movie, but these tickets are for the 9:00 p.m. show. I made the booking online about 3 hours ago. So, is there any chance I could get an exchange? Are tickets still available for 7:00 p.m.? Oh, that's too bad. Or, could I just cancel the tickets and get a refund? I don't think my friend and I can watch the 9:00 p.m. movie today. We have other plans later. Okay, thank you for your help."
+      },
+      {
+        id: 8,
+        category: "roleplay",
+        badge: "롤플레이-질문",
+        title: "친구에게 MP3 플레이어 문의",
+        qKeywords: "Buy a new MP3 player · Ask knowledgeable friend 3–4 questions · Models & price",
+        qEn: "I'd like to give you a situation and ask you to act it out. You want to buy a new MP3 player, and you have a friend who knows MP3 players very well. Call your friend and ask three or four questions to get all the information about buying an MP3 player.",
+        qKo: "상황을 하나 드릴 테니 연기해 보세요. 새 MP3 플레이어를 사고 싶은데, MP3에 대해 아주 잘 아는 친구가 있습니다. 친구에게 전화해 구매에 필요한 정보를 얻기 위해 서너 가지 질문을 하세요.",
+        aKeywords: "🎧 My MP3 broke (need new) ➔ 👍 Recommend Samsung M2? ➔ 💰 Price & special deals?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "제이크에게 고장 사유 및 전화 목적 전달",
+            enHtml: "Hello Jake, this is Heather. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. <span class=\"hl-expr\">I've heard you know pretty much about</span> MP3 players, right? <span class=\"hl-filler\">Yeah,</span> that's why I'm calling you.",
+            ko: "안녕 제이크, 나 헤더야. MP3 플레이어 구매 관련해서 물어보려고 전화했어. 지금 쓰는 게 고장 나서 새 걸 사려고 하거든. 너 MP3 플레이어에 대해 잘 안다고 들었는데 맞지? 응, 그래서 전화했어."
+          },
+          {
+            step: "전개",
+            summary: "인기 제품 종류 및 삼성 M2 추천 여부 질문",
+            enHtml: "What kinds of MP3 players are popular these days? <span class=\"hl-expr\">Could you give me any recommendations?</span> I've heard Samsung M2 is really popular. Would you suggest it, too?",
+            ko: "요즘 어떤 MP3 플레이어가 인기 있어? 추천해 줄 만한 제품 있어? 삼성 M2 모델이 되게 인기 많다고 들었는데, 너도 그거 추천해?"
+          },
+          {
+            step: "결론",
+            summary: "모델 가격 및 할인·특가 구매 팁 질문",
+            enHtml: "Then, do you know the price of that model? Are there any <span class=\"hl-expr\">special deals or discounts</span> we could use? It would be nice if I could <span class=\"hl-expr\">get a good deal</span>. Thank you for your information. Bye.",
+            ko: "그럼 그 모델 가격이 얼만지 알아? 혹시 할인받거나 특가로 살 수 있는 방법이 있을까? 저렴하게 살 수 있으면 좋을 텐데. 정보 알려줘서 고마워. 안녕!"
+          }
+        ],
+        aEnPlain: "Hello Jake, this is Heather. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you. What kinds of MP3 players are popular these days? Could you give me any recommendations? I've heard Samsung M2 is really popular. Would you suggest it, too? Then, do you know the price of that model? Are there any special deals or discounts we could use? It would be nice if I could get a good deal. Thank you for your information. Bye."
+      },
+      {
+        id: 9,
+        category: "special",
+        badge: "연계경험",
+        title: "물건 고장난 경험 (안면인식 오류)",
+        qKeywords: "Equipment broke or didn't work · What happened · How you resolved it in detail",
+        qEn: "That's the end of the situation. Can you tell me about a situation that you had some kind of equipment you broke or that did not work properly? What happened? How did you resolve the problem? Give me from the background to the result in detail.",
+        qKo: "상황극은 끝났습니다. 어떤 장비를 망가뜨렸거나 제대로 작동하지 않았던 경험에 대해 말해주세요. 무슨 일이 있었고 어떻게 문제를 해결했나요? 배경부터 결과까지 자세히 이야기해주세요.",
+        aKeywords: "🤳 New phone Face ID ➔ 😤 Kept failing (frustrated) ➔ 🔧 Service center fixed sensor",
+        aSections: [
+          {
+            step: "도입",
+            summary: "몇 년 전 안면인식 지원 최신 스마트폰 구매 및 기대감",
+            enHtml: "Yes, I had this kind of experience several years ago. I bought a new smartphone that <span class=\"hl-expr\">supported facial recognition</span>, which was quite new and popular at that time. At first, everything seemed perfect. I was <span class=\"hl-expr\">thrilled to unlock my phone</span> just by looking at it.",
+            ko: "네, 몇 년 전에 그런 경험이 있었습니다. 당시 꽤 새롭고 인기 있던 안면 인식 기능이 탑재된 최신 스마트폰을 샀습니다. 처음에는 모든 게 완벽해 보였습니다. 쳐다보기만 해도 화면 잠금이 풀리는 게 정말 신기하고 신났습니다."
+          },
+          {
+            step: "전개",
+            summary: "실사용 시 안면인식 반복 실패 및 답답함",
+            enHtml: "<span class=\"hl-filler\">However,</span> when I actually tried it, the facial recognition feature <span class=\"hl-expr\">didn't work as expected</span>. It kept failing or took a long time to unlock. It was <span class=\"hl-expr\">pretty frustrating</span>.",
+            ko: "하지만 실제로 사용해보니 안면 인식 기능이 생각처럼 잘 작동하지 않았습니다. 계속 인식이 실패하거나 잠금 해제하는 데 너무 오랜 시간이 걸렸습니다. 꽤 답답했습니다."
+          },
+          {
+            step: "결론",
+            summary: "재설정 실패 후 서비스센터 방문, 카메라 센서 문제 해결",
+            enHtml: "<span class=\"hl-filler\">So,</span> I tried to reset the function and try it again, but it was not easy. I <span class=\"hl-expr\">had no choice but to</span> bring it to the after-service center for help, and <span class=\"hl-expr\">it turned out that</span> there was a minor issue with the camera sensor. <span class=\"hl-expr\">Since then,</span> I always visit the service center right away whenever I have a problem with my phone.",
+            ko: "그래서 기능을 재설정하고 다시 시도해봤지만 쉽지 않았습니다. 어쩔 수 없이 공식 서비스 센터에 가져가 점검을 받았고, 카메라 센서에 경미한 문제가 있었던 것으로 밝혀졌습니다. 그 후로는 휴대전화에 문제가 생기면 지체 없이 바로 서비스 센터를 방문하곤 합니다."
+          }
+        ],
+        aEnPlain: "Yes, I had this kind of experience several years ago. I bought a new smartphone that supported facial recognition, which was quite new and popular at that time. At first, everything seemed perfect. I was thrilled to unlock my phone just by looking at it. However, when I actually tried it, the facial recognition feature didn't work as expected. It kept failing or took a long time to unlock. It was pretty frustrating. So, I tried to reset the function and try it again, but it was not easy. I had no choice but to bring it to the after-service center for help, and it turned out that there was a minor issue with the camera sensor. Since then, I always visit the service center right away whenever I have a problem with my phone."
+      },
+      {
+        id: 10,
+        category: "daily",
+        badge: "루틴/절차",
+        title: "약속 절차 (병원·치과·미용실)",
+        qKeywords: "Making an appointment (doctor, dentist, hair) · Process from beginning to end",
+        qEn: "What do you usually do when you make an appointment with your doctor, dentist, or hair designer? Tell me about the process from beginning to end.",
+        qKo: "병원, 치과, 또는 미용실 예약을 할 때 보통 어떻게 하시나요? 처음부터 끝까지의 과정을 설명해주세요.",
+        aKeywords: "📅 Check free weekday ➔ 💻 Book online (text reminder) ➔ ⏰ Arrive early to settle in",
+        aSections: [
+          {
+            step: "도입",
+            summary: "내 일정 확인 및 쫓기지 않는 평일 예약 선호",
+            enHtml: "When I <span class=\"hl-expr\">make an appointment with</span> my doctor, dentist, or hair designer, the process is pretty simple. First, I <span class=\"hl-expr\">figure out when I'm free</span> and think about the best time for the appointment. I prefer to schedule an appointment on weekdays because I don't like <span class=\"hl-expr\">feeling rushed</span> on weekends.",
+            ko: "병원, 치과, 미용실 예약을 할 때 절차는 꽤 간단합니다. 우선 제 일정을 확인하고 언제가 가장 좋을지 생각해 봅니다. 저는 주말에 쫓기듯 다니는 것을 싫어해서 평일 예약을 선호합니다."
+          },
+          {
+            step: "전개",
+            summary: "간편한 온라인 예약 또는 전화로 목적 전달 및 알림 수신",
+            enHtml: "Then, I either call the office or use their <span class=\"hl-expr\">online booking system</span>. I especially like online booking because it's simple and fast. Also, I can <span class=\"hl-expr\">reschedule or confirm it easily</span>. If I call, I just tell them what I need for the appointment, like a checkup or a haircut. They usually confirm the date and time directly, and sometimes <span class=\"hl-expr\">send me a reminder by text or email</span>, which is really helpful.",
+            ko: "그다음 직접 전화를 걸거나 온라인 예약 시스템을 이용합니다. 온라인 예약은 간편하고 빠를 뿐 아니라 일정 변경이나 확인이 쉬워서 특히 선호합니다. 전화를 할 때는 정기 검진이나 커트 등 방문 목적을 말씀드립니다. 직원분들이 날짜와 시간을 바로 확정해 주시고, 문자나 이메일로 알림을 보내주기도 하는데 매우 유용합니다."
+          },
+          {
+            step: "결론",
+            summary: "예약 당일 여유로운 조기 도착 및 마무리",
+            enHtml: "On the day of the appointment, I try to <span class=\"hl-expr\">arrive a little early to settle in</span>. If there are not many people scheduled, I can start my appointment a bit earlier. <span class=\"hl-filler\">So,</span> these are the things I usually do when I make appointments.",
+            ko: "예약 당일에는 여유 있게 도착하려고 조금 일찍 갑니다. 다른 예약자가 많지 않으면 조금 일찍 시작할 수도 있습니다. 이것이 제가 평소 병원이나 미용실을 예약할 때 거치는 과정입니다."
+          }
+        ],
+        aEnPlain: "When I make an appointment with my doctor, dentist, or hair designer, the process is pretty simple. First, I figure out when I'm free and think about the best time for the appointment. I prefer to schedule an appointment on weekdays because I don't like feeling rushed on weekends. Then, I either call the office or use their online booking system. I especially like online booking because it's simple and fast. Also, I can reschedule or confirm it easily. If I call, I just tell them what I need for the appointment, like a checkup or a haircut. They usually confirm the date and time directly, and sometimes send me a reminder by text or email, which is really helpful. On the day of the appointment, I try to arrive a little early to settle in. If there are not many people scheduled, I can start my appointment a bit earlier. So, these are the things I usually do when I make appointments."
+      },
+      {
+        id: 11,
+        category: "travel",
+        badge: "과거경험",
+        title: "어렸을 때 갔던 여행 (설악산)",
+        qKeywords: "Trips taken in your youth · Where & with whom · What you saw and did",
+        qEn: "Tell me about some of the trips you took in your youth. Where did you go? Who did you go with and what did you see or do during those early trips?",
+        qKo: "어렸을 때 갔던 여행들에 대해 말해주세요. 어디로 갔고, 누구와 함께 갔으며, 그 여행에서 무엇을 보고 했나요?",
+        aKeywords: "⛰️ Family hike at Seoraksan ➔ 🌲 Tall trees & top view ➔ 🍲 Hot chicken soup after",
+        aSections: [
+          {
+            step: "도입",
+            summary: "어릴 적 주말 가족과 자주 갔던 설악산 등산",
+            enHtml: "I remember going hiking with my family quite often when I was a kid. My father often suggested hiking trips on weekends, and my sister and I always got excited. We <span class=\"hl-expr\">used to go to</span> Seoraksan Mountain, one of the most famous mountains in Korea.",
+            ko: "어릴 적 가족과 함께 자주 등산을 다녔던 기억이 납니다. 아버지는 주말마다 등산 가자고 자주 제안하셨고, 저와 여동생은 항상 신이 났습니다. 우리는 한국에서 가장 유명한 산 중 하나인 설악산에 자주 가곤 했습니다."
+          },
+          {
+            step: "전개",
+            summary: "울창한 나무·새소리 감상 및 가파른 길 끝 정상 풍경",
+            enHtml: "During the day, we would <span class=\"hl-expr\">hike along the trails</span>, enjoying the fresh air and beautiful nature. The mountain was <span class=\"hl-expr\">covered with tall trees</span>, and I could hear birds singing. The paths were sometimes steep, but the views from the top were amazing and <span class=\"hl-expr\">worth the effort</span>.",
+            ko: "낮에는 등산로를 따라 걸으며 상쾌한 공기와 아름다운 자연을 즐겼습니다. 산은 울창한 큰 나무들로 덮여 있었고 새들의 노랫소리도 들을 수 있었습니다. 때로는 길이 가파르기도 했지만, 정상에서 바라본 풍경은 정말 장관이었고 오를 만한 가치가 충분했습니다."
+          },
+          {
+            step: "결론",
+            summary: "입구 식당 닭백숙 식사와 어린 시절 최고의 추억",
+            enHtml: "After hiking, we often stopped at a small restaurant near the entrance to eat hot and delicious chicken soup. The food always tasted even better after a long hike. <span class=\"hl-filler\">Looking back,</span> those hiking trips were definitely <span class=\"hl-expr\">highlights of my childhood</span>.",
+            ko: "하산 후에는 입구 근처의 작은 식당에 들러 따뜻하고 맛있는 닭백숙을 먹곤 했습니다. 긴 산행 뒤에 먹는 음식은 항상 훨씬 더 꿀맛이었습니다. 돌아보면 그 등산 여행들은 제 어린 시절의 가장 빛나는 추억입니다."
+          }
+        ],
+        aEnPlain: "I remember going hiking with my family quite often when I was a kid. My father often suggested hiking trips on weekends, and my sister and I always got excited. We used to go to Seoraksan Mountain, one of the most famous mountains in Korea. During the day, we would hike along the trails, enjoying the fresh air and beautiful nature. The mountain was covered with tall trees, and I could hear birds singing. The paths were sometimes steep, but the views from the top were amazing and worth the effort. After hiking, we often stopped at a small restaurant near the entrance to eat hot and delicious chicken soup. The food always tasted even better after a long hike. Looking back, those hiking trips were definitely highlights of my childhood."
+      },
+      {
+        id: 12,
+        category: "travel",
+        badge: "루틴/절차",
+        title: "여행 계획 및 준비 과정",
+        qKeywords: "All the things you do in order to prepare for a trip",
+        qEn: "Can you tell me all the things you do in order to prepare to take a trip?",
+        qKo: "여행을 떠나기 위해 준비하는 모든 일들을 순서대로 말해주세요.",
+        aKeywords: "🗺️ Pick spot & plan details ➔ 🔍 Search info & book online ➔ 🧳 Pack clothes & toiletries",
+        aSections: [
+          {
+            step: "도입",
+            summary: "목적지 선정 및 언제·어디서·무엇을 할지 세부 계획",
+            enHtml: "Whenever I <span class=\"hl-expr\">get ready for a trip</span>, I <span class=\"hl-expr\">follow several steps in order</span>. To start, I choose my destination and make plans. I usually decide the details like when and where to go and what to do at the destination.",
+            ko: "여행을 준비할 때 저는 몇 가지 순서에 따라 차근차근 진행합니다. 먼저 여행지를 정하고 계획을 세웁니다. 언제, 어디로 갈지, 목적지에서 무엇을 할지 세부 일정을 결정합니다."
+          },
+          {
+            step: "전개",
+            summary: "명소·맛집·교통 정보 검색 후 온라인 숙소/교통 예약",
+            enHtml: "And then, I <span class=\"hl-expr\">gather information about</span> the destination. This includes researching famous <span class=\"hl-expr\">tourist attractions</span>, good places to eat, nice accommodations, and transportation options. Next, I book my accommodations and transportation. I prefer booking online because it's the fastest way and I can confirm it easily.",
+            ko: "그다음 여행지에 대한 정보를 수집합니다. 유명 관광 명소, 맛집, 좋은 숙소, 대중교통 이용 방법 등을 검색합니다. 이어서 숙소와 교통편을 예약합니다. 가장 빠르고 즉시 확인할 수 있는 온라인 예약을 선호합니다."
+          },
+          {
+            step: "결론",
+            summary: "출발 전날 의류·세면도구 등 필수품 패킹 및 마무리",
+            enHtml: "On the day before I leave, I <span class=\"hl-expr\">pack essentials</span> like clothes, underwear, light jackets, an umbrella, some snacks, and so on. I always make sure to <span class=\"hl-expr\">pack toiletries</span>. If I forget them, I might <span class=\"hl-expr\">end up spending extra money</span> during the trip. <span class=\"hl-filler\">So,</span> these are the things I usually do when I prepare for a trip.",
+            ko: "출발 전날에는 옷, 속옷, 얇은 겉옷, 우산, 간식 등 필수품을 챙깁니다. 세면도구는 절대 빠뜨리지 않도록 확인하는데, 깜빡하면 여행지에서 불필요한 지출을 하게 되기 때문입니다. 이것이 제가 여행을 준비할 때 일반적으로 하는 절차입니다."
+          }
+        ],
+        aEnPlain: "Whenever I get ready for a trip, I follow several steps in order. To start, I choose my destination and make plans. I usually decide the details like when and where to go and what to do at the destination. And then, I gather information about the destination. This includes researching famous tourist attractions, good places to eat, nice accommodations, and transportation options. Next, I book my accommodations and transportation. I prefer booking online because it's the fastest way and I can confirm it easily. On the day before I leave, I pack essentials like clothes, underwear, light jackets, an umbrella, some snacks, and so on. I always make sure to pack toiletries. If I forget them, I might end up spending extra money during the trip. So, these are the things I usually do when I prepare for a trip."
+      },
+      {
+        id: 13,
+        category: "daily",
+        badge: "과거경험",
+        title: "영화관 최근 경험 (CGV)",
+        qKeywords: "Last time at a movie · What movie & with whom · Before and after the movie",
+        qEn: "Tell me the last time you went to a movie. What movie did you see? Who did you see the movie with? What did you do before and after the movie?",
+        qKo: "가장 최근에 영화 보러 갔던 때에 대해 말해주세요. 무슨 영화를 누구와 보았나요? 영화 보기 전과 후에는 무엇을 했나요?",
+        aKeywords: "🎬 CGV 'Odyssey' with family ➔ ☕ Coffee & mind-blowing 3 hrs ➔ 🍽️ Dinner chat & recharge",
+        aSections: [
+          {
+            step: "도입",
+            summary: "몇 달 전 가족과 북적이던 시내 CGV '오디세이' 관람",
+            enHtml: "The last time I went to the movies was a few months ago. My family wanted to do something fun together, so we decided to watch a movie called \"Odyssey\". We went to CGV movie complex in town, and it was <span class=\"hl-expr\">packed with people</span> even though it was a weekday.",
+            ko: "가장 최근에 영화를 보러 간 것은 몇 달 전이었습니다. 가족들과 재미있는 것을 함께하고 싶어서 \"오디세이\"라는 영화를 보러 가기로 했습니다. 시내에 있는 CGV 극장에 갔는데 평일인데도 사람들로 가득 차 있었습니다."
+          },
+          {
+            step: "전개",
+            summary: "관람 전 커피 마시며 예상 대화, 스토리·영상미에 압도",
+            enHtml: "<span class=\"hl-filler\">Well,</span> as soon as we arrived, we bought our tickets and some coffee. While waiting for the movie to start, we talked about what we thought would happen in it. Then we watched the 3-hour movie. It was <span class=\"hl-expr\">absolutely mind-blowing</span>. I was really impressed by both the <span class=\"hl-expr\">well-written story and the stunning visuals</span>.",
+            ko: "도착하자마자 티켓과 커피를 샀습니다. 영화 시작을 기다리는 동안 어떤 내용일지 서로 이야기를 나눴습니다. 그러고 나서 3시간짜리 영화를 관람했습니다. 정말 압도적이었습니다. 탄탄한 스토리와 뛰어난 영상미 모두에 깊은 인상을 받았습니다."
+          },
+          {
+            step: "결론",
+            summary: "근처 식당 저녁 감상평 나눔 및 가족 유대·재충전",
+            enHtml: "After the movie, we went to a nearby restaurant and talked about it over dinner. Spending time together like this made me feel closer to my family. It also helped me <span class=\"hl-expr\">relax and recharge</span>. <span class=\"hl-filler\">Overall,</span> it was a pretty enjoyable day.",
+            ko: "영화가 끝난 후 근처 식당에서 저녁을 먹으며 영화에 대한 감상을 나눴습니다. 이렇게 함께 시간을 보내니 가족들과 더 가까워진 느낌이 들었습니다. 휴식을 취하고 에너지를 재충전하는 데도 큰 도움이 되었습니다. 전반적으로 아주 즐거운 하루였습니다."
+          }
+        ],
+        aEnPlain: "The last time I went to the movies was a few months ago. My family wanted to do something fun together, so we decided to watch a movie called \"Odyssey\". We went to CGV movie complex in town, and it was packed with people even though it was a weekday. Well, as soon as we arrived, we bought our tickets and some coffee. While waiting for the movie to start, we talked about what we thought would happen in it. Then we watched the 3-hour movie. It was absolutely mind-blowing. I was really impressed by both the well-written story and the stunning visuals. After the movie, we went to a nearby restaurant and talked about it over dinner. Spending time together like this made me feel closer to my family. It also helped me relax and recharge. Overall, it was a pretty enjoyable day."
+      },
+      {
+        id: 14,
+        category: "special",
+        badge: "연계경험",
+        title: "가족 때문에 계획 변경 (조카 돌보기)",
+        qKeywords: "Changed plans to help a family member · Why & what happened in detail",
+        qEn: "That's the end of the situation. Has anything like that ever happened to you? Have you ever had to change your plans because one of your family members needed your help? Tell me about that episode in detail why you had to change your plans and what happened.",
+        qKo: "상황극은 끝났습니다. 비슷한 일을 겪은 적이 있나요? 가족 중 한 명이 도움을 필요로 해서 계획을 변경해야 했던 적이 있나요? 왜 계획을 바꿔야 했는지와 무슨 일이 있었는지 자세히 말해주세요.",
+        aKeywords: "✈️ Jeju trip booked ➔ 👶 Brother's emergency → babysat ➔ 😢 Canceled, family first",
+        aSections: [
+          {
+            step: "도입",
+            summary: "10년 전 친구들과 항공권까지 예매해 기대하던 제주 여행",
+            enHtml: "Yes, I had this kind of incident about 10 years ago. My friends and I wanted to take a trip to Jeju Island. We planned everything and booked our flight tickets. <span class=\"hl-filler\">So, at that point,</span> we were really <span class=\"hl-expr\">looking forward to the trip</span>.",
+            ko: "네, 약 10년 전쯤 그런 일이 있었습니다. 친구들과 제주도 여행을 가기로 했었습니다. 모든 일정을 짜고 비행기 표까지 다 예매해 두었습니다. 그래서 여행 갈 생각에 정말 잔뜩 기대하고 있었습니다."
+          },
+          {
+            step: "전개",
+            summary: "당일 아침 오빠 부부 직장 비상상황으로 종일 조카 돌봄",
+            enHtml: "<span class=\"hl-filler\">However,</span> on the morning of the trip, my older brother and his wife suddenly <span class=\"hl-expr\">had a work emergency</span>. They asked me to <span class=\"hl-expr\">look after their little kid</span> for the whole day. Since there was nobody else available, I <span class=\"hl-expr\">ended up babysitting</span> instead of heading to the airport.",
+            ko: "하지만 여행 당일 아침, 친오빠와 새언니에게 갑작스러운 회사 비상 상황이 생겼습니다. 종일 어린 조카를 봐달라고 부탁하더군요. 대신 돌봐줄 사람이 아무도 없었기 때문에 결국 공항 대신 조카를 보러 가야 했습니다."
+          },
+          {
+            step: "결론",
+            summary: "일정 조정 실패로 취소했지만 가족 우선이라 후회 없음",
+            enHtml: "I tried to reschedule the trip, but <span class=\"hl-filler\">you know,</span> it was not easy. Eventually, I had to cancel everything, and I was <span class=\"hl-expr\">honestly disappointed</span>. <span class=\"hl-filler\">Well,</span> even though I missed that trip, I <span class=\"hl-expr\">don't regret helping</span> my brother's family. <span class=\"hl-expr\">Things happen, and family comes first.</span>",
+            ko: "여행 일정을 조정해보려고 했지만 아시다시피 쉽지 않았습니다. 결국 모든 것을 취소해야 했고 솔직히 너무 아쉬웠습니다. 비록 여행은 못 갔지만 가족을 도운 것을 후회하지는 않습니다. 살다 보면 이런 일도 생길 수 있고, 가족이 최우선이니까요."
+          }
+        ],
+        aEnPlain: "Yes, I had this kind of incident about 10 years ago. My friends and I wanted to take a trip to Jeju Island. We planned everything and booked our flight tickets. So, at that point, we were really looking forward to the trip. However, on the morning of the trip, my older brother and his wife suddenly had a work emergency. They asked me to look after their little kid for the whole day. Since there was nobody else available, I ended up babysitting instead of heading to the airport. I tried to reschedule the trip, but you know, it was not easy. Eventually, I had to cancel everything, and I was honestly disappointed. Well, even though I missed that trip, I don't regret helping my brother's family. Things happen, and family comes first."
+      },
+      {
+        id: 15,
+        category: "special",
+        badge: "과거경험",
+        title: "라이브 뮤직 (공원 서프라이즈 콘서트)",
+        qKeywords: "Memorable live music experience · When, where & who · Why it was special",
+        qEn: "Could you think about a memorable time when you heard live music? Describe that experience in detail. When was it? Where were you? Who were you with? Who did you hear? What happened? What made that performance so memorable or special?",
+        qKo: "기억에 남는 라이브 음악을 들었던 때를 떠올려 보세요. 언제, 어디서, 누구와 있었고 누구의 음악을 들었나요? 무슨 일이 있었고 왜 그 공연이 특별했는지 자세히 묘사해주세요.",
+        aKeywords: "🏠 Starving on home vacation ➔ 🎸 Band's surprise park concert ➔ 🎤 Sang at top of my lungs",
+        aSections: [
+          {
+            step: "도입",
+            summary: "휴가 중 밥 먹기 직전 집 옆 공원에서 들려온 최애 밴드 음악",
+            enHtml: "This happened a few years ago while I was on vacation at home. I was <span class=\"hl-expr\">starving</span>, so I made myself a few things to eat. <span class=\"hl-expr\">Just as I was about to eat,</span> I heard live music coming from the park right next to my home. I listened more closely and <span class=\"hl-expr\">recognized a song by my favorite band</span>. <span class=\"hl-filler\">You know,</span> how often do you get a chance like that?",
+            ko: "몇 년 전 집에서 휴가를 보내고 있을 때의 일입니다. 배가 너무 고파서 먹을 것을 몇 가지 차렸습니다. 막 밥을 먹으려던 찰나, 집 바로 옆 공원에서 라이브 음악 소리가 들려왔습니다. 귀를 기울여보니 제가 제일 좋아하는 밴드의 노래였습니다. 살면서 이런 기회가 얼마나 흔하겠어요?"
+          },
+          {
+            step: "전개",
+            summary: "밥 마다하고 달려간 공원 서프라이즈 콘서트 현장 열창",
+            enHtml: "So I rushed out and ran straight to the park. <span class=\"hl-filler\">Oh my gosh,</span> they were actually there, <span class=\"hl-expr\">putting on a surprise concert</span>! People were already screaming and jumping up and down. I <span class=\"hl-expr\">got caught up in the excitement</span> and <span class=\"hl-expr\">sang along at the top of my lungs</span>.",
+            ko: "그래서 밥도 마다하고 공원으로 곧장 달려나갔습니다. 세상에, 그들이 진짜 거기서 게릴라 깜짝 콘서트를 하고 있었습니다! 사람들은 이미 환호성을 지르며 제자리에서 뛰고 있었습니다. 저도 그 열기에 휩쓸려 목청껏 함께 노래를 따라 불렀습니다."
+          },
+          {
+            step: "결론",
+            summary: "배고픔도 잊은 최고의 공연, 공원 갈 때마다 떠오르는 추억",
+            enHtml: "Their performance was amazing, and they had so much energy. I had to <span class=\"hl-expr\">stay hungry for a while</span>, but I think it was <span class=\"hl-expr\">the best performance I'd ever seen</span>. Even now, every time I go to that park, I remember that moment.",
+            ko: "공연은 환상적이었고 밴드의 에너지는 엄청났습니다. 한동안 배고픔을 참아야 했지만, 제가 본 최고의 공연이었습니다. 지금도 그 공원에 갈 때마다 그 순간이 떠오릅니다."
+          }
+        ],
+        aEnPlain: "This happened a few years ago while I was on vacation at home. I was starving, so I made myself a few things to eat. Just as I was about to eat, I heard live music coming from the park right next to my home. I listened more closely and recognized a song by my favorite band. You know, how often do you get a chance like that? So I rushed out and ran straight to the park. Oh my gosh, they were actually there, putting on a surprise concert! People were already screaming and jumping up and down. I got caught up in the excitement and sang along at the top of my lungs. Their performance was amazing, and they had so much energy. I had to stay hungry for a while, but I think it was the best performance I'd ever seen. Even now, every time I go to that park, I remember that moment."
+      },
+      {
+        id: 16,
+        category: "travel",
+        badge: "과거경험",
+        title: "여행 중 차은우 목격",
+        qKeywords: "Unforgettable & unexpected travel episode · When, where, with whom & details",
+        qEn: "You might have interesting or unexpected experiences while traveling. Tell me about one episode you had that was unforgettable when you traveled. When did it happen? Where were you and who were you with? Tell me all the things that happened to make that experience so unforgettable.",
+        qKo: "여행 중 흥미롭거나 예상치 못한 경험을 할 수 있습니다. 여행할 때 겪었던 잊지 못할 에피소드 하나를 말해주세요. 언제 어디서 누구와 있었으며 왜 그렇게 잊을 수 없는 경험이었는지 모두 이야기해주세요.",
+        aKeywords: "🍽️ Chaotic Jeju restaurant ➔ ✨ Saw Cha Eun-woo (jaw dropped) ➔ 🙈 Husband looked like a monkey",
+        aSections: [
+          {
+            step: "도입",
+            summary: "2년 전 남편과 제주 맛집 방문 시 어수선했던 분위기",
+            enHtml: "About 2 years ago, I went to Jeju Island with my husband for a trip. Around lunchtime, we walked into a well-known restaurant that people recommended online. But as soon as we sat down, the place felt <span class=\"hl-expr\">kind of chaotic</span>, so I looked around to see what was going on.",
+            ko: "약 2년 전, 남편과 함께 제주도로 여행을 갔습니다. 점심때쯤 인터넷에서 유명하다고 추천받은 맛집에 들어갔습니다. 그런데 자리에 앉자마자 식당 분위기가 왠지 어수선해서 무슨 일인가 둘러보았습니다."
+          },
+          {
+            step: "전개",
+            summary: "구석에서 만난 차은우 실물 아우라에 입이 떡 벌어짐",
+            enHtml: "Then suddenly, I felt this <span class=\"hl-expr\">bright energy</span> coming from one corner. <span class=\"hl-filler\">Oh my gosh,</span> Cha Eun-woo was sitting right there! <span class=\"hl-filler\">You know him, right?</span> He's basically the most handsome actor in Korea. <span class=\"hl-expr\">My jaw almost hit the table</span> because I had never seen someone that beautiful in real life. <span class=\"hl-expr\">I swear my soul left my body</span> for a second.",
+            ko: "그때 갑자기 한쪽 구석에서 엄청난 아우라가 뿜어져 나오는 게 느껴졌습니다. 맙소사, 차은우 씨가 바로 거기 앉아 있는 게 아니겠어요! 누군지 아시죠? 한국에서 가장 잘생긴 대표 배우잖아요. 살면서 실물로 그렇게 잘생긴 사람을 본 적이 없어서 턱이 바닥에 떨어질 뻔했습니다. 순간 영혼이 빠져나가는 줄 알았어요."
+          },
+          {
+            step: "결론",
+            summary: "남편과의 웃긴 비교 및 가장 유쾌한 여행 에피소드",
+            enHtml: "Then, I slowly glanced at my husband and, <span class=\"hl-filler\">yeah, let's just say</span> it wasn't his best moment. I love him, but <span class=\"hl-expr\">compared to Cha Eun-woo</span>, he looked more like a monkey. I felt a little bad, but it was <span class=\"hl-expr\">hilarious</span>. <span class=\"hl-filler\">So,</span> this became one of the funniest episodes I've ever had during a trip.",
+            ko: "그러고 나서 남편을 슬그머니 쳐다봤는데... 글쎄요, 남편에겐 굴욕적인 순간이었다고 해두죠. 남편을 사랑하지만, 차은우 씨 옆에 있으니 원숭이처럼 보이더라고요. 남편에겐 좀 미안했지만 정말 웃겼습니다. 그래서 이 일은 제 여행 중 가장 웃기고 잊지 못할 에피소드가 되었습니다."
+          }
+        ],
+        aEnPlain: "About 2 years ago, I went to Jeju Island with my husband for a trip. Around lunchtime, we walked into a well-known restaurant that people recommended online. But as soon as we sat down, the place felt kind of chaotic, so I looked around to see what was going on. Then suddenly, I felt this bright energy coming from one corner. Oh my gosh, Cha Eun-woo was sitting right there! You know him, right? He's basically the most handsome actor in Korea. My jaw almost hit the table because I had never seen someone that beautiful in real life. I swear my soul left my body for a second. Then, I slowly glanced at my husband and, yeah, let's just say it wasn't his best moment. I love him, but compared to Cha Eun-woo, he looked more like a monkey. I felt a little bad, but it was hilarious. So, this became one of the funniest episodes I've ever had during a trip."
+      },
+      {
+        id: 17,
+        category: "special",
+        badge: "연계경험",
+        title: "티켓 잘못 예매한 경험",
+        qKeywords: "Booked wrong tickets or reservation · What happened & how you resolved it",
+        qEn: "That's the end of the situation. Has anything like that ever happened to you? Have you ever booked the wrong tickets or made the wrong reservation, and then something went wrong? What happened? Tell me about it from beginning to end and how you resolved it.",
+        qKo: "상황극은 끝났습니다. 비슷한 일을 겪은 적이 있나요? 티켓이나 예약을 잘못해서 문제가 생긴 적이 있나요? 무슨 일이 일어났고 어떻게 해결했는지 처음부터 끝까지 말해주세요.",
+        aKeywords: "🎟️ Booked top movie online ➔ 📅 Wrong date (my mistake) ➔ 😢 Sold out → Always double-check",
+        aSections: [
+          {
+            step: "도입",
+            summary: "10년 전 아내와 예매율 1위 영화 사전 온라인 예매",
+            enHtml: "Yes, I had this kind of incident about 10 years ago. My wife and I wanted to go to the movies, so we <span class=\"hl-expr\">booked tickets online in advance</span>. Everything seemed great at first. We were very excited about the movie since it was <span class=\"hl-expr\">top-ranked at the time</span>.",
+            ko: "네, 10년 전쯤 그런 일을 겪었습니다. 아내와 영화를 보러 가기 위해 미리 온라인으로 티켓을 예매했습니다. 처음에는 순조로웠습니다. 당시 예매율 1위 영화여서 둘 다 잔뜩 기대하고 있었습니다."
+          },
+          {
+            step: "전개",
+            summary: "극장 도착 후 내 실수로 날짜를 잘못 예매했음을 발견",
+            enHtml: "<span class=\"hl-filler\">However,</span> when we arrived at the theater, we found out that there was a problem with the tickets. The date on the tickets was wrong. <span class=\"hl-filler\">Turns out,</span> it was my mistake. I had booked them <span class=\"hl-expr\">for the wrong date</span>.",
+            ko: "하지만 극장에 도착했을 때 티켓에 문제가 있다는 사실을 알게 되었습니다. 티켓에 적힌 날짜가 잘못되어 있었던 것입니다. 알고 보니 제 실수였습니다. 날짜를 잘못 선택해서 예매했던 것입니다."
+          },
+          {
+            step: "결론",
+            summary: "당일 매진으로 관람 실패, 이후 두 번씩 확인하는 교훈",
+            enHtml: "<span class=\"hl-filler\">So,</span> we tried to change the tickets, but all the seats that day were <span class=\"hl-expr\">fully booked</span>. We couldn't watch the movie in the end, and it was <span class=\"hl-expr\">pretty disappointing</span>. <span class=\"hl-expr\">Since then, I always double-check</span> when I book tickets.",
+            ko: "당일 티켓으로 변경하려고 했지만 그날 좌석이 전석 매진이었습니다. 결국 영화를 보지 못했고 무척 아쉬웠습니다. 그 이후로는 티켓을 예매할 때마다 항상 두 번씩 확인하곤 합니다."
+          }
+        ],
+        aEnPlain: "Yes, I had this kind of incident about 10 years ago. My wife and I wanted to go to the movies, so we booked tickets online in advance. Everything seemed great at first. We were very excited about the movie since it was top-ranked at the time. However, when we arrived at the theater, we found out that there was a problem with the tickets. The date on the tickets was wrong. Turns out, it was my mistake. I had booked them for the wrong date. So, we tried to change the tickets, but all the seats that day were fully booked. We couldn't watch the movie in the end, and it was pretty disappointing. Since then, I always double-check when I book tickets."
+      },
+      {
+        id: 18,
+        category: "travel",
+        badge: "루틴/절차",
+        title: "해외여행 시 주로 하는 일",
+        qKeywords: "Things you typically do when visiting another country or overseas city",
+        qEn: "Tell me about the things that you typically do when you visit another country or overseas city.",
+        qKo: "다른 나라나 해외 도시를 방문했을 때 주로 하는 일들에 대해 말해주세요.",
+        aKeywords: "🥾 Hike mountain trails ➔ 🌊 Beach water sports & relax ➔ 🍜 Local food & shopping",
+        aSections: [
+          {
+            step: "도입",
+            summary: "자연 명소 방문 및 등산로 트레킹으로 운동과 경치 즐기기",
+            enHtml: "When I travel overseas, I like to visit natural places and do <span class=\"hl-expr\">outdoor activities</span>. First of all, hiking is one of my favorite things to do. <span class=\"hl-filler\">You know,</span> most countries have mountains and many of them have <span class=\"hl-expr\">well-maintained trails</span>. It's a great way to explore the country's geography while <span class=\"hl-expr\">staying active</span>. I love getting some exercise while enjoying the views <span class=\"hl-expr\">at the same time</span>.",
+            ko: "해외여행을 갈 때 저는 자연 명소를 방문하고 야외 활동을 즐기는 편입니다. 우선, 등산은 제가 가장 좋아하는 활동 중 하나입니다. 대부분의 나라에는 산이 있고 산책로나 등산로가 잘 정비되어 있습니다. 활동성을 유지하면서 그 나라의 지형을 탐험하기에 아주 좋은 방법입니다. 멋진 풍경을 감상하면서 운동도 할 수 있어서 정말 좋아합니다."
+          },
+          {
+            step: "전개",
+            summary: "해변 수상 액티비티와 바닷바람 속 완벽한 휴식",
+            enHtml: "<span class=\"hl-filler\">Meanwhile,</span> I also enjoy doing <span class=\"hl-expr\">water activities</span> at the beach when I travel. I can go swimming, ride a boat, or just relax by the ocean. The sea breeze and the sound of waves make it a <span class=\"hl-expr\">perfect getaway from city life</span>.",
+            ko: "한편, 여행 중에 해변에서 수상 액티비티를 즐기는 것도 좋아합니다. 수영을 하거나 보트를 타거나, 혹은 그저 바닷가에서 여유롭게 휴식을 취합니다. 시원한 바닷바람과 파도 소리는 도시 생활에서 벗어난 완벽한 휴식을 선사합니다."
+          },
+          {
+            step: "결론",
+            summary: "현지 음식 맛보기와 쇼핑의 즐거움으로 마무리",
+            enHtml: "<span class=\"hl-filler\">Oh, and of course,</span> having local food and shopping are <span class=\"hl-expr\">must-do activities</span> for me. Trying local food is actually one of the <span class=\"hl-expr\">greatest pleasures of traveling</span>. <span class=\"hl-filler\">So,</span> these are the things I usually do when I travel overseas.",
+            ko: "아, 그리고 당연히 현지 음식 맛보기와 쇼핑은 절대 빼놓을 수 없는 필수 코스입니다. 현지 음식을 맛보는 것은 여행이 주는 가장 큰 즐거움 중 하나입니다. 이것이 제가 해외에 나갈 때 주로 하는 활동들입니다."
+          }
+        ],
+        aEnPlain: "When I travel overseas, I like to visit natural places and do outdoor activities. First of all, hiking is one of my favorite things to do. You know, most countries have mountains and many of them have well-maintained trails. It's a great way to explore the country's geography while staying active. I love getting some exercise while enjoying the views at the same time. Meanwhile, I also enjoy doing water activities at the beach when I travel. I can go swimming, ride a boat, or just relax by the ocean. The sea breeze and the sound of waves make it a perfect getaway from city life. Oh, and of course, having local food and shopping are must-do activities for me. Trying local food is actually one of the greatest pleasures of traveling. So, these are the things I usually do when I travel overseas."
+      },
+      {
+        id: 19,
+        category: "survey",
+        badge: "집·가족(묘사)",
+        title: "[가족거주] 현재 사는 집과 좋아하는 방 묘사",
+        qKeywords: "Where you live & different rooms · What they look like · Favorite room in detail",
+        qEn: "I would like to now talk about where you live. Tell me about your home and different rooms in your home. What do they look like? What is your favorite room? Describe it in detail.",
+        qKo: "지금 살고 있는 곳에 대해 이야기해 주세요. 집과 집 안의 여러 방들에 대해 설명해 주세요. 어떤 모습인가요? 가장 좋아하는 방은 어디인가요? 자세히 묘사해 주세요.",
+        aKeywords: "🏢 Suwon 3-bed apt (quiet) ➔ 🛋️ Bright living room & sofa ➔ ❤️ Love my home",
+        aSections: [
+          {
+            step: "도입",
+            summary: "수원 방 3개 아파트 구조 및 조용하고 평화로운 환경",
+            enHtml: "I live in a <span class=\"hl-expr\">three-bedroom apartment</span> in Suwon. It has a living room, a kitchen, three bedrooms, two bathrooms, and a dressing room. It also has a balcony where I can enjoy the view outside. The apartment is not very big, but it's comfortable for my family, and it has everything we need. I especially like that it's in a quiet area, so we can enjoy a <span class=\"hl-expr\">peaceful environment</span>.",
+            ko: "저는 수원에 있는 방 3개짜리 아파트에 살고 있습니다. 거실, 주방, 침실 3개, 욕실 2개, 그리고 드레스룸이 있습니다. 바깥 풍경을 감상할 수 있는 발코니도 있습니다. 아파트가 그리 크지는 않지만 우리 가족에게 안락하며, 필요한 모든 것을 갖추고 있습니다. 특히 조용한 동네에 위치해 있어 평화로운 환경을 누릴 수 있다는 점이 마음에 듭니다."
+          },
+          {
+            step: "전개",
+            summary: "가장 좋아하는 방인 밝고 넓은 거실과 모던한 인테리어 묘사",
+            enHtml: "My favorite room is the living room. It's <span class=\"hl-expr\">bright and spacious</span>, with a large window and a big, comfortable sofa. The walls are light-colored, and the interior has a <span class=\"hl-expr\">modern and stylish feel</span>. It's a great place to relax <span class=\"hl-expr\">after a busy day</span>, and I spend most of my free time there.",
+            ko: "제가 가장 좋아하는 방은 거실입니다. 큰 창문과 크고 푹신한 소파가 있어 밝고 넓습니다. 벽은 밝은 톤이고 인테리어는 현대적이고 세련된 느낌을 줍니다. 바쁜 하루를 보낸 후 휴식을 취하기에 아주 좋은 공간이라 여가 시간의 대부분을 그곳에서 보냅니다."
+          },
+          {
+            step: "결론",
+            summary: "집에 대한 만족감과 애정으로 마무리",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> I really love my home, and <span class=\"hl-expr\">I wouldn't want to live anywhere else</span>.",
+            ko: "전반적으로 저는 제 집을 정말 사랑하며, 다른 어디에서도 살고 싶지 않습니다."
+          }
+        ],
+        aEnPlain: "I live in a three-bedroom apartment in Suwon. It has a living room, a kitchen, three bedrooms, two bathrooms, and a dressing room. It also has a balcony where I can enjoy the view outside. The apartment is not very big, but it's comfortable for my family, and it has everything we need. I especially like that it's in a quiet area, so we can enjoy a peaceful environment. My favorite room is the living room. It's bright and spacious, with a large window and a big, comfortable sofa. The walls are light-colored, and the interior has a modern and stylish feel. It's a great place to relax after a busy day, and I spend most of my free time there. Overall, I really love my home, and I wouldn't want to live anywhere else."
+      },
+      {
+        id: 20,
+        category: "survey",
+        badge: "집·가족(루틴)",
+        title: "[가족거주] 평일·주말 가족과 함께하는 활동",
+        qKeywords: "Activities with family at home · What you do on weekdays vs. weekends",
+        qEn: "Tell me about the activities that you and your family like to do at home. What do you usually do with your family on weekdays? What do you do on weekends?",
+        qKo: "가족들과 집에서 즐겨 하는 활동에 대해 말해주세요. 평일에는 주로 무엇을 하고, 주말에는 무엇을 하나요?",
+        aKeywords: "💼 Busy weekdays (brief talk) ➔ 🧹 Weekend chores together ➔ 📺 Read books & Netflix",
+        aSections: [
+          {
+            step: "도입",
+            summary: "가족 구성원 소개 및 바쁜 평일 일상",
+            enHtml: "I live together with my wife and two sons. On weekdays, my family members are usually <span class=\"hl-expr\">too busy to spend much time together</span>. My wife and I have work, and our sons go to school, so we only get to <span class=\"hl-expr\">talk briefly</span> during dinner or right before bed.",
+            ko: "저는 아내와 두 아들과 함께 살고 있습니다. 평일에는 가족들 모두가 너무 바빠서 함께 보낼 시간이 많지 않습니다. 아내와 저는 일을 하고, 아들들은 학교에 가기 때문에 저녁 식사 시간이나 잠들기 직전에 잠깐 대화를 나누는 것이 전부입니다."
+          },
+          {
+            step: "전개",
+            summary: "주말 온 가족이 역할 나누어 함께하는 집안일",
+            enHtml: "On weekends, we like to <span class=\"hl-expr\">do some house chores as a family</span>. My wife usually cooks and manages the kitchen because she's good at organizing things. I take care of the rest, including cleaning the living room and taking out the trash, since I don't mind moving around and <span class=\"hl-expr\">staying active</span>. Our sons help by tidying up their rooms. Sometimes, handling house chores is tiring, but it's <span class=\"hl-expr\">worth doing</span>.",
+            ko: "주말에는 온 가족이 다 함께 집안일을 하는 것을 좋아합니다. 아내는 정리 정돈을 잘해서 주로 요리와 주방 관리를 담당합니다. 저는 몸을 움직이고 활동적인 것을 꺼리지 않아서 거실 청소와 쓰레기 배출을 포함한 나머지 일들을 맡습니다. 아들들은 자기 방을 정리하며 돕습니다. 때로는 집안일을 하는 것이 피곤하기도 하지만 충분히 가치 있는 일입니다."
+          },
+          {
+            step: "결론",
+            summary: "집안일 후 독서와 넷플릭스 시청으로 휴식",
+            enHtml: "After we finish all the chores, we often read books together or watch a movie on Netflix to <span class=\"hl-expr\">unwind and enjoy each other's company</span>.",
+            ko: "모든 집안일을 마친 후에는 함께 책을 읽거나 넷플릭스로 영화를 보며 피로를 풀고 가족들과의 단란한 시간을 즐깁니다."
+          }
+        ],
+        aEnPlain: "I live together with my wife and two sons. On weekdays, my family members are usually too busy to spend much time together. My wife and I have work, and our sons go to school, so we only get to talk briefly during dinner or right before bed. On weekends, we like to do some house chores as a family. My wife usually cooks and manages the kitchen because she's good at organizing things. I take care of the rest, including cleaning the living room and taking out the trash, since I don't mind moving around and staying active. Our sons help by tidying up their rooms. Sometimes, handling house chores is tiring, but it's worth doing. After we finish all the chores, we often read books together or watch a movie on Netflix to unwind and enjoy each other's company."
+      },
+      {
+        id: 21,
+        category: "survey",
+        badge: "집·가족(비교)",
+        title: "[가족거주] 어릴 적 살던 집과 현재의 변화",
+        qKeywords: "House/apartment where you grew up · Childhood look · How it has changed",
+        qEn: "Tell me about the house or the apartment where you grew up. What did the home or surrounding area look like when you were a child? How has it changed?",
+        qKo: "어렸을 때 자랐던 주택이나 아파트에 대해 말해주세요. 어린 시절 집과 주변 동네는 어떤 모습이었나요? 지금은 어떻게 변했나요?",
+        aKeywords: "🏚️ Old apt (warm memories) ➔ 🪵 Dark wood, cozy & safe ➔ 💭 Unchanged in my memory",
+        aSections: [
+          {
+            step: "도입",
+            summary: "낡았지만 가족의 추억이 담긴 따뜻했던 어린 시절 아파트",
+            enHtml: "I grew up in a typical apartment building that was a bit <span class=\"hl-expr\">old and worn out</span>. It wasn't a large or fancy place, but it felt warm because I shared many happy memories there with my family.",
+            ko: "저는 약간 낡고 오래된 전형적인 아파트에서 자랐습니다. 크거나 화려한 곳은 아니었지만 가족들과 많은 행복한 추억을 나눈 곳이어서 따뜻하게 느껴졌습니다."
+          },
+          {
+            step: "전개",
+            summary: "소박한 짙은 원목 가구와 세월의 흔적 속 안전함",
+            enHtml: "The furniture was simple and practical, mostly made of dark wood, which gave the home a <span class=\"hl-expr\">quiet and cozy feel</span>. Although the walls and floors <span class=\"hl-expr\">showed signs of age</span>, I always felt safe and comfortable in that space.",
+            ko: "가구는 소박하고 실용적이었으며 주로 짙은 목재로 되어 있어 집안에 차분하고 아늑한 분위기를 주었습니다. 비록 벽과 바닥에 세월의 흔적이 묻어 있었지만, 저는 그 공간에서 언제나 안전하고 편안함을 느꼈습니다."
+          },
+          {
+            step: "결론",
+            summary: "이사 후 다시 가보진 않았으나 기억 속엔 변함없이 그리운 곳",
+            enHtml: "After we moved out, I never went back to see the apartment or the neighborhood. It's been many years, so I'm not sure how the area has changed. Maybe the buildings have been renovated, or the neighborhood has become more modern. But <span class=\"hl-expr\">in my memory, it hasn't changed at all</span>. And sometimes miss that old apartment.",
+            ko: "이사한 이후로 저는 그 아파트나 동네를 다시 찾아가 본 적이 없습니다. 오랜 세월이 흘렀기에 그 지역이 어떻게 변했는지는 확실히 알 수 없습니다. 어쩌면 건물들이 리모델링되었거나 동네가 훨씬 더 현대적으로 바뀌었을지도 모릅니다. 하지만 제 기억 속에서는 전혀 변하지 않았습니다. 그리고 가끔은 그 옛날 아파트가 그립기도 합니다."
+          }
+        ],
+        aEnPlain: "I grew up in a typical apartment building that was a bit old and worn out. It wasn't a large or fancy place, but it felt warm because I shared many happy memories there with my family. The furniture was simple and practical, mostly made of dark wood, which gave the home a quiet and cozy feel. Although the walls and floors showed signs of age, I always felt safe and comfortable in that space. After we moved out, I never went back to see the apartment or the neighborhood. It's been many years, so I'm not sure how the area has changed. Maybe the buildings have been renovated, or the neighborhood has become more modern. But in my memory, it hasn't changed at all. And sometimes miss that old apartment."
+      },
+      {
+        id: 22,
+        category: "survey",
+        badge: "집·가족(경험)",
+        title: "[가족거주] 가족과의 특별한 기억 (엄마 생일 케이크)",
+        qKeywords: "Special family memory at home · Funny or surprising moment · What happened",
+        qEn: "Tell me about one special family memory that placed at home. Maybe something funny or surprising happened. Tell me about that day or the moment that you remember when you think about spending time with your family.",
+        qKo: "집에서 있었던 특별한 가족의 추억 하나를 말해주세요. 웃기거나 놀라운 일이 있었을 수도 있습니다. 가족과 보낸 시간을 떠올릴 때 기억나는 그날이나 순간에 대해 이야기해주세요.",
+        aKeywords: "🎂 Mom's cake plan (age 11) ➔ 😴 Fell asleep → Dad upset ➔ 🥰 Made cake together happily",
+        aSections: [
+          {
+            step: "도입",
+            summary: "11살 때 아버지와 세웠던 엄마 생신 비밀 케이크 작전과 미루다 잠든 실수",
+            enHtml: "When I was 11, I once tried to make a birthday cake for my mom. My father and I had a secret plan for her birthday, and my job was to make a simple cake. I just had to put some cream and fruit on a sponge cake. I was supposed to start after my parents went out, but I <span class=\"hl-expr\">kept putting it off</span> and eventually fell asleep. <span class=\"hl-filler\">Looking back,</span> I still don't know why I did that.",
+            ko: "제가 11살 때, 어머니를 위해 생일 케이크를 직접 만들어보려 했던 적이 있습니다. 아버지와 저는 어머니 생신을 위한 비밀 작전을 세웠고, 제 임무는 간단한 케이크를 만드는 것이었습니다. 스펀지케이크 위에 생크림과 과일을 얹기만 하면 되는 일이었죠. 부모님이 외출하신 뒤에 시작하기로 되어 있었는데, 계속 미루다 결국 잠이 들고 말았습니다. 지금 돌이켜봐도 제가 왜 그랬는지 모르겠습니다."
+          },
+          {
+            step: "전개",
+            summary: "귀가한 아버지의 화와 부끄러움, 반대로 기뻐해 주신 어머니",
+            enHtml: "When they came back home, <span class=\"hl-filler\">you know,</span> nothing was ready. My father was upset because I hadn't done what I said I would. I <span class=\"hl-expr\">felt ashamed of myself</span>. But my mom was happy that I had <span class=\"hl-expr\">at least tried to do something</span> for her birthday.",
+            ko: "부모님이 집에 돌아오셨을 때, 아시다시피 아무것도 준비되어 있지 않았습니다. 아버지는 제가 하겠다고 약속한 일을 하지 않아서 화를 내셨고, 저도 제 자신이 부끄러웠습니다. 하지만 어머니는 생신을 위해 무언가를 하려고 시도했다는 것만으로도 기뻐하셨습니다."
+          },
+          {
+            step: "결론",
+            summary: "함께 케이크를 만들며 행복한 추억으로 마무리",
+            enHtml: "<span class=\"hl-filler\">Well, in the end,</span> it <span class=\"hl-expr\">turned out to be a happy memory</span> because we made the cake together and had a great time.",
+            ko: "결국 다 함께 케이크를 만들며 즐거운 시간을 보냈기 때문에, 결과적으로는 아주 행복한 추억으로 남게 되었습니다."
+          }
+        ],
+        aEnPlain: "When I was 11, I once tried to make a birthday cake for my mom. My father and I had a secret plan for her birthday, and my job was to make a simple cake. I just had to put some cream and fruit on a sponge cake. I was supposed to start after my parents went out, but I kept putting it off and eventually fell asleep. Looking back, I still don't know why I did that. When they came back home, you know, nothing was ready. My father was upset because I hadn't done what I said I would. I felt ashamed of myself. But my mom was happy that I had at least tried to do something for her birthday. Well, in the end, it turned out to be a happy memory because we made the cake together and had a great time."
+      },
+      {
+        id: 23,
+        category: "survey",
+        badge: "가사분담(절차)",
+        title: "[가사분담] 평소 집안일(분리수거·쓰레기) 처리 과정",
+        qKeywords: "How you handle your household responsibilities on a typical day",
+        qEn: "On a typical day, how do you handle your responsibilities?",
+        qKo: "평소에 집에서 맡은 역할(집안일)을 어떻게 처리하시나요?",
+        aKeywords: "♻️ Sort & rinse trash at home ➔ 🗑️ Take to apt trash station ➔ ✅ Right spot (no sticker)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "쓰레기 배출 및 분리수거 역할 소개와 실내 분리 시작",
+            enHtml: "<span class=\"hl-filler\">As I mentioned,</span> my responsibility at home is related to the trash and recycling, and I <span class=\"hl-expr\">take a few steps to complete them</span>. I start by <span class=\"hl-expr\">sorting the trash</span> right at home. We usually have separate bins for paper, plastic, glass, and food waste in the kitchen. Whenever I throw something away, I take a quick look to check if it needs to be <span class=\"hl-expr\">rinsed or flattened</span>.",
+            ko: "앞서 말씀드렸듯이, 집에서 저의 주된 역할은 쓰레기 배출 및 재활용품 분리수거이며, 몇 가지 단계를 거쳐 처리합니다. 우선 집 안에서부터 쓰레기를 분리하는 것으로 시작합니다. 주방에 종이, 플라스틱, 유리, 음식물 쓰레기를 담는 분리수거함을 각각 두고 있습니다. 무언가를 버릴 때마다 헹궈야 하는지, 부피를 줄여 납작하게 눌러야 하는지 빠르게 확인합니다."
+          },
+          {
+            step: "전개",
+            summary: "아파트 분리수거장 배출 및 스티커 방지를 위한 위치 확인",
+            enHtml: "Second, I take the trash out to the <span class=\"hl-expr\">designated area</span>. It is usually near the large trash station in front of my apartment. After that, I just <span class=\"hl-expr\">make sure everything is placed in the right spot</span>. If you put something in the wrong bin or use the wrong bag, the janitor might leave a sticker asking you to fix it.",
+            ko: "둘째로, 쓰레기를 지정된 장소로 가지고 나갑니다. 보통 아파트 단지 앞의 대형 분리수거장 근처입니다. 그다음 모든 것이 알맞은 위치에 제대로 들어갔는지 확인합니다. 잘못된 통에 넣거나 규격 봉투를 쓰지 않으면 경비원 아저씨가 시정 요청 스티커를 붙여둘 수도 있습니다."
+          },
+          {
+            step: "결론",
+            summary: "번거롭지만 환경 보호를 위한 필수 일과",
+            enHtml: "Sometimes, all these steps are a bit annoying and <span class=\"hl-expr\">time-consuming</span>, but I think it's something we must do to <span class=\"hl-expr\">protect the environment</span>.",
+            ko: "때로는 이 모든 과정이 약간 귀찮고 시간이 걸리기도 하지만, 환경을 보호하기 위해 반드시 해야 할 일이라고 생각합니다."
+          }
+        ],
+        aEnPlain: "As I mentioned, my responsibility at home is related to the trash and recycling, and I take a few steps to complete them. I start by sorting the trash right at home. We usually have separate bins for paper, plastic, glass, and food waste in the kitchen. Whenever I throw something away, I take a quick look to check if it needs to be rinsed or flattened. Second, I take the trash out to the designated area. It is usually near the large trash station in front of my apartment. After that, I just make sure everything is placed in the right spot. If you put something in the wrong bin or use the wrong bag, the janitor might leave a sticker asking you to fix it. Sometimes, all these steps are a bit annoying and time-consuming, but I think it's something we must do to protect the environment."
+      },
+      {
+        id: 24,
+        category: "survey",
+        badge: "가사분담(과거)",
+        title: "[가사분담] 어릴 적 맡았던 집안 역할 (방 청소·동생 돌보기)",
+        qKeywords: "Childhood responsibilities at home · What you were expected to do & how you handled them",
+        qEn: "Tell me about the responsibilities that you had at home when you were a child. What were you expected to do? How did you handle those responsibilities?",
+        qKo: "어렸을 때 집에서 맡았던 역할에 대해 말해주세요. 어떤 일을 해야 했고, 그 역할들을 어떻게 해냈나요?",
+        aKeywords: "🧹 Cleaned room on weekends ➔ 👦 Looked after little brother ➔ 🌱 Helped me grow",
+        aSections: [
+          {
+            step: "도입",
+            summary: "어릴 적 매주 주말 내 방 청소 담당과 부모님의 가르침",
+            enHtml: "When I was a child, I didn't have many chores, but I was <span class=\"hl-expr\">in charge of cleaning my room</span> every weekend. I had to <span class=\"hl-expr\">sweep the floor, wipe down my desk</span>, and make sure everything was in the right place. My parents believed it was important for me to keep my own space clean and organized. It wasn't always fun, but I knew it was my job, so I <span class=\"hl-expr\">did my best</span>.",
+            ko: "어릴 적에는 집안일이 많지 않았지만, 주말마다 제 방을 청소하는 일을 도맡았습니다. 바닥을 쓸고, 책상을 닦고, 모든 물건이 제자리에 있는지 확인해야 했습니다. 부모님은 제 공간을 깨끗하고 정돈되게 유지하는 것이 중요하다고 생각하셨습니다. 늘 재미있었던 것은 아니지만 제 몫이라는 것을 알았기에 최선을 다했습니다."
+          },
+          {
+            step: "전개",
+            summary: "바쁜 부모님 대신 남동생을 돌보며 책임감 습득",
+            enHtml: "I was also expected to <span class=\"hl-expr\">look after my younger brother</span> when my parents were busy. I played with him, helped him with homework, and made sure he didn't <span class=\"hl-expr\">get into trouble</span>. It <span class=\"hl-expr\">felt good to be trusted</span>, and I learned how to be more responsible and helpful.",
+            ko: "또한 부모님이 바쁘실 때는 남동생을 돌보는 일도 맡았습니다. 동생과 놀아주고, 숙제를 도와주고, 말썽을 피우지 않도록 보살폈습니다. 부모님께 신뢰를 받는 것이 뿌듯했고, 책임감 있고 남을 돕는 법을 배웠습니다."
+          },
+          {
+            step: "결론",
+            summary: "성장에 큰 도움이 된 어릴 적 소박한 역할들",
+            enHtml: "<span class=\"hl-filler\">Looking back,</span> those simple tasks <span class=\"hl-expr\">helped me grow a lot</span>.",
+            ko: "돌아보면 그런 소박한 역할들이 제가 성장하는 데 큰 밑거름이 되었습니다."
+          }
+        ],
+        aEnPlain: "When I was a child, I didn't have many chores, but I was in charge of cleaning my room every weekend. I had to sweep the floor, wipe down my desk, and make sure everything was in the right place. My parents believed it was important for me to keep my own space clean and organized. It wasn't always fun, but I knew it was my job, so I did my best. I was also expected to look after my younger brother when my parents were busy. I played with him, helped him with homework, and made sure he didn't get into trouble. It felt good to be trusted, and I learned how to be more responsible and helpful. Looking back, those simple tasks helped me grow a lot."
+      },
+      {
+        id: 25,
+        category: "survey",
+        badge: "음악감상(묘사)",
+        title: "[음악감상] 좋아하는 음악 장르(클래식·트로트)와 가수",
+        qKeywords: "Kind of music you listen to · Favorite musicians or composers",
+        qEn: "You indicated in the survey that you listen to music. What kind of music do you listen to and who are some of your favorite musicians or composers?",
+        qKo: "설문에서 음악 감상을 선택하셨는데, 어떤 종류의 음악을 들으시나요? 좋아하는 뮤지션이나 작곡가는 누구인가요?",
+        aKeywords: "🎻 Classical (calm, timeless) ➔ 🎤 Trot (catchy, good mood) ➔ 🎵 Follow songs I like",
+        aSections: [
+          {
+            step: "도입",
+            summary: "유행 타지 않고 마음을 편안하게 해주는 클래식 음악 선호",
+            enHtml: "I listen to a bit of everything, but my favorite is classical music. It doesn't really <span class=\"hl-expr\">go out of style</span>, so I never <span class=\"hl-expr\">get tired of listening to it</span>. I also like how calm and elegant it sounds because it helps me relax after a long day.",
+            ko: "저는 다양한 음악을 두루 듣는 편이지만, 가장 좋아하는 장르는 클래식 음악입니다. 유행을 타지 않아서 아무리 들어도 질리지 않습니다. 또한 길고 고단한 하루를 마친 후 긴장을 푸는 데 큰 도움이 되는 차분하고 우아한 선율도 좋아합니다."
+          },
+          {
+            step: "전개",
+            summary: "귀에 쏙 들어오고 신나는 트로트 음악과 트렌드 탐색",
+            enHtml: "<span class=\"hl-filler\">Meanwhile,</span> I've been listening to a lot of trot music these days. It's <span class=\"hl-expr\">catchy, energetic, and easy to sing along to</span>, so it always <span class=\"hl-expr\">puts me in a good mood</span>. Unlike classical music, trot changes with trends, so I'm always looking for new songs to see what's popular.",
+            ko: "한편, 요즘에는 트로트 음악도 자주 듣고 있습니다. 귀에 쏙쏙 들어오고 에너지가 넘치며 따라 부르기 쉬워서 언제나 기분을 좋게 만들어 줍니다. 클래식과 달리 트로트는 트렌드에 따라 빠르게 변하기 때문에 어떤 곡이 인기 있는지 새로운 노래들을 자주 찾아보곤 합니다."
+          },
+          {
+            step: "결론",
+            summary: "특정 가수 한 명보다 마음에 드는 곡 중심의 감상 패턴",
+            enHtml: "<span class=\"hl-filler\">Well, as for</span> my favorite musician, I don't really have one. If I <span class=\"hl-expr\">come across a song I like</span>, I usually end up listening to more songs by that artist.",
+            ko: "가장 좋아하는 뮤지션은 딱히 한 명을 꼽기는 어렵습니다. 마음에 드는 곡을 발견하면 보통 그 가수의 다른 노래들을 연달아 찾아 듣는 편입니다."
+          }
+        ],
+        aEnPlain: "I listen to a bit of everything, but my favorite is classical music. It doesn't really go out of style, so I never get tired of listening to it. I also like how calm and elegant it sounds because it helps me relax after a long day. Meanwhile, I've been listening to a lot of trot music these days. It's catchy, energetic, and easy to sing along to, so it always puts me in a good mood. Unlike classical music, trot changes with trends, so I'm always looking for new songs to see what's popular. Well, as for my favorite musician, I don't really have one. If I come across a song I like, I usually end up listening to more songs by that artist."
+      },
+      {
+        id: 26,
+        category: "survey",
+        badge: "음악감상(루틴)",
+        title: "[음악감상] 음악 듣는 방법과 시기 (스마트폰 스트리밍·출퇴근)",
+        qKeywords: "When & where you listen to music · Radio, concerts, or different ways",
+        qEn: "When and where do you go to listen to music? Do you listen to music on the radio or do you go to concerts? Tell me different ways to listen to music.",
+        qKo: "언제 어디서 음악을 들으시나요? 라디오로 듣나요, 콘서트에 가나요? 음악을 듣는 여러 가지 방법에 대해 말해주세요.",
+        aKeywords: "📱 Phone music streaming app ➔ ♾️ Unlimited & saves storage ➔ 🚗 Car stereo on commute",
+        aSections: [
+          {
+            step: "도입",
+            summary: "인터넷만 있으면 되는 스마트폰 음악 스트리밍 앱 활용",
+            enHtml: "I usually use a music application to <span class=\"hl-expr\">stream music on my smartphone</span>. All I need is an internet connection.",
+            ko: "저는 주로 스마트폰의 음악 스트리밍 앱을 이용해 음악을 듣습니다. 인터넷만 연결되어 있으면 됩니다."
+          },
+          {
+            step: "전개",
+            summary: "무제한 청취와 저장 공간을 차지하지 않는 스트리밍의 장점",
+            enHtml: "Once I subscribe, I can listen to tons of songs <span class=\"hl-expr\">without any restrictions</span> anytime, anywhere. In addition, unlike downloaded music, streaming doesn't <span class=\"hl-expr\">take up storage space</span> on my phone, which is simple and efficient.",
+            ko: "구독만 하면 언제 어디서든 아무런 제약 없이 수많은 노래를 들을 수 있습니다. 게다가 다운로드 방식과 달리 스트리밍은 휴대폰 저장 공간을 차지하지 않아 간편하고 효율적입니다."
+          },
+          {
+            step: "결론",
+            summary: "출퇴근 시 카오디오 연결 등 일상의 일부가 된 음악",
+            enHtml: "With my phone, I can enjoy music anytime I want, <span class=\"hl-expr\">no matter where I am</span>. For example, I often connect my phone to my car stereo and play music <span class=\"hl-expr\">while commuting</span>. It makes the ride feel more relaxing and enjoyable. Thanks to my smartphone, music has become a <span class=\"hl-expr\">part of my everyday life</span>.",
+            ko: "스마트폰 덕분에 제가 어디에 있든 원하는 시간에 음악을 즐길 수 있습니다. 예를 들어, 출퇴근할 때 차 안에서 스마트폰을 카오디오에 연결해 음악을 자주 듣습니다. 그러면 운전하는 시간이 훨씬 편안하고 즐겁게 느껴집니다. 스마트폰 덕분에 음악은 제 일상생활의 한 부분이 되었습니다."
+          }
+        ],
+        aEnPlain: "I usually use a music application to stream music on my smartphone. All I need is an internet connection. Once I subscribe, I can listen to tons of songs without any restrictions anytime, anywhere. In addition, unlike downloaded music, streaming doesn't take up storage space on my phone, which is simple and efficient. With my phone, I can enjoy music anytime I want, no matter where I am. For example, I often connect my phone to my car stereo and play music while commuting. It makes the ride feel more relaxing and enjoyable. Thanks to my smartphone, music has become a part of my everyday life."
+      },
+      {
+        id: 27,
+        category: "survey",
+        badge: "음악감상(변화)",
+        title: "[음악감상] 음악에 관심 갖게 된 계기와 취향 변화",
+        qKeywords: "How you first became interested in music · First favorite genre · How taste developed",
+        qEn: "How did you first become interested in music? What kind of music did you like first? How has your interest in music developed from your childhood until today?",
+        qKo: "처음 어떻게 음악에 관심을 갖게 되었나요? 처음엔 어떤 음악을 좋아했나요? 어린 시절부터 오늘날까지 음악에 대한 관심이 어떻게 변화했나요?",
+        aKeywords: "🏫 Middle school K-pop ➔ 🌎 English pop (catchy) ➔ 🎶 Classical & trot by mood",
+        aSections: [
+          {
+            step: "도입",
+            summary: "중학교 때 친구 소개로 빠진 K-pop과 반복 듣기",
+            enHtml: "I <span class=\"hl-expr\">first became interested in</span> listening to music when I was in middle school. One of my friends introduced me to a K-pop group. I loved their songs, so I started listening to them almost every day. Back then, I would play the same songs <span class=\"hl-expr\">over and over</span> and sing along.",
+            ko: "제가 음악 감상에 처음 관심을 갖게 된 것은 중학교 때였습니다. 한 친구가 K-pop 아이돌 그룹을 소개해 주었습니다. 노래가 너무 좋아서 거의 매일 듣기 시작했습니다. 그 당시에는 똑같은 노래를 몇 번이고 반복해서 들으며 따라 부르곤 했습니다."
+          },
+          {
+            step: "전개",
+            summary: "성장하며 해외 아티스트와 영어 팝송으로 장르 확장",
+            enHtml: "As I grew older, I <span class=\"hl-expr\">explored different genres</span> and started listening to music by foreign artists, too. I especially enjoyed pop songs in English because they had <span class=\"hl-expr\">catchy melodies</span> and were fun to sing along to.",
+            ko: "나이가 들면서 다양한 장르를 탐색하게 되었고 해외 아티스트들의 음악도 듣기 시작했습니다. 특히 영어 팝송은 멜로디가 귀에 착 감기고 따라 부르기 재미있어서 즐겨 들었습니다."
+          },
+          {
+            step: "결론",
+            summary: "기분에 따라 클래식과 트로트를 넘나드는 현재 취향",
+            enHtml: "Now, I enjoy many kinds of music <span class=\"hl-expr\">depending on my mood</span>. I sometimes listen to classical music, but I sometimes enjoy trot music.",
+            ko: "지금은 제 기분에 따라 다양한 음악을 즐깁니다. 어떨 때는 클래식 음악을 듣기도 하고, 때로는 트로트 음악을 신나게 즐기기도 합니다."
+          }
+        ],
+        aEnPlain: "I first became interested in listening to music when I was in middle school. One of my friends introduced me to a K-pop group. I loved their songs, so I started listening to them almost every day. Back then, I would play the same songs over and over and sing along. As I grew older, I explored different genres and started listening to music by foreign artists, too. I especially enjoyed pop songs in English because they had catchy melodies and were fun to sing along to. Now, I enjoy many kinds of music depending on my mood. I sometimes listen to classical music, but I sometimes enjoy trot music."
+      },
+      {
+        id: 28,
+        category: "survey",
+        badge: "영화보기(묘사)",
+        title: "[영화보기] 좋아하는 영화 장르와 이유 (집 vs 영화관)",
+        qKeywords: "Kinds of movies you like to see · Why you like those genres",
+        qEn: "You indicated in the survey that you go to the movies. Tell me about kinds of movies you like to see. Why do you like those kinds of movies?",
+        qKo: "설문에서 영화 보기를 선택하셨는데, 어떤 종류의 영화를 좋아하시나요? 왜 그 장르들을 좋아하시나요?",
+        aKeywords: "🏠 Home: comedy/action (relax) ➔ 🍿 Theater: Sci-fi (big screen) ➔ 🎭 Pick by situation",
+        aSections: [
+          {
+            step: "도입",
+            summary: "코미디·드라마·액션 등 다양한 영화 선호 및 집에서 보는 장르",
+            enHtml: "I enjoy many kinds of movies, whether it's a light comedy, a <span class=\"hl-expr\">touching drama</span>, or an exciting action movie. I always find something to enjoy. <span class=\"hl-filler\">Well,</span> when I stay at home, I prefer watching comedies, dramas, or action movies. These are perfect for <span class=\"hl-expr\">relaxing and killing time</span>. I don't have to think too much while watching them, and they're always entertaining.",
+            ko: "저는 가벼운 코미디든 감동적인 드라마든, 짜릿한 액션 영화든 가리지 않고 많은 종류의 영화를 즐깁니다. 어떤 영화에서든 즐길 거리를 찾아냅니다. 집에 머물 때는 코미디, 드라마, 또는 액션 영화를 선호합니다. 이런 장르들은 휴식을 취하고 시간을 보내기에 안성맞춤입니다. 보는 동안 복잡하게 생각할 필요가 없고 언제나 재미있으니까요."
+          },
+          {
+            step: "전개",
+            summary: "극장에서는 대형 스크린과 음향 효과를 살리는 판타지·SF 선택",
+            enHtml: "But if I go to the theater, I like to choose movies that are <span class=\"hl-expr\">visually impressive</span>. I usually watch fantasy or Sci-fi films because they have <span class=\"hl-expr\">amazing special effects</span> and great sound. The big screen and high-quality audio make the experience much more exciting.",
+            ko: "하지만 영화관에 직접 갈 때는 시각적으로 압도적인 영화를 고르는 편입니다. 뛰어난 특수 효과와 웅장한 사운드가 있는 판타지나 SF 영화를 주로 봅니다. 대형 스크린과 고품질 음향이 영화 관람을 훨씬 더 흥미진진하게 만들어 주기 때문입니다."
+          },
+          {
+            step: "결론",
+            summary: "상황에 따른 다양한 영화 감상 요약",
+            enHtml: "Like this, I enjoy various kinds of movies <span class=\"hl-expr\">depending on the situation</span>.",
+            ko: "이처럼 저는 상황에 따라 다양한 종류의 영화를 즐깁니다."
+          }
+        ],
+        aEnPlain: "I enjoy many kinds of movies, whether it's a light comedy, a touching drama, or an exciting action movie. I always find something to enjoy. Well, when I stay at home, I prefer watching comedies, dramas, or action movies. These are perfect for relaxing and killing time. I don't have to think too much while watching them, and they're always entertaining. But if I go to the theater, I like to choose movies that are visually impressive. I usually watch fantasy or Sci-fi films because they have amazing special effects and great sound. The big screen and high-quality audio make the experience much more exciting. Like this, I enjoy various kinds of movies depending on the situation."
+      },
+      {
+        id: 29,
+        category: "survey",
+        badge: "영화보기(뉴스)",
+        title: "[영화보기] 좋아하는 배우(유해진) 관련 최근 뉴스",
+        qKeywords: "Recent news story about favorite actor/actress · Background & news details",
+        qEn: "Tell me about a news story about your favorite actor or actress that you watched recently. Start by telling me about his or her background and then describe in detail what the news was about.",
+        qKo: "최근에 본 좋아하는 배우와 관련된 뉴스 기사에 대해 말해주세요. 먼저 그 배우의 배경을 소개하고, 뉴스 내용이 무엇이었는지 자세히 설명해주세요.",
+        aKeywords: "🎬 Actor Yoo Hae-jin's film ➔ 📰 Historical debate & protests ➔ ⚖️ Blaming actor is unfair",
+        aSections: [
+          {
+            step: "도입",
+            summary: "자연스러운 연기로 유명한 배우 유해진 소개",
+            enHtml: "I remember watching the news about my favorite actor, Yoo Hae-jin, recently. He is one of the most famous actors in Korea, and he's <span class=\"hl-expr\">known for his natural acting</span>.",
+            ko: "최근 제가 가장 좋아하는 배우인 유해진 씨에 대한 뉴스를 본 기억이 납니다. 그는 한국에서 가장 유명한 배우 중 한 명이며, 자연스러운 연기로 정평이 나 있습니다."
+          },
+          {
+            step: "전개",
+            summary: "신작 영화의 역사적 사실 논쟁과 자택 앞 시위 소식",
+            enHtml: "The news was about his new movie. <span class=\"hl-expr\">According to the news,</span> his new movie <span class=\"hl-expr\">caused a debate about historical facts</span>, and he was going through a hard time because he played the lead role in the movie. Some people even <span class=\"hl-expr\">made a scene outside his home</span> because they were against the movie's release.",
+            ko: "뉴스는 그의 신작 영화에 관한 것이었습니다. 보도에 따르면, 그의 신작 영화가 역사적 사실에 대한 논쟁을 불러일으켰고, 주연을 맡은 유해진 씨가 곤욕을 치르고 있다는 내용이었습니다. 일부 사람들은 영화 개봉을 반대하며 그의 자택 밖에서 소란을 피우기까지 했습니다."
+          },
+          {
+            step: "결론",
+            summary: "지나친 시위에 대한 안타까움과 배우 비난은 부당하다는 개인 견해",
+            enHtml: "After hearing the news, many people <span class=\"hl-expr\">felt bad for him</span>. Some people said the protests were <span class=\"hl-expr\">going too far</span>. I personally think blaming an actor for a movie's story is unfair.",
+            ko: "그 뉴스를 접한 후 많은 사람들이 그를 안타깝게 여겼습니다. 시위가 너무 지나치다는 반응도 많았습니다. 저 개인적으로도 영화의 스토리 때문에 배우를 비난하는 것은 부당하다고 생각합니다."
+          }
+        ],
+        aEnPlain: "I remember watching the news about my favorite actor, Yoo Hae-jin, recently. He is one of the most famous actors in Korea, and he's known for his natural acting. The news was about his new movie. According to the news, his new movie caused a debate about historical facts, and he was going through a hard time because he played the lead role in the movie. Some people even made a scene outside his home because they were against the movie's release. After hearing the news, many people felt bad for him. Some people said the protests were going too far. I personally think blaming an actor for a movie's story is unfair."
+      },
+      {
+        id: 30,
+        category: "survey",
+        badge: "집캉스(묘사)",
+        title: "[집캉스] 집에서 휴가를 함께 보내는 사람과 이유",
+        qKeywords: "Vacations at home · Who you spend time with & why",
+        qEn: "You indicated in the survey that you have vacations at your home. Tell me about a person or people you like to see and spend time with at home.",
+        qKo: "설문에서 집에서 휴가를 보낸다고 답하셨는데, 집에서 함께 만나 시간을 보내고 싶은 사람들에 대해 말해주세요.",
+        aKeywords: "👦👦 Home vacation with 2 sons ➔ ⏳ Busy weekdays → Focus on kids ➔ ❤️ Stronger bond & priority",
+        aSections: [
+          {
+            step: "도입",
+            summary: "두 아들과 보내는 집 휴가 및 평소 바쁜 평일의 아쉬움",
+            enHtml: "During my vacations at home, I like to spend time with my family, especially my two sons. Usually, I'm very busy with work, so I don't get to <span class=\"hl-expr\">spend enough quality time</span> with them. They always want to play with me, but it's not easy to make time during the week. That's why, during vacations, I <span class=\"hl-expr\">make a real effort to focus on them</span>, whether it's playing games, watching movies, or just talking together.",
+            ko: "집에서 휴가를 보낼 때 저는 가족들, 특히 두 아들과 함께 시간을 보내는 것을 좋아합니다. 평소에는 일하느라 너무 바빠서 아이들과 양질의 시간을 충분히 보내지 못합니다. 아이들은 늘 저와 놀고 싶어 하지만 평일에는 시간을 내기가 쉽지 않습니다. 그래서 휴가 기간만큼은 게임을 하든, 영화를 보든, 대화를 나누든 온전히 아이들에게 집중하려고 진심으로 노력합니다."
+          },
+          {
+            step: "전개",
+            summary: "함께 웃고 대화하며 깊어지는 가족 유대와 최우선 가치 전달",
+            enHtml: "Whenever we spend vacation time together, I feel like our <span class=\"hl-expr\">relationship gets stronger</span>. We laugh more, talk more, and understand each other better. It's a chance for me to show them that <span class=\"hl-expr\">they are my priority</span>, even if I'm busy most of the time.",
+            ko: "휴가를 함께 보낼 때마다 가족 간의 유대감이 더욱 끈끈해지는 것을 느낍니다. 우리는 더 많이 웃고, 더 많은 이야기를 나누며, 서로를 더 잘 이해하게 됩니다. 늘 바쁘더라도 아이들이 제 인생의 최우선 순위임을 보여줄 수 있는 소중한 기회입니다."
+          },
+          {
+            step: "결론",
+            summary: "가능한 한 아이들과 많은 시간을 보내려는 다짐",
+            enHtml: "<span class=\"hl-filler\">So, yeah,</span> I try to spend time with my sons <span class=\"hl-expr\">as much as possible</span>.",
+            ko: "그렇기 때문에 휴가 때는 두 아들과 가능한 한 많은 시간을 보내려고 노력합니다."
+          }
+        ],
+        aEnPlain: "During my vacations at home, I like to spend time with my family, especially my two sons. Usually, I'm very busy with work, so I don't get to spend enough quality time with them. They always want to play with me, but it's not easy to make time during the week. That's why, during vacations, I make a real effort to focus on them, whether it's playing games, watching movies, or just talking together. Whenever we spend vacation time together, I feel like our relationship gets stronger. We laugh more, talk more, and understand each other better. It's a chance for me to show them that they are my priority, even if I'm busy most of the time. So, yeah, I try to spend time with my sons as much as possible."
+      },
+      {
+        id: 31,
+        category: "survey",
+        badge: "집캉스(루틴)",
+        title: "[집캉스] 집에서 휴가 보낼 때 아이들과 주로 하는 활동",
+        qKeywords: "What you usually do with family during a vacation at home",
+        qEn: "What do you usually do with the person or people you like to see or spend time with when you have a vacation at home?",
+        qKo: "집에서 휴가를 보낼 때 함께 시간을 보내는 사람들과 주로 무엇을 하시나요?",
+        aKeywords: "🏠 Indoors: cartoons & LEGO ➔ 🚲 Park: bikes, catch & picnic ➔ 🌿 Refreshed & family bond",
+        aSections: [
+          {
+            step: "도입",
+            summary: "아이들과 집 안에서 만화·보드게임·레고 조립하며 즐기는 시간",
+            enHtml: "When I have a vacation with my sons, we usually do some simple things around the house. We watch cartoons or action movies together, play board games, and sometimes <span class=\"hl-expr\">build things with blocks or LEGO</span>. They love it when I join them, and I really enjoy seeing them laugh and have fun. These small moments help me relax and <span class=\"hl-expr\">feel closer to them</span>.",
+            ko: "아이들과 함께 집에서 휴가를 보낼 때 우리는 주로 집 안팎에서 소소한 일들을 합니다. 함께 만화나 액션 영화를 보고, 보드게임을 하거나 블록, 레고를 조립하기도 합니다. 아이들은 제가 함께 놀아줄 때 무척 좋아하고, 저 또한 아이들이 웃고 즐거워하는 모습을 보는 것이 큰 행복입니다. 이런 소소한 순간들이 긴장을 풀고 아이들과 한층 더 가까워지는 계기가 됩니다."
+          },
+          {
+            step: "전개",
+            summary: "아파트 근처 공원에서 자전거·캐치볼·잔디밭 미니 피크닉",
+            enHtml: "We also like going to the park near our apartment during vacations. We ride bikes, play catch, or just walk around and talk. Sometimes we take snacks and <span class=\"hl-expr\">have a mini picnic on the grass</span>. Spending time outdoors like this makes us <span class=\"hl-expr\">feel refreshed</span>, and it's a great way to <span class=\"hl-expr\">bond without any distractions</span>.",
+            ko: "또한 휴가 중에는 아파트 근처 공원에 나가는 것도 좋아합니다. 자전거를 타거나, 캐치볼을 하거나, 도란도란 걸으며 이야기를 나눕니다. 가끔은 간식을 챙겨 잔디밭에서 소풍을 즐기기도 합니다. 이렇게 야외에서 시간을 보내면 기분 전환이 되고, 아무런 방해 없이 가족 간의 정을 쌓는 훌륭한 방법이 됩니다."
+          },
+          {
+            step: "결론",
+            summary: "휴가 때 주로 하는 일상 활동 마무리",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> these are the things we usually do when we have vacations.",
+            ko: "전반적으로 이것이 우리가 휴가를 보낼 때 주로 하는 활동들입니다."
+          }
+        ],
+        aEnPlain: "When I have a vacation with my sons, we usually do some simple things around the house. We watch cartoons or action movies together, play board games, and sometimes build things with blocks or LEGO. They love it when I join them, and I really enjoy seeing them laugh and have fun. These small moments help me relax and feel closer to them. We also like going to the park near our apartment during vacations. We ride bikes, play catch, or just walk around and talk. Sometimes we take snacks and have a mini picnic on the grass. Spending time outdoors like this makes us feel refreshed, and it's a great way to bond without any distractions. Overall, these are the things we usually do when we have vacations."
+      }
+    ];
+
+    const DEFAULT_OPIC_DATA = JSON.parse(JSON.stringify(OPIC_DATA));
+
+    const STORAGE_KEYS = {
+      starred: "opic_study_starred_v1",
+      done: "opic_study_done_v1",
+      prefs: "opic_study_prefs_v2",
+      edits: "opic_study_edits_v1"
+    };
+
+    const RATES = [0.85, 1.0, 1.15];
+
+    const state = {
+      activeTab: "all",
+      starredIds: new Set(),
+      doneIds: new Set(),
+      edits: {},
+      popup: {
+        isOpen: false,
+        itemId: null,
+        part: "A",
+        isEditing: false
+      },
+      prefs: {
+        showKo: false,
+        blindMode: false,
+        playMode: "qa", // 'qa' | 'a' | 'q'
+        rate: 1.0,
+        voiceName: "",
+        popupFontSize: 16
+      },
+      voices: [],
+      wakeLock: null,
+      playback: {
+        active: false,
+        paused: false,
+        scope: "single", // 'single' | 'tab' | 'random' | 'sentence'
+        repeatOne: false,
+        queue: [], // [{ itemId, part: 'Q'|'A', sentences: string[] }]
+        queueIndex: 0,
+        sentIndex: 0,
+        sessionToken: 0,
+        delayTimer: null
+      }
+    };
+
+    window._activeUtterance = null;
+
+    // --- Persistence ---
+    function applyItemPatch(item, patch) {
+      if (!item || !patch || typeof patch !== "object") return;
+      if (typeof patch.qKeywords === "string") item.qKeywords = patch.qKeywords;
+      if (typeof patch.qEn === "string") item.qEn = patch.qEn;
+      if (typeof patch.qKo === "string") item.qKo = patch.qKo;
+      if (typeof patch.aKeywords === "string") item.aKeywords = patch.aKeywords;
+      if (Array.isArray(patch.aSections) && patch.aSections.length === item.aSections.length) {
+        patch.aSections.forEach((secPatch, i) => {
+          if (typeof secPatch.enHtml === "string") item.aSections[i].enHtml = secPatch.enHtml;
+          if (typeof secPatch.ko === "string") item.aSections[i].ko = secPatch.ko;
+        });
+      }
+      if (typeof patch.aEnPlain === "string") item.aEnPlain = patch.aEnPlain;
+    }
+
+    function loadState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.starred) || "[]");
+        if (Array.isArray(s)) state.starredIds = new Set(s);
+      } catch {}
+      try {
+        const d = JSON.parse(localStorage.getItem(STORAGE_KEYS.done) || "[]");
+        if (Array.isArray(d)) state.doneIds = new Set(d);
+      } catch {}
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEYS.prefs) || "{}");
+        if (p && typeof p === "object") {
+          if (typeof p.showKo === "boolean") state.prefs.showKo = p.showKo;
+          if (typeof p.blindMode === "boolean") state.prefs.blindMode = p.blindMode;
+          if (["qa", "a", "q"].includes(p.playMode)) state.prefs.playMode = p.playMode;
+          if (RATES.includes(p.rate)) state.prefs.rate = p.rate;
+          if (typeof p.voiceName === "string") state.prefs.voiceName = p.voiceName;
+          if (typeof p.popupFontSize === "number" && p.popupFontSize >= 13 && p.popupFontSize <= 26) {
+            state.prefs.popupFontSize = p.popupFontSize;
+          }
+        }
+      } catch {}
+      try {
+        const e = JSON.parse(localStorage.getItem(STORAGE_KEYS.edits) || "{}");
+        if (e && typeof e === "object") {
+          state.edits = e;
+          for (const [idStr, patch] of Object.entries(e)) {
+            const item = OPIC_DATA.find(x => x.id === Number(idStr));
+            if (item) applyItemPatch(item, patch);
+          }
+        }
+      } catch {}
+    }
+
+    function saveStarred() {
+      localStorage.setItem(STORAGE_KEYS.starred, JSON.stringify([...state.starredIds]));
+    }
+
+    function saveDone() {
+      localStorage.setItem(STORAGE_KEYS.done, JSON.stringify([...state.doneIds]));
+    }
+
+    function savePrefs() {
+      localStorage.setItem(STORAGE_KEYS.prefs, JSON.stringify(state.prefs));
+    }
+
+    function saveEdits() {
+      localStorage.setItem(STORAGE_KEYS.edits, JSON.stringify(state.edits));
+    }
+
+    // --- Helpers ---
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("is-show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => el.classList.remove("is-show"), 2000);
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function unescapeHtml(str) {
+      return str
+        .replace(/&quot;/g, "\"")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&amp;/g, "&");
+    }
+
+    function stripHtmlToPlain(html) {
+      return unescapeHtml(html.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
+    }
+
+    function splitSentences(text) {
+      const protectedText = text
+        .replace(/\b([pPaA])\.[mM]\.(?=\s+[a-z0-9,])/g, "$1__m__dot__")
+        .replace(/\b([pPaA])\.[mM]\./g, "$1__m.")
+        .replace(/\.\.\./g, "__ELLIPSIS__");
+      const rawMatches = protectedText.match(/[^.!?]+(?:[.!?]+["']?|\s*$)/g) || [protectedText];
+      return rawMatches
+        .map(s => s
+          .replace(/([pPaA])__m__dot__/g, "$1.m.")
+          .replace(/([pPaA])__m\./g, "$1.m.")
+          .replace(/__ELLIPSIS__/g, "...")
+          .trim()
+        )
+        .filter(Boolean);
+    }
+
+    function splitHtmlBySentences(html, itemId, part, startIdx) {
+      // Protect p.m./a.m. followed by lowercase and ellipses without altering tags
+      const placeholderMap = [];
+      let safeHtml = html.replace(/<[^>]+>/g, tag => {
+        const key = `__TAG_${placeholderMap.length}__`;
+        placeholderMap.push(tag);
+        return key;
+      });
+
+      safeHtml = safeHtml
+        .replace(/\b([pPaA])\.[mM]\.(?=\s+[a-z0-9,])/g, "$1__m__dot__")
+        .replace(/\b([pPaA])\.[mM]\./g, "$1__m.")
+        .replace(/\.\.\./g, "__ELLIPSIS__");
+
+      const parts = safeHtml.match(/[^.!?]+(?:[.!?]+["']?(?:__TAG_\d+__)*|\s*$)/g) || [safeHtml];
+      let idx = startIdx;
+      const wrapped = parts
+        .map(chunk => {
+          const trimmed = chunk.trim();
+          if (!trimmed) return "";
+          let restored = trimmed
+            .replace(/([pPaA])__m__dot__/g, "$1.m.")
+            .replace(/([pPaA])__m\./g, "$1.m.")
+            .replace(/__ELLIPSIS__/g, "...");
+          restored = restored.replace(/__TAG_(\d+)__/g, (_, n) => placeholderMap[Number(n)]);
+          const curIdx = idx++;
+          return `<span class="tts-sentence" data-item-id="${itemId}" data-part="${part}" data-sidx="${curIdx}">${restored}</span>`;
+        })
+        .filter(Boolean)
+        .join(" ");
+
+      return { html: wrapped, nextIdx: idx };
+    }
+
+    function getItemsForTab(tabId) {
+      if (tabId === "all") return OPIC_DATA;
+      if (tabId === "starred") return OPIC_DATA.filter(item => state.starredIds.has(item.id));
+      return OPIC_DATA.filter(item => item.category === tabId);
+    }
+
+    function getBadgeClass(badge) {
+      if (badge.startsWith("롤플레이") || badge.includes("뉴스")) return "badge-rp";
+      if (badge === "묘사/경험" || badge.includes("묘사")) return "badge-desc";
+      if (badge === "과거경험" || badge.includes("경험") || badge.includes("과거")) return "badge-exp";
+      if (badge === "연계경험" || badge.includes("비교") || badge.includes("변화")) return "badge-link";
+      return "badge-proc";
+    }
+
+    function getStepClass(step) {
+      if (step === "도입") return "step-intro";
+      if (step === "전개") return "step-body";
+      return "step-outro";
+    }
+
+    function getStepLabel(step) {
+      if (step === "도입") return "Intro";
+      if (step === "전개") return "Body";
+      return "Outro";
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // --- Wake Lock ---
+    async function acquireWakeLock() {
+      if (!("wakeLock" in navigator) || state.wakeLock) return;
+      try {
+        state.wakeLock = await navigator.wakeLock.request("screen");
+        state.wakeLock.addEventListener("release", () => {
+          state.wakeLock = null;
+        });
+      } catch {
+        // Ignore unsupported / battery-saver denials gracefully
+      }
+    }
+
+    async function releaseWakeLock() {
+      if (!state.wakeLock) return;
+      try {
+        await state.wakeLock.release();
+      } catch {}
+      state.wakeLock = null;
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && state.playback.active && !state.playback.paused) {
+        acquireWakeLock();
+      }
+    });
+
+    // --- Web Speech API Voices (Female Preferred) ---
+    function scoreVoice(v) {
+      const lang = (v.lang || "").toLowerCase();
+      const name = (v.name || "").toLowerCase();
+      let score = 0;
+      if (lang === "en-us" || lang === "en_us") score += 100;
+      else if (lang.startsWith("en-")) score += 40;
+      else return -1;
+
+      const maleKeywords = [
+        /\bmale\b/, /\bdavid\b/, /\bmark\b/, /\bguy\b/, /\bandrew\b/,
+        /\bbrian\b/, /\bchristopher\b/, /\beric\b/, /\broger\b/, /\bsteffan\b/,
+        /\bdaniel\b/, /\balex\b/, /\bfred\b/, /\bjames\b/, /\brichard\b/,
+        /\bgeorge\b/, /\bpaul\b/, /\bryan\b/, /\bthomas\b/, /\boliver\b/,
+        /\barthur\b/, /iom/, /tpd/, /sfb/
+      ];
+      for (const rx of maleKeywords) {
+        if (rx.test(name)) {
+          score -= 500;
+          break;
+        }
+      }
+
+      const femalePriorities = [
+        ["female", 200],
+        ["ava", 160],
+        ["aria", 155],
+        ["jenny", 150],
+        ["zira", 148],
+        ["samantha", 145],
+        ["google us english", 140],
+        ["tpf", 135],
+        ["sfg", 135],
+        ["iob", 135],
+        ["victoria", 132],
+        ["karen", 130],
+        ["moira", 130],
+        ["tessa", 130],
+        ["allison", 130],
+        ["susan", 130],
+        ["siri", 130],
+        ["nicky", 128],
+        ["emma", 125],
+        ["sonia", 125],
+        ["libby", 125],
+        ["natural", 30],
+        ["enhanced", 25],
+        ["premium", 22],
+        ["online", 15]
+      ];
+      for (const [kw, pts] of femalePriorities) {
+        if (name.includes(kw)) score += pts;
+      }
+      if (v.localService) score += 4;
+      return score;
+    }
+
+    function loadVoices() {
+      if (!("speechSynthesis" in window)) {
+        const sel = document.getElementById("voiceSelect");
+        sel.innerHTML = `<option value="">TTS 미지원</option>`;
+        return;
+      }
+      const all = window.speechSynthesis.getVoices() || [];
+      const englishVoices = all
+        .map(v => ({ voice: v, score: scoreVoice(v) }))
+        .filter(x => x.score >= 0)
+        .sort((a, b) => b.score - a.score)
+        .map(x => x.voice);
+
+      state.voices = englishVoices;
+      const sel = document.getElementById("voiceSelect");
+      if (englishVoices.length === 0) {
+        sel.innerHTML = `<option value="">여성 기본 (en-US)</option>`;
+        return;
+      }
+
+      if (!state.prefs.voiceName || !englishVoices.some(v => v.name === state.prefs.voiceName)) {
+        state.prefs.voiceName = englishVoices[0].name;
+      }
+
+      sel.innerHTML = englishVoices
+        .map(v => `<option value="${escapeHtml(v.name)}">${escapeHtml(v.name)} (${escapeHtml(v.lang)})</option>`)
+        .join("");
+      sel.value = state.prefs.voiceName;
+    }
+
+    function getSelectedVoice() {
+      if (!state.voices.length) return null;
+      return state.voices.find(v => v.name === state.prefs.voiceName) || state.voices[0];
+    }
+
+    // --- TTS Engine ---
+    function clearDelayTimer() {
+      if (state.playback.delayTimer) {
+        clearTimeout(state.playback.delayTimer);
+        state.playback.delayTimer = null;
+      }
+    }
+
+    function stopPlayback(silent = false) {
+      clearDelayTimer();
+      state.playback.sessionToken += 1;
+      state.playback.active = false;
+      state.playback.paused = false;
+      state.playback.queue = [];
+      state.playback.queueIndex = 0;
+      state.playback.sentIndex = 0;
+      window._activeUtterance = null;
+      if ("speechSynthesis" in window) {
+        try {
+          window.speechSynthesis.cancel();
+        } catch {}
+      }
+      releaseWakeLock();
+      updatePlaybackUI();
+      if (!silent) {
+        document.getElementById("playerNow").textContent = "대기 중";
+      }
+    }
+
+    function startQueue(queue, scope, initialSentIdx = 0) {
+      if (!("speechSynthesis" in window)) {
+        showToast("이 브라우저는 내장 음성(TTS)을 지원하지 않습니다.");
+        return;
+      }
+      if (!queue.length) {
+        showToast("재생할 문항이 없습니다.");
+        return;
+      }
+
+      const wasActive = state.playback.active;
+      clearDelayTimer();
+      state.playback.sessionToken += 1;
+      const myToken = state.playback.sessionToken;
+
+      state.playback.active = true;
+      state.playback.paused = false;
+      state.playback.scope = scope;
+      state.playback.queue = queue;
+      state.playback.queueIndex = 0;
+      state.playback.sentIndex = initialSentIdx;
+
+      if (wasActive || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+        state.playback.delayTimer = setTimeout(() => {
+          if (state.playback.sessionToken === myToken) {
+            speakCurrentSentence(myToken);
+          }
+        }, 50);
+      } else {
+        // Trigger synchronously inside user gesture for iOS Safari audio unlock
+        speakCurrentSentence(myToken);
+      }
+
+      acquireWakeLock();
+      syncPopupWithPlayback();
+      updatePlaybackUI();
+      scrollToActiveBlock();
+    }
+
+    function syncPopupWithPlayback() {
+      const pb = state.playback;
+      if (!pb.active || (pb.scope !== "tab" && pb.scope !== "random")) return;
+      if (state.popup.isEditing) return;
+      const block = pb.queue[pb.queueIndex];
+      if (!block) return;
+      if (!state.popup.isOpen || state.popup.itemId !== block.itemId || state.popup.part !== block.part) {
+        openScriptPopup(block.itemId, block.part, { isEditing: false });
+      }
+    }
+
+    function speakCurrentSentence(myToken) {
+      const pb = state.playback;
+      if (!pb.active || pb.paused || pb.sessionToken !== myToken) return;
+
+      const block = pb.queue[pb.queueIndex];
+      if (!block) {
+        stopPlayback();
+        return;
+      }
+      const text = block.sentences[pb.sentIndex];
+      if (!text) {
+        advanceToNextBlock(myToken);
+        return;
+      }
+
+      const utt = new SpeechSynthesisUtterance(text);
+      window._activeUtterance = utt; // Prevent GC on mobile browsers
+
+      const voice = getSelectedVoice();
+      if (voice) {
+        utt.voice = voice;
+        utt.lang = voice.lang;
+      } else {
+        utt.lang = "en-US";
+      }
+      utt.rate = state.prefs.rate;
+      utt.pitch = block.part === "Q" ? 1.05 : 1.08;
+
+      utt.onend = () => {
+        if (state.playback.sessionToken !== myToken || state.playback.paused) return;
+        advanceSentence(myToken);
+      };
+
+      utt.onerror = (ev) => {
+        if (ev && (ev.error === "interrupted" || ev.error === "canceled")) return;
+        if (state.playback.sessionToken !== myToken || state.playback.paused) return;
+        advanceSentence(myToken);
+      };
+
+      updatePlaybackUI();
+      try {
+        window.speechSynthesis.speak(utt);
+      } catch {
+        stopPlayback();
+        showToast("음성 재생 중 오류가 발생했습니다.");
+      }
+    }
+
+    function advanceSentence(myToken) {
+      const pb = state.playback;
+      if (!pb.active || pb.paused || pb.sessionToken !== myToken) return;
+      const block = pb.queue[pb.queueIndex];
+      if (!block) {
+        stopPlayback();
+        return;
+      }
+
+      if (pb.sentIndex + 1 < block.sentences.length) {
+        pb.sentIndex += 1;
+        speakCurrentSentence(myToken);
+        return;
+      }
+
+      advanceToNextBlock(myToken);
+    }
+
+    function findItemStartQueueIndex(itemId) {
+      const pb = state.playback;
+      for (let i = 0; i < pb.queue.length; i++) {
+        if (pb.queue[i].itemId === itemId) return i;
+      }
+      return 0;
+    }
+
+    function advanceToNextBlock(myToken) {
+      const pb = state.playback;
+      if (!pb.active || pb.paused || pb.sessionToken !== myToken) return;
+
+      const curBlock = pb.queue[pb.queueIndex];
+      const nextIdx = pb.queueIndex + 1;
+      const nextBlock = pb.queue[nextIdx];
+
+      // Handle 1-item repeat
+      if (pb.repeatOne && pb.scope !== "sentence") {
+        const sameItemNext = nextBlock && curBlock && nextBlock.itemId === curBlock.itemId;
+        if (!sameItemNext) {
+          pb.queueIndex = findItemStartQueueIndex(curBlock.itemId);
+          pb.sentIndex = 0;
+          document.getElementById("playerNow").textContent = "🔁 현재 문항 반복...";
+          pb.delayTimer = setTimeout(() => {
+            if (pb.sessionToken === myToken && !pb.paused) {
+              syncPopupWithPlayback();
+              scrollToActiveBlock();
+              speakCurrentSentence(myToken);
+            }
+          }, 700);
+          return;
+        }
+      }
+
+      if (nextIdx >= pb.queue.length) {
+        stopPlayback();
+        showToast("재생이 완료되었습니다.");
+        return;
+      }
+
+      const sameItem = curBlock && nextBlock.itemId === curBlock.itemId;
+      const pauseMs = sameItem ? 600 : 800;
+      pb.queueIndex = nextIdx;
+      pb.sentIndex = 0;
+
+      syncPopupWithPlayback();
+      updatePlaybackUI();
+      document.getElementById("playerNow").textContent = sameItem
+        ? "잠시 후 답변..."
+        : "다음 문항 이동...";
+      scrollToActiveBlock();
+
+      pb.delayTimer = setTimeout(() => {
+        if (pb.sessionToken === myToken && !pb.paused) {
+          speakCurrentSentence(myToken);
+        }
+      }, pauseMs);
+    }
+
+    function pausePlayback() {
+      if (!state.playback.active || state.playback.paused) return;
+      clearDelayTimer();
+      state.playback.sessionToken += 1;
+      state.playback.paused = true;
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch {}
+      }
+      releaseWakeLock();
+      updatePlaybackUI();
+    }
+
+    function resumePlayback() {
+      if (!state.playback.active || !state.playback.paused) return;
+      state.playback.paused = false;
+      const myToken = ++state.playback.sessionToken;
+      acquireWakeLock();
+      updatePlaybackUI();
+      speakCurrentSentence(myToken);
+    }
+
+    function jumpQueueItem(direction) {
+      const pb = state.playback;
+      if (!pb.active || !pb.queue.length) return;
+      const curItemId = pb.queue[pb.queueIndex]?.itemId;
+
+      let targetIdx = pb.queueIndex + direction;
+      if (direction > 0) {
+        while (targetIdx < pb.queue.length && pb.queue[targetIdx].itemId === curItemId) {
+          targetIdx++;
+        }
+        if (targetIdx >= pb.queue.length) targetIdx = 0;
+      } else {
+        // Move to start of current item if mid-item, else start of previous item
+        const curStart = findItemStartQueueIndex(curItemId);
+        if (pb.queueIndex > curStart || pb.sentIndex > 0) {
+          targetIdx = curStart;
+        } else {
+          let prevEnd = curStart - 1;
+          if (prevEnd < 0) prevEnd = pb.queue.length - 1;
+          targetIdx = findItemStartQueueIndex(pb.queue[prevEnd].itemId);
+        }
+      }
+
+      clearDelayTimer();
+      pb.sessionToken += 1;
+      const myToken = pb.sessionToken;
+      pb.queueIndex = targetIdx;
+      pb.sentIndex = 0;
+      pb.paused = false;
+      window.speechSynthesis.cancel();
+      acquireWakeLock();
+      syncPopupWithPlayback();
+      updatePlaybackUI();
+      scrollToActiveBlock();
+      pb.delayTimer = setTimeout(() => {
+        if (pb.sessionToken === myToken) speakCurrentSentence(myToken);
+      }, 60);
+    }
+
+    function playSinglePart(itemId, part) {
+      const pb = state.playback;
+      const cur = pb.queue[pb.queueIndex];
+      if (pb.active && pb.scope === "single" && cur && cur.itemId === itemId && cur.part === part) {
+        stopPlayback();
+        return;
+      }
+      const item = OPIC_DATA.find(x => x.id === itemId);
+      if (!item) return;
+      const text = part === "Q" ? item.qEn : item.aEnPlain;
+      startQueue([{ itemId, part, sentences: splitSentences(text) }], "single", 0);
+    }
+
+    function buildQueueFromItems(items) {
+      const queue = [];
+      for (const item of items) {
+        if (state.prefs.playMode === "qa" || state.prefs.playMode === "q") {
+          queue.push({ itemId: item.id, part: "Q", sentences: splitSentences(item.qEn) });
+        }
+        if (state.prefs.playMode === "qa" || state.prefs.playMode === "a") {
+          queue.push({ itemId: item.id, part: "A", sentences: splitSentences(item.aEnPlain) });
+        }
+      }
+      return queue;
+    }
+
+    function playTabAll() {
+      const pb = state.playback;
+      if (pb.active && pb.scope === "tab") {
+        stopPlayback();
+        return;
+      }
+      const items = getItemsForTab(state.activeTab);
+      if (!items.length) {
+        showToast("현재 탭에 재생할 문항이 없습니다.");
+        return;
+      }
+      startQueue(buildQueueFromItems(items), "tab", 0);
+    }
+
+    function playTabRandom() {
+      const pb = state.playback;
+      if (pb.active && pb.scope === "random") {
+        stopPlayback();
+        return;
+      }
+      const items = getItemsForTab(state.activeTab);
+      if (!items.length) {
+        showToast("현재 탭에 재생할 문항이 없습니다.");
+        return;
+      }
+      const shuffled = shuffleArray(items);
+      startQueue(buildQueueFromItems(shuffled), "random", 0);
+      showToast(`🔀 ${shuffled.length}개 문항 랜덤 재생 시작`);
+    }
+
+    function playSingleSentence(itemId, part, sidx) {
+      const item = OPIC_DATA.find(x => x.id === itemId);
+      if (!item) return;
+      const sentences = splitSentences(part === "Q" ? item.qEn : item.aEnPlain);
+      if (!sentences[sidx]) return;
+      // Play only that single sentence cleanly
+      const pb = state.playback;
+      const wasActive = pb.active;
+      clearDelayTimer();
+      pb.sessionToken += 1;
+      const myToken = pb.sessionToken;
+      pb.active = true;
+      pb.paused = false;
+      pb.scope = "sentence";
+      pb.queue = [{ itemId, part, sentences: [sentences[sidx]], displaySentIdx: sidx }];
+      pb.queueIndex = 0;
+      pb.sentIndex = 0;
+
+      if (wasActive || window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        pb.delayTimer = setTimeout(() => {
+          if (pb.sessionToken === myToken) speakCurrentSentence(myToken);
+        }, 50);
+      } else {
+        speakCurrentSentence(myToken);
+      }
+      updatePlaybackUI();
+    }
+
+    function speakFillerPhrase(text) {
+      if (!("speechSynthesis" in window)) return;
+      stopPlayback(true);
+      const utt = new SpeechSynthesisUtterance(text);
+      window._activeUtterance = utt;
+      const voice = getSelectedVoice();
+      if (voice) {
+        utt.voice = voice;
+        utt.lang = voice.lang;
+      } else {
+        utt.lang = "en-US";
+      }
+      utt.rate = state.prefs.rate;
+      utt.pitch = 1.06;
+      window.speechSynthesis.speak(utt);
+    }
+
+    function scrollToActiveBlock() {
+      const pb = state.playback;
+      if (!pb.active) return;
+      const block = pb.queue[pb.queueIndex];
+      if (!block) return;
+      const card = document.querySelector(`.q-card[data-id="${block.itemId}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    // --- UI Updates ---
+    function updatePlaybackUI() {
+      const pb = state.playback;
+      const curBlock = pb.active ? pb.queue[pb.queueIndex] : null;
+      const curItem = curBlock ? OPIC_DATA.find(x => x.id === curBlock.itemId) : null;
+
+      // Tab Play All & Random buttons
+      const btnTab = document.getElementById("btnPlayTab");
+      const btnRandom = document.getElementById("btnPlayRandom");
+      const tabItems = getItemsForTab(state.activeTab);
+      if (pb.active && pb.scope === "tab") {
+        btnTab.classList.add("is-playing");
+        btnTab.textContent = `⏹ 전체 정지 (${tabItems.length})`;
+      } else {
+        btnTab.classList.remove("is-playing");
+        btnTab.textContent = `▶ 전체 재생 (${tabItems.length})`;
+      }
+      btnTab.disabled = tabItems.length === 0;
+
+      if (pb.active && pb.scope === "random") {
+        btnRandom.classList.add("is-playing");
+        btnRandom.textContent = "⏹ 랜덤 정지";
+      } else {
+        btnRandom.classList.remove("is-playing");
+        btnRandom.textContent = "🔀 랜덤 재생";
+      }
+      btnRandom.disabled = tabItems.length === 0;
+
+      // Mini player status & buttons (1-line)
+      const btnPlayPause = document.getElementById("btnPlayPause");
+      btnPlayPause.textContent = !pb.active || pb.paused ? "▶" : "⏸";
+
+      const btnRepeat = document.getElementById("btnRepeat");
+      btnRepeat.classList.toggle("is-on", pb.repeatOne);
+
+      if (pb.active && curBlock && curItem) {
+        const numStr = String(curItem.id).padStart(2, "0");
+        const prefix = pb.scope === "random" ? "🔀 " : "";
+        const stateText = pb.paused ? "일시정지" : `${pb.sentIndex + 1}/${curBlock.sentences.length}`;
+        document.getElementById("playerNow").textContent =
+          `${prefix}#${numStr} ${curBlock.part} (${stateText})`;
+      }
+
+      // Highlight cards, buttons, sentences in DOM
+      document.querySelectorAll(".q-card").forEach(card => {
+        const id = Number(card.dataset.id);
+        card.classList.toggle("is-active-card", Boolean(curBlock && curBlock.itemId === id));
+      });
+
+      document.querySelectorAll(".qa-block").forEach(el => {
+        const id = Number(el.dataset.id);
+        const part = el.dataset.part;
+        const isThis = Boolean(curBlock && curBlock.itemId === id && curBlock.part === part);
+        el.classList.toggle("is-playing-block", isThis);
+        const btn = el.querySelector(".btn-play-item");
+        if (btn) {
+          btn.classList.toggle("is-playing", isThis && !pb.paused);
+          btn.textContent = isThis && !pb.paused ? "⏹" : "▶";
+        }
+      });
+
+      document.querySelectorAll(".tts-sentence").forEach(span => {
+        const id = Number(span.dataset.itemId);
+        const part = span.dataset.part;
+        const sidx = Number(span.dataset.sidx);
+        const targetSidx = curBlock && typeof curBlock.displaySentIdx === "number"
+          ? curBlock.displaySentIdx
+          : pb.sentIndex;
+        const isSpeaking = Boolean(
+          pb.active &&
+          !pb.paused &&
+          curBlock &&
+          curBlock.itemId === id &&
+          curBlock.part === part &&
+          targetSidx === sidx
+        );
+        span.classList.toggle("is-speaking", isSpeaking);
+        if (isSpeaking && state.popup.isOpen && !state.popup.isEditing && span.closest("#popupBody")) {
+          try {
+            span.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          } catch {}
+        }
+      });
+
+      const btnPopupPlay = document.getElementById("btnPopupPlay");
+      if (btnPopupPlay && state.popup.isOpen) {
+        const isPopupPlaying = Boolean(
+          pb.active &&
+          !pb.paused &&
+          curBlock &&
+          curBlock.itemId === state.popup.itemId &&
+          curBlock.part === state.popup.part
+        );
+        btnPopupPlay.classList.toggle("is-playing", isPopupPlaying);
+        btnPopupPlay.textContent = isPopupPlaying ? "⏹ 정지" : "▶ 재생";
+      }
+    }
+
+    // --- Full-Screen Script Popup ---
+    function applyPopupFontSize() {
+      const popup = document.getElementById("scriptPopup");
+      if (popup) {
+        popup.style.setProperty("--popup-font-size", `${state.prefs.popupFontSize}px`);
+      }
+    }
+
+    function changePopupFontSize(delta) {
+      const next = Math.max(13, Math.min(26, state.prefs.popupFontSize + delta));
+      if (next === state.prefs.popupFontSize) {
+        showToast(delta > 0 ? "최대 글자 크기입니다." : "최소 글자 크기입니다.");
+        return;
+      }
+      state.prefs.popupFontSize = next;
+      savePrefs();
+      applyPopupFontSize();
+      showToast(`글자 크기 ${next}px`);
+    }
+
+    function openScriptPopup(itemId, part = "A", options = {}) {
+      const item = OPIC_DATA.find(x => x.id === itemId);
+      if (!item) return;
+      state.popup.isOpen = true;
+      state.popup.itemId = itemId;
+      state.popup.part = part;
+      state.popup.isEditing = Boolean(options.isEditing);
+
+      const backdrop = document.getElementById("scriptPopupBackdrop");
+      backdrop.classList.add("is-open");
+      backdrop.setAttribute("aria-hidden", "false");
+      renderScriptPopup();
+      updatePlaybackUI();
+    }
+
+    function closeScriptPopup() {
+      state.popup.isOpen = false;
+      state.popup.isEditing = false;
+      const backdrop = document.getElementById("scriptPopupBackdrop");
+      backdrop.classList.remove("is-open");
+      backdrop.setAttribute("aria-hidden", "true");
+      document.getElementById("scriptPopup").classList.remove("is-editing");
+    }
+
+    function renderScriptPopup() {
+      if (!state.popup.isOpen) return;
+      const item = OPIC_DATA.find(x => x.id === state.popup.itemId);
+      if (!item) return;
+
+      const part = state.popup.part;
+      const numStr = String(item.id).padStart(2, "0");
+      const badgeEl = document.getElementById("popupBadge");
+      badgeEl.textContent = `#${numStr} ${part === "Q" ? "질문 Q" : "답변 A"}`;
+      badgeEl.classList.toggle("is-answer", part === "A");
+
+      document.getElementById("popupTitle").textContent = item.title;
+      document.getElementById("btnPopupSwitchPart").textContent = part === "Q" ? "A 답변 보기" : "Q 질문 보기";
+      document.getElementById("btnPopupTranslate").classList.toggle("is-active", state.prefs.showKo);
+      document.getElementById("btnPopupEdit").classList.toggle("is-active", state.popup.isEditing);
+
+      const popupEl = document.getElementById("scriptPopup");
+      popupEl.classList.toggle("is-editing", state.popup.isEditing);
+      applyPopupFontSize();
+
+      const body = document.getElementById("popupBody");
+      if (state.popup.isEditing) {
+        if (part === "Q") {
+          body.innerHTML = `
+            <div class="popup-edit-form">
+              <div class="edit-field">
+                <label class="edit-label" for="editQKeywords">질문 키워드 요약</label>
+                <input id="editQKeywords" class="edit-input" type="text" value="${escapeHtml(item.qKeywords)}" />
+              </div>
+              <div class="edit-field">
+                <label class="edit-label" for="editQEn">영문 질문 (Question)</label>
+                <textarea id="editQEn" class="edit-textarea" rows="5">${escapeHtml(item.qEn)}</textarea>
+              </div>
+              <div class="edit-field">
+                <label class="edit-label" for="editQKo">한글 번역</label>
+                <textarea id="editQKo" class="edit-textarea" rows="4">${escapeHtml(item.qKo)}</textarea>
+              </div>
+              <div class="edit-actions">
+                <button type="button" id="btnResetEdit" class="edit-reset-btn">원본 복원</button>
+                <button type="button" id="btnCancelEdit" class="edit-cancel-btn">취소</button>
+                <button type="button" id="btnSaveEdit" class="edit-save-btn">💾 저장</button>
+              </div>
+            </div>
+          `;
+        } else {
+          const secInputs = item.aSections.map((sec, i) => `
+            <div class="edit-field">
+              <label class="edit-label" for="editASecEn_${i}">${getStepLabel(sec.step)} (${escapeHtml(sec.step)}) 영문</label>
+              <textarea id="editASecEn_${i}" class="edit-textarea" rows="4">${escapeHtml(stripHtmlToPlain(sec.enHtml))}</textarea>
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="editASecKo_${i}">${getStepLabel(sec.step)} (${escapeHtml(sec.step)}) 한글</label>
+              <textarea id="editASecKo_${i}" class="edit-textarea" rows="3">${escapeHtml(sec.ko)}</textarea>
+            </div>
+          `).join("");
+
+          body.innerHTML = `
+            <div class="popup-edit-form">
+              <div class="edit-field">
+                <label class="edit-label" for="editAKeywords">답변 키워드 요약</label>
+                <input id="editAKeywords" class="edit-input" type="text" value="${escapeHtml(item.aKeywords)}" />
+              </div>
+              ${secInputs}
+              <div class="edit-actions">
+                <button type="button" id="btnResetEdit" class="edit-reset-btn">원본 복원</button>
+                <button type="button" id="btnCancelEdit" class="edit-cancel-btn">취소</button>
+                <button type="button" id="btnSaveEdit" class="edit-save-btn">💾 저장</button>
+              </div>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      if (part === "Q") {
+        const qWrapped = splitHtmlBySentences(escapeHtml(item.qEn), item.id, "Q", 0).html;
+        body.innerHTML = `
+          <div class="popup-kw-line">🔑 ${escapeHtml(item.qKeywords)}</div>
+          <div class="popup-para-block">
+            <p class="popup-en-script">${qWrapped}</p>
+            <p class="popup-ko-para">${escapeHtml(item.qKo)}</p>
+          </div>
+          <p class="popup-tap-hint">화면을 터치하면 닫힙니다</p>
+        `;
+      } else {
+        let aSentIdx = 0;
+        const parasHtml = item.aSections.map(sec => {
+          const res = splitHtmlBySentences(sec.enHtml, item.id, "A", aSentIdx);
+          aSentIdx = res.nextIdx;
+          return `
+            <div class="popup-para-block">
+              <p class="popup-en-script"><span class="step-mini ${getStepClass(sec.step)}">${getStepLabel(sec.step)}</span>${res.html}</p>
+              <p class="popup-ko-para">${escapeHtml(sec.ko)}</p>
+            </div>
+          `;
+        }).join("");
+
+        body.innerHTML = `
+          <div class="popup-kw-line">🔑 ${escapeHtml(item.aKeywords)}</div>
+          ${parasHtml}
+          <p class="popup-tap-hint">화면을 터치하면 닫힙니다</p>
+        `;
+      }
+      body.scrollTop = 0;
+    }
+
+    function savePopupEdits() {
+      const item = OPIC_DATA.find(x => x.id === state.popup.itemId);
+      if (!item) return;
+
+      if (state.popup.part === "Q") {
+        const kw = (document.getElementById("editQKeywords").value || "").trim();
+        const en = (document.getElementById("editQEn").value || "").replace(/\s+/g, " ").trim();
+        const ko = (document.getElementById("editQKo").value || "").trim();
+        if (!en) {
+          showToast("영문 질문을 입력해주세요.");
+          return;
+        }
+        item.qKeywords = kw || item.qKeywords;
+        item.qEn = en;
+        item.qKo = ko;
+      } else {
+        const kw = (document.getElementById("editAKeywords").value || "").trim();
+        item.aKeywords = kw || item.aKeywords;
+        const plainParts = [];
+        item.aSections.forEach((sec, i) => {
+          const newPlain = (document.getElementById(`editASecEn_${i}`).value || "").replace(/\s+/g, " ").trim();
+          const newKo = (document.getElementById(`editASecKo_${i}`).value || "").trim();
+          const oldPlain = stripHtmlToPlain(sec.enHtml);
+          if (newPlain && newPlain !== oldPlain) {
+            sec.enHtml = escapeHtml(newPlain);
+          }
+          if (newPlain) {
+            plainParts.push(newPlain);
+          } else {
+            plainParts.push(oldPlain);
+          }
+          sec.ko = newKo;
+        });
+        item.aEnPlain = plainParts.join(" ").trim();
+      }
+
+      state.edits[String(item.id)] = {
+        qKeywords: item.qKeywords,
+        qEn: item.qEn,
+        qKo: item.qKo,
+        aKeywords: item.aKeywords,
+        aSections: item.aSections.map(s => ({ enHtml: s.enHtml, ko: s.ko })),
+        aEnPlain: item.aEnPlain
+      };
+      saveEdits();
+      state.popup.isEditing = false;
+      renderCards();
+      renderScriptPopup();
+      updatePlaybackUI();
+      showToast("스크립트가 저장되었습니다.");
+    }
+
+    function resetPopupItem() {
+      const item = OPIC_DATA.find(x => x.id === state.popup.itemId);
+      const def = DEFAULT_OPIC_DATA.find(x => x.id === state.popup.itemId);
+      if (!item || !def) return;
+
+      applyItemPatch(item, JSON.parse(JSON.stringify(def)));
+      delete state.edits[String(item.id)];
+      saveEdits();
+      state.popup.isEditing = false;
+      renderCards();
+      renderScriptPopup();
+      updatePlaybackUI();
+      showToast("기본 스크립트로 복원되었습니다.");
+    }
+
+    function renderTabs() {
+      const tabBar = document.getElementById("tabBar");
+      tabBar.innerHTML = TABS.map(tab => {
+        const count = getItemsForTab(tab.id).length;
+        const activeCls = state.activeTab === tab.id ? "is-active" : "";
+        return `
+          <button type="button" class="tab-pill ${activeCls}" data-tab="${tab.id}">
+            <span>${tab.label}</span>
+            <span class="tab-count">${count}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderProgress() {
+      document.getElementById("progressPill").textContent = `완료 ${state.doneIds.size}/${OPIC_DATA.length}`;
+    }
+
+    function renderPrefsUI() {
+      document.body.classList.toggle("hide-ko", !state.prefs.showKo);
+      document.body.classList.toggle("blind-on", state.prefs.blindMode);
+
+      const btnKo = document.getElementById("btnToggleKo");
+      btnKo.textContent = state.prefs.showKo ? "한글 ON" : "한글 OFF";
+      btnKo.classList.toggle("is-active", state.prefs.showKo);
+
+      const btnPopupTranslate = document.getElementById("btnPopupTranslate");
+      if (btnPopupTranslate) {
+        btnPopupTranslate.classList.toggle("is-active", state.prefs.showKo);
+      }
+
+      const btnBlind = document.getElementById("btnToggleBlind");
+      btnBlind.textContent = state.prefs.blindMode ? "블라인드 ON" : "블라인드 OFF";
+      btnBlind.classList.toggle("is-active", state.prefs.blindMode);
+
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.toggle("is-active", btn.dataset.mode === state.prefs.playMode);
+      });
+
+      document.getElementById("btnRate").textContent = `${state.prefs.rate.toFixed(state.prefs.rate === 1 ? 1 : 2).replace(/\.00$/, ".0")}x`;
+      applyPopupFontSize();
+    }
+
+    function renderCards() {
+      const container = document.getElementById("cardList");
+      const items = getItemsForTab(state.activeTab);
+
+      if (!items.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>⭐ 복습노트가 비어 있습니다</strong>
+            문항 오른쪽 상단의 ☆ 버튼을 눌러<br />헷갈리거나 집중 복습할 문항을 모아보세요!
+          </div>
+        `;
+        updatePlaybackUI();
+        return;
+      }
+
+      container.innerHTML = items.map(item => {
+        const numStr = String(item.id).padStart(2, "0");
+        const isStarred = state.starredIds.has(item.id);
+        const isDone = state.doneIds.has(item.id);
+
+        return `
+          <article class="q-card ${isDone ? "is-done" : ""}" data-id="${item.id}">
+            <div class="card-header">
+              <div class="card-meta">
+                <span class="item-num">#${numStr}</span>
+                <span class="type-badge ${getBadgeClass(item.badge)}">${escapeHtml(item.badge)}</span>
+                <span class="card-title">${escapeHtml(item.title)}</span>
+              </div>
+              <div class="card-actions">
+                <button type="button" class="icon-toggle ${isStarred ? "is-on" : ""}" data-action="star" data-id="${item.id}" aria-label="별표 복습 체크">${isStarred ? "⭐" : "☆"}</button>
+                <button type="button" class="icon-toggle ${isDone ? "is-on" : ""}" data-action="done" data-id="${item.id}" aria-label="암기 완료 체크">${isDone ? "✅" : "☑️"}</button>
+              </div>
+            </div>
+
+            <!-- Question Row -->
+            <div class="qa-block" data-id="${item.id}" data-part="Q">
+              <div class="qa-row" data-action="open-popup" data-id="${item.id}" data-part="Q">
+                <button type="button" class="btn-play-item" data-action="play-part" data-id="${item.id}" data-part="Q" aria-label="질문 재생">▶</button>
+                <div class="qa-summary-area">
+                  <span class="qa-tag tag-q">Q</span>
+                  <span class="qa-keywords">${escapeHtml(item.qKeywords)}</span>
+                </div>
+                <span class="open-arrow" aria-hidden="true">›</span>
+              </div>
+            </div>
+
+            <!-- Answer Row -->
+            <div class="qa-block" data-id="${item.id}" data-part="A">
+              <div class="qa-row" data-action="open-popup" data-id="${item.id}" data-part="A">
+                <button type="button" class="btn-play-item is-answer" data-action="play-part" data-id="${item.id}" data-part="A" aria-label="답변 재생">▶</button>
+                <div class="qa-summary-area">
+                  <span class="qa-tag tag-a">A</span>
+                  <span class="qa-keywords">${escapeHtml(item.aKeywords)}</span>
+                </div>
+                <span class="open-arrow" aria-hidden="true">›</span>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      updatePlaybackUI();
+    }
+
+    function renderFillerModal() {
+      const body = document.getElementById("fillerSheetBody");
+      body.innerHTML = FILLER_GROUPS.map(g => `
+        <div>
+          <h3 class="filler-group-title">${escapeHtml(g.title)}</h3>
+          <div class="filler-chips">
+            ${g.items.map(it => `
+              <button type="button" class="filler-chip" data-speak="${escapeHtml(it.en)}">
+                <div>
+                  <div class="filler-en">${escapeHtml(it.en)}</div>
+                  <div class="filler-ko">${escapeHtml(it.ko)}</div>
+                </div>
+                <span class="filler-say">🔊</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // --- Event Bindings ---
+    function bindEvents() {
+      // Utility Bar
+      document.getElementById("btnToggleKo").addEventListener("click", () => {
+        state.prefs.showKo = !state.prefs.showKo;
+        savePrefs();
+        renderPrefsUI();
+      });
+
+      document.getElementById("btnToggleBlind").addEventListener("click", () => {
+        state.prefs.blindMode = !state.prefs.blindMode;
+        if (!state.prefs.blindMode) {
+          document.querySelectorAll(".hl-expr.is-revealed").forEach(el => el.classList.remove("is-revealed"));
+        }
+        savePrefs();
+        renderPrefsUI();
+        showToast(state.prefs.blindMode ? "블라인드 ON: 가려진 표현을 터치하면 보입니다." : "블라인드 OFF");
+      });
+
+      // Filler Modal
+      const modal = document.getElementById("fillerModal");
+      document.getElementById("btnOpenFillers").addEventListener("click", () => {
+        modal.classList.add("is-open");
+      });
+      document.getElementById("btnCloseFillers").addEventListener("click", () => {
+        modal.classList.remove("is-open");
+      });
+      modal.addEventListener("click", e => {
+        if (e.target === modal) modal.classList.remove("is-open");
+      });
+      document.getElementById("fillerSheetBody").addEventListener("click", e => {
+        const chip = e.target.closest(".filler-chip");
+        if (chip) speakFillerPhrase(chip.dataset.speak);
+      });
+
+      // Script Popup
+      const popupBackdrop = document.getElementById("scriptPopupBackdrop");
+      document.querySelector(".popup-toolbar").addEventListener("click", e => {
+        e.stopPropagation();
+      });
+
+      document.getElementById("btnPopupSwitchPart").addEventListener("click", () => {
+        if (!state.popup.isOpen) return;
+        state.popup.isEditing = false;
+        state.popup.part = state.popup.part === "Q" ? "A" : "Q";
+        renderScriptPopup();
+        updatePlaybackUI();
+      });
+
+      document.getElementById("btnFontDown").addEventListener("click", () => changePopupFontSize(-2));
+      document.getElementById("btnFontUp").addEventListener("click", () => changePopupFontSize(2));
+
+      document.getElementById("btnPopupTranslate").addEventListener("click", () => {
+        state.prefs.showKo = !state.prefs.showKo;
+        savePrefs();
+        renderPrefsUI();
+      });
+
+      document.getElementById("btnPopupEdit").addEventListener("click", () => {
+        if (!state.popup.isOpen) return;
+        state.popup.isEditing = !state.popup.isEditing;
+        renderScriptPopup();
+      });
+
+      document.getElementById("btnPopupPlay").addEventListener("click", () => {
+        if (!state.popup.isOpen) return;
+        playSinglePart(state.popup.itemId, state.popup.part);
+      });
+
+      document.getElementById("popupBody").addEventListener("click", e => {
+        if (state.popup.isEditing) {
+          if (e.target.closest("#btnSaveEdit")) {
+            savePopupEdits();
+          } else if (e.target.closest("#btnCancelEdit")) {
+            state.popup.isEditing = false;
+            renderScriptPopup();
+          } else if (e.target.closest("#btnResetEdit")) {
+            resetPopupItem();
+          }
+          return;
+        }
+
+        if (state.prefs.blindMode) {
+          const expr = e.target.closest(".hl-expr:not(.is-revealed)");
+          if (expr) {
+            e.stopPropagation();
+            expr.classList.add("is-revealed");
+            return;
+          }
+        }
+
+        closeScriptPopup();
+      });
+
+      popupBackdrop.addEventListener("click", e => {
+        if (e.target === popupBackdrop && !state.popup.isEditing) {
+          closeScriptPopup();
+        }
+      });
+
+      // Tabs
+      document.getElementById("tabBar").addEventListener("click", e => {
+        const btn = e.target.closest(".tab-pill");
+        if (!btn) return;
+        state.activeTab = btn.dataset.tab;
+        renderTabs();
+        renderCards();
+      });
+
+      // Tab Controls
+      document.getElementById("btnPlayTab").addEventListener("click", playTabAll);
+      document.getElementById("btnPlayRandom").addEventListener("click", playTabRandom);
+
+      document.querySelector(".mode-row").addEventListener("click", e => {
+        const btn = e.target.closest(".mode-btn");
+        if (!btn) return;
+        state.prefs.playMode = btn.dataset.mode;
+        savePrefs();
+        renderPrefsUI();
+      });
+
+      // Cards Delegation
+      document.getElementById("cardList").addEventListener("click", e => {
+        // 1. Play button inside Q/A row
+        const playBtn = e.target.closest('[data-action="play-part"]');
+        if (playBtn) {
+          e.stopPropagation();
+          playSinglePart(Number(playBtn.dataset.id), playBtn.dataset.part);
+          return;
+        }
+
+        // 2. Star / Done buttons
+        const starBtn = e.target.closest('[data-action="star"]');
+        if (starBtn) {
+          const id = Number(starBtn.dataset.id);
+          if (state.starredIds.has(id)) state.starredIds.delete(id);
+          else state.starredIds.add(id);
+          saveStarred();
+          renderTabs();
+          renderCards();
+          return;
+        }
+
+        const doneBtn = e.target.closest('[data-action="done"]');
+        if (doneBtn) {
+          const id = Number(doneBtn.dataset.id);
+          if (state.doneIds.has(id)) state.doneIds.delete(id);
+          else state.doneIds.add(id);
+          saveDone();
+          renderProgress();
+          renderCards();
+          return;
+        }
+
+        // 3. Open Full-Screen Script Popup
+        const row = e.target.closest('[data-action="open-popup"]');
+        if (row) {
+          openScriptPopup(Number(row.dataset.id), row.dataset.part);
+        }
+      });
+
+      // Mini Player Controls
+      document.getElementById("btnPlayPause").addEventListener("click", () => {
+        if (!state.playback.active) {
+          playTabAll();
+        } else if (state.playback.paused) {
+          resumePlayback();
+        } else {
+          pausePlayback();
+        }
+      });
+
+      document.getElementById("btnStop").addEventListener("click", () => stopPlayback());
+      document.getElementById("btnPrev").addEventListener("click", () => jumpQueueItem(-1));
+      document.getElementById("btnNext").addEventListener("click", () => jumpQueueItem(1));
+
+      document.getElementById("btnRepeat").addEventListener("click", () => {
+        state.playback.repeatOne = !state.playback.repeatOne;
+        updatePlaybackUI();
+        showToast(state.playback.repeatOne ? "1문항 반복 재생 ON" : "1문항 반복 재생 OFF");
+      });
+
+      document.getElementById("btnRate").addEventListener("click", () => {
+        const curIdx = RATES.indexOf(state.prefs.rate);
+        state.prefs.rate = RATES[(curIdx + 1) % RATES.length];
+        savePrefs();
+        renderPrefsUI();
+        if (state.playback.active && !state.playback.paused) {
+          // Apply new speed immediately on current sentence
+          const pb = state.playback;
+          clearDelayTimer();
+          pb.sessionToken += 1;
+          const myToken = pb.sessionToken;
+          window.speechSynthesis.cancel();
+          pb.delayTimer = setTimeout(() => {
+            if (pb.sessionToken === myToken) speakCurrentSentence(myToken);
+          }, 50);
+        }
+      });
+
+      document.getElementById("voiceSelect").addEventListener("change", e => {
+        state.prefs.voiceName = e.target.value;
+        savePrefs();
+        showToast("음성이 변경되었습니다.");
+      });
+    }
+
+    // --- Init ---
+    function init() {
+      loadState();
+      renderProgress();
+      renderPrefsUI();
+      renderTabs();
+      renderCards();
+      renderFillerModal();
+      bindEvents();
+
+      loadVoices();
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
