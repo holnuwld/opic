@@ -84,6 +84,34 @@
       margin: 0;
     }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .survey-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #fef3c7;
+      color: #78350f;
+      border: 1px solid #f59e0b;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 9px;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.14);
+      transition: transform 0.1s;
+    }
+
+    .survey-link-btn:active {
+      transform: scale(0.95);
+    }
+
     .progress-pill {
       background: rgba(255, 255, 255, 0.18);
       border: 1px solid rgba(255, 255, 255, 0.25);
@@ -1122,7 +1150,10 @@
     <header class="top-header">
       <div class="header-row">
         <h1 class="app-title">🎧 OPIc 포켓 스터디</h1>
-        <span id="progressPill" class="progress-pill">완료 0/31</span>
+        <div class="header-right">
+          <a href="survey.html" class="survey-link-btn">📋 서베이 테스트</a>
+          <span id="progressPill" class="progress-pill">완료 0/31</span>
+        </div>
       </div>
       <div class="utility-bar">
         <button type="button" id="btnToggleKo" class="util-btn">한글 OFF</button>
