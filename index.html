@@ -868,6 +868,29 @@
       color: var(--danger);
     }
 
+    .edit-auto-btn {
+      width: 100%;
+      appearance: none;
+      border: 1.5px solid #99f6e4;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12.5px;
+      font-weight: 800;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .edit-auto-btn:disabled,
+    .edit-save-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
     /* Highlighting & Blind Mode */
     .hl-filler {
       background: #fef3c7;
@@ -3271,6 +3294,7 @@
                 <label class="edit-label" for="editQKo">한글 번역</label>
                 <textarea id="editQKo" class="edit-textarea" rows="4">${escapeHtml(item.qKo)}</textarea>
               </div>
+              <button type="button" id="btnAutoTranslateEdit" class="edit-auto-btn">🪄 영문 기준 번역·키워드 자동생성</button>
               <div class="edit-actions">
                 <button type="button" id="btnResetEdit" class="edit-reset-btn">원본 복원</button>
                 <button type="button" id="btnCancelEdit" class="edit-cancel-btn">취소</button>
@@ -3297,6 +3321,7 @@
                 <input id="editAKeywords" class="edit-input" type="text" value="${escapeHtml(item.aKeywords)}" />
               </div>
               ${secInputs}
+              <button type="button" id="btnAutoTranslateEdit" class="edit-auto-btn">🪄 영문 기준 번역·키워드 자동생성</button>
               <div class="edit-actions">
                 <button type="button" id="btnResetEdit" class="edit-reset-btn">원본 복원</button>
                 <button type="button" id="btnCancelEdit" class="edit-cancel-btn">취소</button>
@@ -3340,56 +3365,374 @@
       body.scrollTop = 0;
     }
 
-    function savePopupEdits() {
-      const item = OPIC_DATA.find(x => x.id === state.popup.itemId);
-      if (!item) return;
+    async function translateEnToKo(text) {
+      const cleaned = (text || "").replace(/\s+/g, " ").trim();
+      if (!cleaned) return "";
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 4500) : null;
+      try {
+        const url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=" + encodeURIComponent(cleaned);
+        const res = await fetch(url, controller ? { signal: controller.signal } : undefined);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (!Array.isArray(data) || !Array.isArray(data[0])) throw new Error("Invalid translate response");
+        return data[0].map(seg => (seg && seg[0]) ? seg[0] : "").join("").trim();
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
 
-      if (state.popup.part === "Q") {
-        const kw = (document.getElementById("editQKeywords").value || "").trim();
-        const en = (document.getElementById("editQEn").value || "").replace(/\s+/g, " ").trim();
-        const ko = (document.getElementById("editQKo").value || "").trim();
-        if (!en) {
-          showToast("영문 질문을 입력해주세요.");
-          return;
+    function extractKeywordsFromEnglish(plainText, maxWords = 5) {
+      let s = (plainText || "").replace(/\s+/g, " ").trim();
+      if (!s) return "";
+
+      const leadPatterns = [
+        /^(?:well|so|yeah|okay|ok|oh|hi there|hello|hey|excuse me|actually|honestly|overall|all in all|looking back|meanwhile|however|therefore|basically|essentially|obviously|unfortunately|luckily|eventually|finally|in the end|to start|first of all|first|second|third|next|then|after that|as i mentioned|you know|i mean)\b[,:\s]*/i,
+        /^(?:let me tell you about|i'd like to talk about|i would like to talk about|i'd like to tell you about|tell me about|can you tell me about|now,?\s*tell me about|could you describe for me|could you think about)\b[,:\s]*/i,
+        /^(?:yes,?\s*i had this kind of (?:incident|experience)|the last time i|whenever i|when i)\b[,:\s]*/i
+      ];
+      for (let pass = 0; pass < 3; pass++) {
+        let changed = false;
+        for (const rx of leadPatterns) {
+          const next = s.replace(rx, "").trim();
+          if (next !== s && next.length > 0) {
+            s = next;
+            changed = true;
+          }
         }
-        item.qKeywords = kw || item.qKeywords;
-        item.qEn = en;
-        item.qKo = ko;
-      } else {
-        const kw = (document.getElementById("editAKeywords").value || "").trim();
-        item.aKeywords = kw || item.aKeywords;
-        const plainParts = [];
-        item.aSections.forEach((sec, i) => {
-          const newPlain = (document.getElementById(`editASecEn_${i}`).value || "").replace(/\s+/g, " ").trim();
-          const newKo = (document.getElementById(`editASecKo_${i}`).value || "").trim();
-          const oldPlain = stripHtmlToPlain(sec.enHtml);
-          if (newPlain && newPlain !== oldPlain) {
-            sec.enHtml = escapeHtml(newPlain);
-          }
-          if (newPlain) {
-            plainParts.push(newPlain);
-          } else {
-            plainParts.push(oldPlain);
-          }
-          sec.ko = newKo;
-        });
-        item.aEnPlain = plainParts.join(" ").trim();
+        if (!changed) break;
       }
 
-      state.edits[String(item.id)] = {
-        qKeywords: item.qKeywords,
-        qEn: item.qEn,
-        qKo: item.qKo,
-        aKeywords: item.aKeywords,
-        aSections: item.aSections.map(s => ({ enHtml: s.enHtml, ko: s.ko })),
-        aEnPlain: item.aEnPlain
+      const firstSent = (s.split(/[.!?]+/)[0] || s).trim();
+      const words = firstSent.replace(/[^A-Za-z0-9''\-\s]/g, " ").trim().split(/\s+/).filter(Boolean);
+      const stopWords = new Set([
+        "i", "me", "my", "mine", "myself", "we", "us", "our", "ours",
+        "you", "your", "yours", "he", "him", "his", "she", "her", "hers",
+        "it", "its", "they", "them", "their", "theirs",
+        "a", "an", "the", "is", "am", "are", "was", "were", "be", "been", "being",
+        "have", "has", "had", "do", "does", "did", "will", "would", "can", "could", "should",
+        "to", "of", "in", "on", "at", "by", "for", "with", "from", "about", "as", "into",
+        "that", "this", "these", "those", "there", "here", "which", "who", "whom", "whose",
+        "and", "or", "but", "so", "if", "because", "while", "when", "where", "than",
+        "very", "really", "just", "quite", "pretty", "actually", "basically", "some", "any", "such"
+      ]);
+
+      const content = words.filter(w => !stopWords.has(w.toLowerCase()));
+      const picked = (content.length >= 2 ? content : words).slice(0, maxWords);
+      if (!picked.length) return "";
+      const joined = picked.join(" ");
+      return joined.charAt(0).toUpperCase() + joined.slice(1);
+    }
+
+    function buildUpdatedAKeywords(item, defItem) {
+      const defBeats = ((defItem && defItem.aKeywords) || "").split("➔").map(s => s.trim());
+      const beats = item.aSections.map((sec, i) => {
+        const curPlain = stripHtmlToPlain(sec.enHtml);
+        const defPlain = defItem && defItem.aSections[i] ? stripHtmlToPlain(defItem.aSections[i].enHtml) : "";
+        const defBeat = defBeats[i] || "";
+        if (curPlain === defPlain && defBeat) {
+          return defBeat;
+        }
+        const emojiMatch = defBeat.match(/^([^\x00-\x7F]+\s*)/);
+        const prefix = emojiMatch ? emojiMatch[1] : "";
+        const kw = extractKeywordsFromEnglish(curPlain, 5);
+        return kw ? `${prefix}${kw}` : (defBeat || curPlain.slice(0, 32));
+      });
+      return beats.join(" ➔ ");
+    }
+
+    function buildUpdatedQKeywords(item, defItem) {
+      const curQ = (item.qEn || "").replace(/\s+/g, " ").trim();
+      const defQ = ((defItem && defItem.qEn) || "").replace(/\s+/g, " ").trim();
+      if (defItem && curQ === defQ) return defItem.qKeywords;
+      const sentences = splitSentences(curQ);
+      const parts = sentences.slice(0, 3).map(s => extractKeywordsFromEnglish(s, 4)).filter(Boolean);
+      return parts.length ? parts.join(" · ") : (defItem ? defItem.qKeywords : curQ.slice(0, 48));
+    }
+
+    async function autoGenerateEditFields() {
+      const item = OPIC_DATA.find(x => x.id === state.popup.itemId);
+      const defItem = DEFAULT_OPIC_DATA.find(x => x.id === state.popup.itemId);
+      if (!item || !defItem) return;
+
+      const autoBtn = document.getElementById("btnAutoTranslateEdit");
+      if (autoBtn) {
+        autoBtn.disabled = true;
+        autoBtn.textContent = "⏳ 영문 기반 번역·키워드 생성 중...";
+      }
+
+      let failedTranslate = false;
+      try {
+        if (state.popup.part === "Q") {
+          const enVal = (document.getElementById("editQEn").value || "").replace(/\s+/g, " ").trim();
+          if (!enVal) {
+            showToast("영문 질문을 먼저 입력해주세요.");
+            return;
+          }
+          const tempItem = { ...item, qEn: enVal };
+          document.getElementById("editQKeywords").value = buildUpdatedQKeywords(tempItem, defItem);
+          try {
+            const ko = await translateEnToKo(enVal);
+            if (ko) document.getElementById("editQKo").value = ko;
+          } catch {
+            failedTranslate = true;
+          }
+        } else {
+          const plainInputs = item.aSections.map((_, i) =>
+            (document.getElementById(`editASecEn_${i}`).value || "").replace(/\s+/g, " ").trim()
+          );
+          const tempItem = {
+            ...item,
+            aSections: item.aSections.map((sec, i) => ({
+              ...sec,
+              enHtml: escapeHtml(plainInputs[i] || stripHtmlToPlain(sec.enHtml))
+            }))
+          };
+          document.getElementById("editAKeywords").value = buildUpdatedAKeywords(tempItem, defItem);
+
+          const anyChanged = plainInputs.some((p, i) => p && p !== stripHtmlToPlain(defItem.aSections[i].enHtml));
+          for (let i = 0; i < item.aSections.length; i++) {
+            const p = plainInputs[i];
+            if (!p) continue;
+            const isChangedFromDef = p !== stripHtmlToPlain(defItem.aSections[i].enHtml);
+            if (anyChanged && !isChangedFromDef) continue;
+            try {
+              const ko = await translateEnToKo(p);
+              if (ko) document.getElementById(`editASecKo_${i}`).value = ko;
+            } catch {
+              failedTranslate = true;
+            }
+          }
+        }
+        showToast(failedTranslate ? "키워드 생성 완료 (번역은 인터넷 연결 필요)" : "번역과 키워드를 자동 생성했습니다.");
+      } finally {
+        if (autoBtn) {
+          autoBtn.disabled = false;
+          autoBtn.textContent = "🪄 영문 기준 번역·키워드 자동생성";
+        }
+      }
+    }
+
+    async function savePopupEdits() {
+      const item = OPIC_DATA.find(x => x.id === state.popup.itemId);
+      const defItem = DEFAULT_OPIC_DATA.find(x => x.id === state.popup.itemId);
+      if (!item || !defItem) return;
+
+      const saveBtn = document.getElementById("btnSaveEdit");
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "⏳ 번역·저장 중...";
+      }
+
+      const prevPatch = state.edits[String(item.id)] || {};
+      const nextPatchFlags = {
+        kwSynced: true,
+        qKoSynced: Boolean(prevPatch.qKoSynced),
+        aKoSynced_0: Boolean(prevPatch.aKoSynced_0),
+        aKoSynced_1: Boolean(prevPatch.aKoSynced_1),
+        aKoSynced_2: Boolean(prevPatch.aKoSynced_2)
       };
-      saveEdits();
-      state.popup.isEditing = false;
-      renderCards();
-      renderScriptPopup();
-      updatePlaybackUI();
-      showToast("스크립트가 저장되었습니다.");
+
+      try {
+        if (state.popup.part === "Q") {
+          const prevQEn = (item.qEn || "").replace(/\s+/g, " ").trim();
+          const prevQKo = (item.qKo || "").trim();
+          const prevQKw = (item.qKeywords || "").trim();
+
+          const kw = (document.getElementById("editQKeywords").value || "").trim();
+          const en = (document.getElementById("editQEn").value || "").replace(/\s+/g, " ").trim();
+          let ko = (document.getElementById("editQKo").value || "").trim();
+          if (!en) {
+            showToast("영문 질문을 입력해주세요.");
+            return;
+          }
+
+          const enChanged = en !== prevQEn;
+          item.qEn = en;
+          if (enChanged && kw === prevQKw) {
+            item.qKeywords = buildUpdatedQKeywords(item, defItem);
+          } else {
+            item.qKeywords = kw || item.qKeywords;
+          }
+
+          if (enChanged && ko === prevQKo) {
+            try {
+              const translated = await translateEnToKo(en);
+              if (translated) {
+                ko = translated;
+                nextPatchFlags.qKoSynced = true;
+              }
+            } catch {
+              nextPatchFlags.qKoSynced = false;
+            }
+          } else if (ko !== prevQKo) {
+            nextPatchFlags.qKoSynced = true;
+          }
+          item.qKo = ko;
+        } else {
+          const prevAKw = (item.aKeywords || "").trim();
+          const kwInput = (document.getElementById("editAKeywords").value || "").trim();
+
+          const oldPlains = item.aSections.map(s => stripHtmlToPlain(s.enHtml));
+          const oldKos = item.aSections.map(s => (s.ko || "").trim());
+          let anyEnChanged = false;
+          const plainParts = [];
+
+          for (let i = 0; i < item.aSections.length; i++) {
+            const sec = item.aSections[i];
+            const newPlain = (document.getElementById(`editASecEn_${i}`).value || "").replace(/\s+/g, " ").trim();
+            let newKo = (document.getElementById(`editASecKo_${i}`).value || "").trim();
+            const oldPlain = oldPlains[i];
+            const enChanged = Boolean(newPlain && newPlain !== oldPlain);
+
+            if (enChanged) {
+              anyEnChanged = true;
+              sec.enHtml = escapeHtml(newPlain);
+              if (newKo === oldKos[i] || !newKo) {
+                try {
+                  const translated = await translateEnToKo(newPlain);
+                  if (translated) {
+                    newKo = translated;
+                    nextPatchFlags[`aKoSynced_${i}`] = true;
+                  }
+                } catch {
+                  nextPatchFlags[`aKoSynced_${i}`] = false;
+                }
+              } else {
+                nextPatchFlags[`aKoSynced_${i}`] = true;
+              }
+            } else if (newKo !== oldKos[i]) {
+              nextPatchFlags[`aKoSynced_${i}`] = true;
+            }
+
+            plainParts.push(newPlain || oldPlain);
+            sec.ko = newKo;
+          }
+
+          item.aEnPlain = plainParts.join(" ").trim();
+          if (anyEnChanged && kwInput === prevAKw) {
+            item.aKeywords = buildUpdatedAKeywords(item, defItem);
+          } else {
+            item.aKeywords = kwInput || item.aKeywords;
+          }
+        }
+
+        state.edits[String(item.id)] = {
+          qKeywords: item.qKeywords,
+          qEn: item.qEn,
+          qKo: item.qKo,
+          aKeywords: item.aKeywords,
+          aSections: item.aSections.map(s => ({ enHtml: s.enHtml, ko: s.ko })),
+          aEnPlain: item.aEnPlain,
+          ...nextPatchFlags
+        };
+        saveEdits();
+        state.popup.isEditing = false;
+        renderCards();
+        renderScriptPopup();
+        updatePlaybackUI();
+        showToast("수정 내용·번역·키워드가 저장되었습니다.");
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "💾 저장";
+        }
+      }
+    }
+
+    async function syncExistingUserEdits() {
+      const entries = Object.entries(state.edits || {});
+      if (!entries.length) return 0;
+
+      let updatedCount = 0;
+      let storeChanged = false;
+
+      for (const [idStr, patch] of entries) {
+        const item = OPIC_DATA.find(x => x.id === Number(idStr));
+        const defItem = DEFAULT_OPIC_DATA.find(x => x.id === Number(idStr));
+        if (!item || !defItem) continue;
+
+        let itemUpdated = false;
+
+        // 1) Question check
+        const curQ = (item.qEn || "").replace(/\s+/g, " ").trim();
+        const defQ = (defItem.qEn || "").replace(/\s+/g, " ").trim();
+        if (curQ !== defQ) {
+          if (!patch.kwSynced && item.qKeywords === defItem.qKeywords) {
+            item.qKeywords = buildUpdatedQKeywords(item, defItem);
+            itemUpdated = true;
+          }
+          if (!patch.qKoSynced && (item.qKo === defItem.qKo || !item.qKo.trim())) {
+            try {
+              const ko = await translateEnToKo(curQ);
+              if (ko) {
+                item.qKo = ko;
+                patch.qKoSynced = true;
+                itemUpdated = true;
+              }
+            } catch {}
+          }
+        }
+
+        // 2) Answer check
+        let anySecChanged = false;
+        for (let i = 0; i < item.aSections.length; i++) {
+          const curPlain = stripHtmlToPlain(item.aSections[i].enHtml);
+          const defPlain = stripHtmlToPlain(defItem.aSections[i].enHtml);
+          if (curPlain !== defPlain) {
+            anySecChanged = true;
+            const flag = `aKoSynced_${i}`;
+            if (!patch[flag] && (item.aSections[i].ko === defItem.aSections[i].ko || !item.aSections[i].ko.trim())) {
+              try {
+                const ko = await translateEnToKo(curPlain);
+                if (ko) {
+                  item.aSections[i].ko = ko;
+                  patch[flag] = true;
+                  itemUpdated = true;
+                }
+              } catch {}
+            }
+          }
+        }
+
+        if (anySecChanged && !patch.kwSynced && item.aKeywords === defItem.aKeywords) {
+          item.aKeywords = buildUpdatedAKeywords(item, defItem);
+          itemUpdated = true;
+        }
+
+        if (!patch.kwSynced) {
+          patch.kwSynced = true;
+          storeChanged = true;
+        }
+
+        if (itemUpdated) {
+          updatedCount += 1;
+          storeChanged = true;
+          state.edits[idStr] = {
+            ...patch,
+            qKeywords: item.qKeywords,
+            qEn: item.qEn,
+            qKo: item.qKo,
+            aKeywords: item.aKeywords,
+            aSections: item.aSections.map(s => ({ enHtml: s.enHtml, ko: s.ko })),
+            aEnPlain: item.aEnPlain,
+            kwSynced: true
+          };
+        }
+      }
+
+      if (storeChanged) {
+        saveEdits();
+      }
+      if (updatedCount > 0) {
+        renderCards();
+        if (state.popup.isOpen && !state.popup.isEditing) {
+          renderScriptPopup();
+        }
+        updatePlaybackUI();
+        showToast(`수정된 스크립트 ${updatedCount}개의 번역·키워드를 자동 반영했습니다.`);
+      }
+      return updatedCount;
     }
 
     function resetPopupItem() {
@@ -3605,7 +3948,9 @@
 
       document.getElementById("popupBody").addEventListener("click", e => {
         if (state.popup.isEditing) {
-          if (e.target.closest("#btnSaveEdit")) {
+          if (e.target.closest("#btnAutoTranslateEdit")) {
+            autoGenerateEditFields();
+          } else if (e.target.closest("#btnSaveEdit")) {
             savePopupEdits();
           } else if (e.target.closest("#btnCancelEdit")) {
             state.popup.isEditing = false;
@@ -3755,6 +4100,8 @@
       if ("speechSynthesis" in window) {
         window.speechSynthesis.onvoiceschanged = loadVoices;
       }
+
+      syncExistingUserEdits();
     }
 
     init();
