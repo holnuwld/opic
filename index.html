@@ -77,30 +77,32 @@
     .app-title {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 16px;
+      gap: 5px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin: 0;
+      white-space: nowrap;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       flex-shrink: 0;
     }
 
-    .survey-link-btn {
+    .survey-link-btn,
+    .memorize-link-btn {
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
       background: #fef3c7;
       color: #78350f;
       border: 1px solid #f59e0b;
       font-size: 11px;
       font-weight: 800;
-      padding: 4px 9px;
+      padding: 4px 8px;
       border-radius: 999px;
       text-decoration: none;
       white-space: nowrap;
@@ -108,7 +110,14 @@
       transition: transform 0.1s;
     }
 
-    .survey-link-btn:active {
+    .memorize-link-btn {
+      background: #ede9fe;
+      color: #4c1d95;
+      border-color: #c4b5fd;
+    }
+
+    .survey-link-btn:active,
+    .memorize-link-btn:active {
       transform: scale(0.95);
     }
 
@@ -116,9 +125,9 @@
       background: rgba(255, 255, 255, 0.18);
       border: 1px solid rgba(255, 255, 255, 0.25);
       color: #ffffff;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
-      padding: 3px 9px;
+      padding: 3px 8px;
       border-radius: 999px;
       white-space: nowrap;
     }
@@ -243,6 +252,54 @@
 
     .tab-pill.is-active .tab-count {
       background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+    }
+
+    .star-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow-x: auto;
+      padding: 0 12px 7px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .star-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .star-pill {
+      appearance: none;
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      color: #92400e;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      cursor: pointer;
+      min-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s;
+    }
+
+    .star-pill .star-cnt {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .star-pill.is-active {
+      background: #f59e0b;
+      color: #ffffff;
+      border-color: #d97706;
+    }
+
+    .star-pill.is-active .star-cnt {
+      opacity: 1;
       color: #ffffff;
     }
 
@@ -419,6 +476,18 @@
     .badge-desc { background: #ccfbf1; color: #0f766e; }
     .badge-link { background: #fef3c7; color: #b45309; }
     .badge-proc { background: #fce7f3; color: #be185d; }
+
+    .star-rating-pill {
+      font-size: 10px;
+      font-weight: 800;
+      color: #b45309;
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      padding: 1px 5px;
+      border-radius: 5px;
+      letter-spacing: -0.04em;
+      flex-shrink: 0;
+    }
 
     .card-title {
       font-size: 13.5px;
@@ -1200,10 +1269,11 @@
     <!-- Top Header & Utility Bar -->
     <header class="top-header">
       <div class="header-row">
-        <h1 class="app-title">🎧 OPIc 포켓 스터디</h1>
+        <h1 class="app-title">🎧 OPIc 스터디</h1>
         <div class="header-right">
-          <a href="survey.html" class="survey-link-btn">📋 서베이 테스트</a>
-          <span id="progressPill" class="progress-pill">완료 0/35</span>
+          <a href="survey.html" class="survey-link-btn">📋 서베이</a>
+          <a href="memorize.html" class="memorize-link-btn">🧠 암기</a>
+          <span id="progressPill" class="progress-pill">0/40</span>
         </div>
       </div>
       <div class="utility-bar">
@@ -1216,15 +1286,16 @@
       </div>
     </header>
 
-    <!-- Sticky Topic Tabs -->
-    <nav class="sticky-nav" aria-label="주제별 탭">
+    <!-- Sticky Topic Tabs & Star Filter -->
+    <nav class="sticky-nav" aria-label="주제별 탭 및 별표 필터">
       <div id="tabBar" class="tab-bar"></div>
+      <div id="starFilterBar" class="star-filter-bar" role="group" aria-label="별표 개수 필터"></div>
     </nav>
 
     <!-- Tab Top Controls -->
     <section class="tab-controls">
       <div class="play-all-row">
-        <button type="button" id="btnPlayTab" class="btn-play-all">▶ 전체 재생 (35)</button>
+        <button type="button" id="btnPlayTab" class="btn-play-all">▶ 전체 재생 (40)</button>
         <button type="button" id="btnPlayRandom" class="btn-play-random">🔀 랜덤 재생</button>
       </div>
       <div class="mode-row" role="group" aria-label="연속 재생 방식">
@@ -1492,6 +1563,7 @@
         id: 6,
         category: "roleplay",
         badge: "롤플레이-질문",
+        stars: 3,
         title: "영화 예약 문의",
         qKeywords: "Take a friend to a movie · Call theater & ask 3–4 questions · Tickets, movie & price",
         qEn: "I'd like to give you a situation and ask you to act it out. You want to take a friend to a movie. Call the movie theater and ask three to four questions to get all the information you need to get tickets.",
@@ -1554,6 +1626,7 @@
         id: 8,
         category: "roleplay",
         badge: "롤플레이-질문",
+        stars: 5,
         title: "친구에게 MP3 플레이어 문의",
         qKeywords: "Buy a new MP3 player · Ask knowledgeable friend 3–4 questions · Models & price",
         qEn: "I'd like to give you a situation and ask you to act it out. You want to buy a new MP3 player, and you have a friend who knows MP3 players very well. Call your friend and ask three or four questions to get all the information about buying an MP3 player.",
@@ -1895,17 +1968,18 @@
         id: 19,
         category: "survey",
         badge: "집·가족(묘사)",
+        stars: 5,
         title: "[가족거주] 현재 사는 집과 좋아하는 방 묘사",
         qKeywords: "Where you live & different rooms · What they look like · Favorite room in detail",
         qEn: "I would like to now talk about where you live. Tell me about your home and different rooms in your home. What do they look like? What is your favorite room? Describe it in detail.",
         qKo: "지금 살고 있는 곳에 대해 이야기해 주세요. 집과 집 안의 여러 방들에 대해 설명해 주세요. 어떤 모습인가요? 가장 좋아하는 방은 어디인가요? 자세히 묘사해 주세요.",
-        aKeywords: "🏢 Suwon 3-bed apt (quiet) ➔ 🛋️ Bright living room & sofa ➔ ❤️ Love my home",
+        aKeywords: "🏢 Yongin 3-bed apt (quiet) ➔ 🛋️ Bright living room & sofa ➔ ❤️ Love my home",
         aSections: [
           {
             step: "도입",
-            summary: "수원 방 3개 아파트 구조 및 조용하고 평화로운 환경",
-            enHtml: "I live in a <span class=\"hl-expr\">three-bedroom apartment</span> in Suwon. It has a living room, a kitchen, three bedrooms, two bathrooms, and a dressing room. It also has a balcony where I can enjoy the view outside. The apartment is not very big, but it's comfortable for my family, and it has everything we need. I especially like that it's in a quiet area, so we can enjoy a <span class=\"hl-expr\">peaceful environment</span>.",
-            ko: "저는 수원에 있는 방 3개짜리 아파트에 살고 있습니다. 거실, 주방, 침실 3개, 욕실 2개, 그리고 드레스룸이 있습니다. 바깥 풍경을 감상할 수 있는 발코니도 있습니다. 아파트가 그리 크지는 않지만 우리 가족에게 안락하며, 필요한 모든 것을 갖추고 있습니다. 특히 조용한 동네에 위치해 있어 평화로운 환경을 누릴 수 있다는 점이 마음에 듭니다."
+            summary: "용인 방 3개 아파트 구조 및 조용하고 평화로운 환경",
+            enHtml: "I live in a <span class=\"hl-expr\">three-bedroom apartment</span> in Yongin. It has a living room, a kitchen, three bedrooms, two bathrooms, and a dressing room. It also has a balcony where I can enjoy the view outside. The apartment is not very big, but it's comfortable for my family, and it has everything we need. I especially like that it's in a quiet area, so we can enjoy a <span class=\"hl-expr\">peaceful environment</span>.",
+            ko: "저는 용인에 있는 방 3개짜리 아파트에 살고 있습니다. 거실, 주방, 침실 3개, 욕실 2개, 그리고 드레스룸이 있습니다. 바깥 풍경을 감상할 수 있는 발코니도 있습니다. 아파트가 그리 크지는 않지만 우리 가족에게 안락하며, 필요한 모든 것을 갖추고 있습니다. 특히 조용한 동네에 위치해 있어 평화로운 환경을 누릴 수 있다는 점이 마음에 듭니다."
           },
           {
             step: "전개",
@@ -1920,7 +1994,7 @@
             ko: "전반적으로 저는 제 집을 정말 사랑하며, 다른 어디에서도 살고 싶지 않습니다."
           }
         ],
-        aEnPlain: "I live in a three-bedroom apartment in Suwon. It has a living room, a kitchen, three bedrooms, two bathrooms, and a dressing room. It also has a balcony where I can enjoy the view outside. The apartment is not very big, but it's comfortable for my family, and it has everything we need. I especially like that it's in a quiet area, so we can enjoy a peaceful environment. My favorite room is the living room. It's bright and spacious, with a large window and a big, comfortable sofa. The walls are light-colored, and the interior has a modern and stylish feel. It's a great place to relax after a busy day, and I spend most of my free time there. Overall, I really love my home, and I wouldn't want to live anywhere else."
+        aEnPlain: "I live in a three-bedroom apartment in Yongin. It has a living room, a kitchen, three bedrooms, two bathrooms, and a dressing room. It also has a balcony where I can enjoy the view outside. The apartment is not very big, but it's comfortable for my family, and it has everything we need. I especially like that it's in a quiet area, so we can enjoy a peaceful environment. My favorite room is the living room. It's bright and spacious, with a large window and a big, comfortable sofa. The walls are light-colored, and the interior has a modern and stylish feel. It's a great place to relax after a busy day, and I spend most of my free time there. Overall, I really love my home, and I wouldn't want to live anywhere else."
       },
       {
         id: 20,
@@ -2081,6 +2155,7 @@
         id: 25,
         category: "survey",
         badge: "음악감상(묘사)",
+        stars: 5,
         title: "[음악감상] 좋아하는 음악 장르(클래식·트로트)와 가수",
         qKeywords: "Kind of music you listen to · Favorite musicians or composers",
         qEn: "You indicated in the survey that you listen to music. What kind of music do you listen to and who are some of your favorite musicians or composers?",
@@ -2174,6 +2249,7 @@
         id: 28,
         category: "survey",
         badge: "영화보기(묘사)",
+        stars: 4,
         title: "[영화보기] 좋아하는 영화 장르와 이유 (집 vs 영화관)",
         qKeywords: "Kinds of movies you like to see · Why you like those genres",
         qEn: "You indicated in the survey that you go to the movies. Tell me about kinds of movies you like to see. Why do you like those kinds of movies?",
@@ -2236,6 +2312,7 @@
         id: 30,
         category: "survey",
         badge: "집캉스(묘사)",
+        stars: 5,
         title: "[집캉스] 집에서 휴가를 함께 보내는 사람과 이유",
         qKeywords: "Vacations at home · Who you spend time with & why",
         qEn: "You indicated in the survey that you have vacations at your home. Tell me about a person or people you like to see and spend time with at home.",
@@ -2417,8 +2494,172 @@
           }
         ],
         aEnPlain: "Let me tell you about my best friend, Jake. We've known each other for a long time, and we still talk or meet up regularly. Well, I can say he looks very healthy and energetic. He has a strong build, clear skin, and always seems full of energy. Even when we hang out after work, he doesn't look tired or stressed. Also, his posture is great, and he always walks with confidence, which makes a strong impression. I think the main reason for this is his healthy habits. He exercises almost every day - either by jogging, going to the gym, or doing yoga at home. He also cares a lot about what he eats. Instead of fast food, he usually brings homemade meals with lots of vegetables and high-protein. So, yeah, he's someone I look up to, and he always gives me positive energy."
+      },
+      {
+        id: 36,
+        category: "daily",
+        badge: "돌발(루틴)",
+        stars: 0,
+        title: "호텔 방문 시 이용 루틴",
+        qKeywords: "When & what you do at a hotel · Step-by-step routine",
+        qEn: "When do you usually go to a hotel? What do you usually do when you stay in a hotel? What do you do first, second, etc.?",
+        qKo: "주로 언제 호텔에 가시나요? 호텔에 머물 때 보통 무엇을 하나요? 첫째, 둘째 등 순서대로 하는 일을 말해주세요.",
+        aKeywords: "🏨 Vacations → check in & unpack ➔ 🧭 Explore cafes & amenities ➔ 🏊 Swim, lounge & breakfast buffet",
+        aSections: [
+          {
+            step: "도입",
+            summary: "호텔 도착 후 체크인과 짐 풀기",
+            enHtml: "I usually stay in hotels during my vacations, especially when I'm traveling or having staycations. <span class=\"hl-expr\">Upon arriving at</span> the hotel, I first check in at the front desk. Once I receive my room key, I <span class=\"hl-expr\">head up to my room</span> and unpack my belongings. Unpacking helps me feel <span class=\"hl-expr\">settled and relaxed</span>.",
+            ko: "저는 주로 휴가 때, 특히 여행이나 호캉스를 할 때 호텔에 머뭅니다. 호텔에 도착하면 먼저 프런트 데스크에서 체크인을 합니다. 객실 키를 받으면 방으로 올라가 짐을 풉니다. 짐을 정리하면 안락하고 편안한 기분이 듭니다."
+          },
+          {
+            step: "전개",
+            summary: "식당·카페 등 호텔 부대시설 둘러보기",
+            enHtml: "After that, I like to <span class=\"hl-expr\">explore the hotel</span> to see what kinds of facilities there are. I look around to check the locations of restaurants, cafes, and amenities. It's fun to just walk around and <span class=\"hl-expr\">get a feel for the place</span>.",
+            ko: "그다음 어떤 부대시설이 있는지 보기 위해 호텔을 둘러보는 것을 좋아합니다. 레스토랑, 카페, 편의시설의 위치를 확인하며 구경합니다. 그냥 걸어 다니며 그곳의 분위기를 느껴보는 것만으로도 즐겁습니다."
+          },
+          {
+            step: "결론",
+            summary: "수영·라운지 휴식과 조식 뷔페 즐기기",
+            enHtml: "And then, I do <span class=\"hl-expr\">whatever I feel like</span>, such as swimming, dining out, or relaxing in the lounge. Also, I <span class=\"hl-expr\">never skip the breakfast buffet</span> in the morning. It's very convenient and delicious. <span class=\"hl-filler\">Overall,</span> these are the typical things I do when I stay at a hotel.",
+            ko: "그러고 나서 수영을 하거나, 외식을 하거나, 라운지에서 쉬는 등 기분 내키는 일을 합니다. 또한 아침 조식 뷔페는 절대 거르지 않습니다. 아주 편리하고 맛있기 때문입니다. 전반적으로 이것이 제가 호텔에 머물 때 주로 하는 일들입니다."
+          }
+        ],
+        aEnPlain: "I usually stay in hotels during my vacations, especially when I'm traveling or having staycations. Upon arriving at the hotel, I first check in at the front desk. Once I receive my room key, I head up to my room and unpack my belongings. Unpacking helps me feel settled and relaxed. After that, I like to explore the hotel to see what kinds of facilities there are. I look around to check the locations of restaurants, cafes, and amenities. It's fun to just walk around and get a feel for the place. And then, I do whatever I feel like, such as swimming, dining out, or relaxing in the lounge. Also, I never skip the breakfast buffet in the morning. It's very convenient and delicious. Overall, these are the typical things I do when I stay at a hotel."
+      },
+      {
+        id: 37,
+        category: "daily",
+        badge: "돌발(절차)",
+        stars: 0,
+        title: "은행 방문 시 업무 절차",
+        qKeywords: "What happens at the bank · From walking in until walking out",
+        qEn: "Tell me about what goes on when you visit the bank. What do you do from the moment you walk in until you walk out?",
+        qKo: "은행을 방문했을 때 어떤 일들이 일어나는지 말해주세요. 들어가는 순간부터 나올 때까지 무엇을 하나요?",
+        aKeywords: "🎫 Pull waiting ticket & phone ➔ 🏦 Meet teller for transaction ➔ 💳 Simple task → fast ATM",
+        aSections: [
+          {
+            step: "도입",
+            summary: "은행 방문 목적과 번호표 뽑고 대기",
+            enHtml: "I sometimes visit the bank for banking services such as <span class=\"hl-expr\">deposits, withdrawals, or official paperwork</span>. <span class=\"hl-expr\">Upon arriving at</span> the bank, I first take a waiting number ticket and <span class=\"hl-expr\">wait for my turn</span>. While waiting, I usually check my smartphone or drink some water.",
+            ko: "저는 입금, 출금 또는 공식 서류 업무 같은 은행 서비스를 이용하기 위해 가끔 은행을 방문합니다. 은행에 도착하면 먼저 대기 번호표를 뽑고 제 차례를 기다립니다. 기다리는 동안에는 보통 스마트폰을 확인하거나 물을 좀 마십니다."
+          },
+          {
+            step: "전개",
+            summary: "번호 호출 후 창구 직원과 업무 처리",
+            enHtml: "When they call my number, I go up to the teller and explain what I need. <span class=\"hl-expr\">Depending on the transaction</span>, it usually takes just a few minutes. But sometimes it can take a bit longer if I have <span class=\"hl-expr\">multiple documents to fill out</span>.",
+            ko: "제 번호가 불리면 창구 직원에게 가서 필요한 업무를 설명합니다. 거래 종류에 따라 다르지만 보통은 몇 분 정도밖에 걸리지 않습니다. 하지만 작성해야 할 서류가 여러 장 있으면 시간이 조금 더 걸리기도 합니다."
+          },
+          {
+            step: "결론",
+            summary: "간단한 업무는 ATM 기기로 빠르게 처리",
+            enHtml: "Occasionally, if the transaction is simple, I just use the ATM machine <span class=\"hl-expr\">instead of waiting for a teller</span>. It's much faster and <span class=\"hl-expr\">straightforward</span>. <span class=\"hl-filler\">Well,</span> these are the typical things I do when I visit the bank.",
+            ko: "가끔 거래가 단순할 때는 창구를 기다리는 대신 그냥 ATM 기기를 이용합니다. 훨씬 빠르고 간편하기 때문입니다. 이것이 제가 은행을 방문할 때 주로 하는 일들입니다."
+          }
+        ],
+        aEnPlain: "I sometimes visit the bank for banking services such as deposits, withdrawals, or official paperwork. Upon arriving at the bank, I first take a waiting number ticket and wait for my turn. While waiting, I usually check my smartphone or drink some water. When they call my number, I go up to the teller and explain what I need. Depending on the transaction, it usually takes just a few minutes. But sometimes it can take a bit longer if I have multiple documents to fill out. Occasionally, if the transaction is simple, I just use the ATM machine instead of waiting for a teller. It's much faster and straightforward. Well, these are the typical things I do when I visit the bank."
+      },
+      {
+        id: 38,
+        category: "daily",
+        badge: "돌발(직업)",
+        stars: 0,
+        title: "취업 및 직업 준비 과정",
+        qKeywords: "Career preparation · Learning about industries · Preparing to apply",
+        qEn: "What do people usually do to prepare for their future careers? How do they learn about different types of industries? How do they prepare to apply for their job?",
+        qKo: "사람들은 보통 미래 커리어를 위해 무엇을 준비하나요? 다양한 산업 분야는 어떻게 알아보고 입사 지원은 어떻게 준비하나요?",
+        aKeywords: "💻 Search jobs online first ➔ 📋 Check requirements & job fairs ➔ 🎓 Build skills, resume & interviews",
+        aSections: [
+          {
+            step: "도입",
+            summary: "온라인 채용 사이트 및 기업 정보 탐색",
+            enHtml: "<span class=\"hl-filler\">Well, these days,</span> preparing for a career usually starts online. The first step many young people take is <span class=\"hl-expr\">searching online for job information</span> or browsing company websites.",
+            ko: "음, 요즘에는 커리어를 준비하는 일이 보통 온라인에서 시작됩니다. 많은 젊은이들이 밟는 첫 단계는 온라인에서 채용 정보를 검색하거나 기업 홈페이지를 둘러보는 것입니다."
+          },
+          {
+            step: "전개",
+            summary: "자격 요건 확인 및 채용 박람회 참가",
+            enHtml: "Once they figure out the field they're interested in, they check the <span class=\"hl-expr\">job requirements and qualifications</span>. Also, attending job fairs is a great way to learn about <span class=\"hl-expr\">potential employers</span> and ask questions directly to recruiters.",
+            ko: "관심 있는 분야를 파악하고 나면 채용 요건과 자격 조건을 확인합니다. 또한 취업 박람회에 참석하는 것도 잠재적 고용주에 대해 알아보고 채용 담당자에게 직접 질문할 수 있는 훌륭한 방법입니다."
+          },
+          {
+            step: "결론",
+            summary: "직무 역량 강화, 이력서·면접·어학 준비",
+            enHtml: "After gathering information, they <span class=\"hl-expr\">work on building their skills</span>. They take professional courses, write resumes, prepare for interviews, and get language certificates. <span class=\"hl-filler\">Overall,</span> these are the common steps people take to <span class=\"hl-expr\">land a good job</span>.",
+            ko: "정보를 모은 후에는 역량을 쌓는 데 집중합니다. 전문 강좌를 수강하고, 이력서를 작성하며, 면접을 준비하고 어학 자격증을 취득합니다. 전반적으로 이것이 좋은 직장에 취업하기 위해 사람들이 거치는 일반적인 단계들입니다."
+          }
+        ],
+        aEnPlain: "Well, these days, preparing for a career usually starts online. The first step many young people take is searching online for job information or browsing company websites. Once they figure out the field they're interested in, they check the job requirements and qualifications. Also, attending job fairs is a great way to learn about potential employers and ask questions directly to recruiters. After gathering information, they work on building their skills. They take professional courses, write resumes, prepare for interviews, and get language certificates. Overall, these are the common steps people take to land a good job."
+      },
+      {
+        id: 39,
+        category: "daily",
+        badge: "돌발(인터넷)",
+        stars: 0,
+        title: "연령대별 인터넷 사용 패턴",
+        qKeywords: "What people do online · Games, videos & activities in detail",
+        qEn: "What do people usually do on the Internet? Do they play games? Do they watch online videos? Tell me things people usually do online in detail.",
+        qKo: "사람들은 인터넷에서 보통 무엇을 하나요? 게임을 하거나 온라인 영상을 보나요? 온라인에서 하는 일들을 자세히 말해주세요.",
+        aKeywords: "👴 Older: news, weather & health ➔ 📱 Younger: SNS, YouTube & banking ➔ 🌐 Varies by age group",
+        aSections: [
+          {
+            step: "도입",
+            summary: "연령대별 목적 차이 및 장·노년층의 정보 검색",
+            enHtml: "I think people use the Internet for <span class=\"hl-expr\">various purposes</span> depending on their age. For example, older people usually do simple things online because they are <span class=\"hl-expr\">less familiar with advanced technology</span>. They often read news articles, check the weather forecast, or search for simple health information.",
+            ko: "사람들은 나이에 따라 다양한 목적으로 인터넷을 사용한다고 생각합니다. 예를 들어, 어르신들은 첨단 기술에 덜 익숙하기 때문에 온라인에서 주로 간단한 일들을 합니다. 뉴스 기사를 읽거나, 일기 예보를 확인하거나, 간단한 건강 정보를 검색하곤 합니다."
+          },
+          {
+            step: "전개",
+            summary: "젊은 세대의 SNS·유튜브·쇼핑·모바일 뱅킹 활용",
+            enHtml: "On the other hand, younger people are very <span class=\"hl-expr\">comfortable with technology</span>. They use social media like Instagram, watch videos on YouTube, and listen to streaming music. They also do a lot of online shopping, mobile banking, and chatting with friends.",
+            ko: "반면 젊은 세대는 기술 사용에 매우 익숙합니다. 인스타그램 같은 SNS를 사용하고, 유튜브로 영상을 보며, 음악 스트리밍을 듣습니다. 또한 온라인 쇼핑, 모바일 뱅킹, 친구들과의 채팅도 많이 이용합니다."
+          },
+          {
+            step: "결론",
+            summary: "필요와 연령대에 따른 다양한 인터넷 활용 요약",
+            enHtml: "<span class=\"hl-filler\">So, as you can see,</span> people use the Internet in different ways <span class=\"hl-expr\">according to their needs and age groups</span>.",
+            ko: "보시다시피 사람들은 각자의 필요와 연령대에 따라 다양한 방식으로 인터넷을 이용합니다."
+          }
+        ],
+        aEnPlain: "I think people use the Internet for various purposes depending on their age. For example, older people usually do simple things online because they are less familiar with advanced technology. They often read news articles, check the weather forecast, or search for simple health information. On the other hand, younger people are very comfortable with technology. They use social media like Instagram, watch videos on YouTube, and listen to streaming music. They also do a lot of online shopping, mobile banking, and chatting with friends. So, as you can see, people use the Internet in different ways according to their needs and age groups."
+      },
+      {
+        id: 40,
+        category: "survey",
+        badge: "공원(경험)",
+        stars: 0,
+        title: "[공원] 공원에서의 특별한 사건 (아내와 큰 개)",
+        qKeywords: "Memorable park experience · Backgrounds · What happened unexpectedly",
+        qEn: "Tell me about a memorable experience you had when you went to the park. Maybe there was a special event in the park or maybe something unexpected happened. Begin by giving me some backgrounds when it was, who you were with and other details. Then, tell me exactly what happened to make that visit so memorable.",
+        qKo: "공원에 갔을 때 겪었던 기억에 남는 경험에 대해 말해주세요. 특별한 행사나 예상치 못한 일이 있었을 수도 있습니다. 언제 누구와 있었는지 배경부터, 무엇 때문에 그렇게 기억에 남았는지 자세히 설명해주세요.",
+        aKeywords: "🏃 Run in park with wife ➔ 🐕 Huge off-leash dog → wife froze ➔ 😂 Filmed her & got in trouble",
+        aSections: [
+          {
+            step: "도입",
+            summary: "휴가 중 점심 식사 후 아내와 공원 조깅",
+            enHtml: "This happened a few years ago while I was on vacation. After lunch, my wife and I went for a run in the park near our apartment to <span class=\"hl-expr\">help digest our food</span>.",
+            ko: "몇 년 전 제가 휴가 중이었을 때 있었던 일입니다. 점심을 먹고 나서 소화도 시킬 겸 아내와 아파트 근처 공원으로 달리기를 하러 나갔습니다."
+          },
+          {
+            step: "전개",
+            summary: "목줄 풀린 대형 리트리버 조우와 아내의 얼어붙은 반응",
+            enHtml: "About halfway through our run, we saw what looked like a huge black bear ahead of us. When we got closer, we realized it was a giant black Labrador Retriever. It was <span class=\"hl-expr\">off-leash</span>, and there was <span class=\"hl-expr\">no owner in sight</span>! My wife is usually very active and fearless, but she's <span class=\"hl-expr\">terrified of dogs</span>. She was so shocked that she <span class=\"hl-expr\">couldn't even move</span>! I found her frozen reaction so unexpected and funny that I took out my phone and started recording her. Luckily, the friendly dog <span class=\"hl-expr\">lost interest</span> and walked away.",
+            ko: "반쯤 달렸을 때 앞쪽에 거대한 흑곰처럼 보이는 무언가가 보였습니다. 가까이 가 보니 아주 큰 검은색 래브라도 리트리버였습니다. 목줄도 풀려 있었고 주변에 주인도 보이지 않았습니다! 아내는 평소 매우 활동적이고 겁이 없는 편인데 개를 몹시 무서워합니다. 너무 놀라서 꼼짝도 못 하더군요! 얼어붙은 아내의 반응이 너무 의외이고 웃겨서 휴대폰을 꺼내 녹화를 시작했습니다. 다행히 순한 그 개는 흥미를 잃고 다른 곳으로 가 버렸습니다."
+          },
+          {
+            step: "결론",
+            summary: "진정 후 아내에게 혼난 반전과 유쾌한 추억",
+            enHtml: "But when my wife calmed down, she <span class=\"hl-expr\">got really mad at me</span> for laughing and filming her. The dog's owner was <span class=\"hl-expr\">the one at fault</span>, but somehow, I was <span class=\"hl-expr\">the one who got in trouble</span>! It became one of the <span class=\"hl-expr\">funniest memories we share</span>.",
+            ko: "하지만 아내가 진정된 뒤에는 웃으면서 영상을 찍었다며 저에게 엄청 화를 냈습니다. 잘못은 견주가 했는데 왠지 혼난 건 제가 되고 말았죠! 지금은 우리가 함께 나누는 가장 웃긴 추억 중 하나가 되었습니다."
+          }
+        ],
+        aEnPlain: "This happened a few years ago while I was on vacation. After lunch, my wife and I went for a run in the park near our apartment to help digest our food. About halfway through our run, we saw what looked like a huge black bear ahead of us. When we got closer, we realized it was a giant black Labrador Retriever. It was off-leash, and there was no owner in sight! My wife is usually very active and fearless, but she's terrified of dogs. She was so shocked that she couldn't even move! I found her frozen reaction so unexpected and funny that I took out my phone and started recording her. Luckily, the friendly dog lost interest and walked away. But when my wife calmed down, she got really mad at me for laughing and filming her. The dog's owner was the one at fault, but somehow, I was the one who got in trouble! It became one of the funniest memories we share."
       }
     ];
+
+    OPIC_DATA.forEach(it => {
+      if (typeof it.stars !== "number") it.stars = 0;
+    });
 
     const DEFAULT_OPIC_DATA = JSON.parse(JSON.stringify(OPIC_DATA));
 
@@ -2433,6 +2674,7 @@
 
     const state = {
       activeTab: "all",
+      starFilter: "all", // 'all' | 'any' | 'gte4' | 'eq5' | 'eq4' | 'eq3' | 'eq2' | 'eq1'
       starredIds: new Set(),
       doneIds: new Set(),
       edits: {},
@@ -2528,6 +2770,7 @@
     // --- Persistence ---
     function applyItemPatch(item, patch) {
       if (!item || !patch || typeof patch !== "object") return;
+      if (typeof patch.stars === "number" && patch.stars >= 0 && patch.stars <= 5) item.stars = patch.stars;
       if (typeof patch.qKeywords === "string") item.qKeywords = patch.qKeywords;
       if (typeof patch.qEn === "string") item.qEn = patch.qEn;
       if (typeof patch.qKo === "string") item.qKo = patch.qKo;
@@ -2690,10 +2933,26 @@
       return { html: wrapped, nextIdx: idx };
     }
 
-    function getItemsForTab(tabId) {
-      if (tabId === "all") return OPIC_DATA;
-      if (tabId === "starred") return OPIC_DATA.filter(item => state.starredIds.has(item.id));
-      return OPIC_DATA.filter(item => item.category === tabId);
+    function matchesStarFilter(item, filterId) {
+      const s = Number(item.stars || 0);
+      if (filterId === "all") return true;
+      if (filterId === "any") return s >= 1;
+      if (filterId === "gte4") return s >= 4;
+      if (filterId === "eq5") return s === 5;
+      if (filterId === "eq4") return s === 4;
+      if (filterId === "eq3") return s === 3;
+      if (filterId === "eq2") return s === 2;
+      if (filterId === "eq1") return s === 1;
+      return true;
+    }
+
+    function getItemsForTab(tabId, ignoreStarFilter = false) {
+      let base;
+      if (tabId === "all") base = OPIC_DATA;
+      else if (tabId === "starred") base = OPIC_DATA.filter(item => state.starredIds.has(item.id));
+      else base = OPIC_DATA.filter(item => item.category === tabId);
+      if (ignoreStarFilter) return base;
+      return base.filter(item => matchesStarFilter(item, state.starFilter));
     }
 
     function getBadgeClass(badge) {
@@ -3575,6 +3834,17 @@
           body.innerHTML = `
             <div class="popup-edit-form">
               <div class="edit-field">
+                <label class="edit-label" for="editStars">중요도 별표 (★)</label>
+                <select id="editStars" class="edit-input">
+                  <option value="0" ${item.stars === 0 ? "selected" : ""}>없음 (0개)</option>
+                  <option value="1" ${item.stars === 1 ? "selected" : ""}>★ (1개)</option>
+                  <option value="2" ${item.stars === 2 ? "selected" : ""}>★★ (2개)</option>
+                  <option value="3" ${item.stars === 3 ? "selected" : ""}>★★★ (3개)</option>
+                  <option value="4" ${item.stars === 4 ? "selected" : ""}>★★★★ (4개)</option>
+                  <option value="5" ${item.stars === 5 ? "selected" : ""}>★★★★★ (5개)</option>
+                </select>
+              </div>
+              <div class="edit-field">
                 <label class="edit-label" for="editQKeywords">질문 키워드 요약</label>
                 <input id="editQKeywords" class="edit-input" type="text" value="${escapeHtml(item.qKeywords)}" />
               </div>
@@ -3608,6 +3878,17 @@
 
           body.innerHTML = `
             <div class="popup-edit-form">
+              <div class="edit-field">
+                <label class="edit-label" for="editStars">중요도 별표 (★)</label>
+                <select id="editStars" class="edit-input">
+                  <option value="0" ${item.stars === 0 ? "selected" : ""}>없음 (0개)</option>
+                  <option value="1" ${item.stars === 1 ? "selected" : ""}>★ (1개)</option>
+                  <option value="2" ${item.stars === 2 ? "selected" : ""}>★★ (2개)</option>
+                  <option value="3" ${item.stars === 3 ? "selected" : ""}>★★★ (3개)</option>
+                  <option value="4" ${item.stars === 4 ? "selected" : ""}>★★★★ (4개)</option>
+                  <option value="5" ${item.stars === 5 ? "selected" : ""}>★★★★★ (5개)</option>
+                </select>
+              </div>
               <div class="edit-field">
                 <label class="edit-label" for="editAKeywords">답변 키워드 요약</label>
                 <input id="editAKeywords" class="edit-input" type="text" value="${escapeHtml(item.aKeywords)}" />
@@ -3755,6 +4036,10 @@
 
       let failedTranslate = false;
       try {
+        const starSel = document.getElementById("editStars");
+        if (starSel) {
+          item.stars = Math.max(0, Math.min(5, Number(starSel.value) || 0));
+        }
         if (state.popup.part === "Q") {
           const enVal = (document.getElementById("editQEn").value || "").replace(/\s+/g, " ").trim();
           if (!enVal) {
@@ -3826,6 +4111,10 @@
       };
 
       try {
+        const starSel = document.getElementById("editStars");
+        if (starSel) {
+          item.stars = Math.max(0, Math.min(5, Number(starSel.value) || 0));
+        }
         if (state.popup.part === "Q") {
           const prevQEn = (item.qEn || "").replace(/\s+/g, " ").trim();
           const prevQKo = (item.qKo || "").trim();
@@ -3910,6 +4199,7 @@
         }
 
         state.edits[String(item.id)] = {
+          stars: item.stars,
           qKeywords: item.qKeywords,
           qEn: item.qEn,
           qKo: item.qKo,
@@ -3920,6 +4210,7 @@
         };
         saveEdits();
         state.popup.isEditing = false;
+        renderStarFilters();
         renderCards();
         renderScriptPopup();
         updatePlaybackUI();
@@ -4033,9 +4324,11 @@
       if (!item || !def) return;
 
       applyItemPatch(item, JSON.parse(JSON.stringify(def)));
+      item.stars = def.stars || 0;
       delete state.edits[String(item.id)];
       saveEdits();
       state.popup.isEditing = false;
+      renderStarFilters();
       renderCards();
       renderScriptPopup();
       updatePlaybackUI();
@@ -4045,7 +4338,7 @@
     function renderTabs() {
       const tabBar = document.getElementById("tabBar");
       tabBar.innerHTML = TABS.map(tab => {
-        const count = getItemsForTab(tab.id).length;
+        const count = getItemsForTab(tab.id, true).length;
         const activeCls = state.activeTab === tab.id ? "is-active" : "";
         return `
           <button type="button" class="tab-pill ${activeCls}" data-tab="${tab.id}">
@@ -4056,8 +4349,40 @@
       }).join("");
     }
 
+    function renderStarFilters() {
+      const bar = document.getElementById("starFilterBar");
+      if (!bar) return;
+      const tabBase = getItemsForTab(state.activeTab, true);
+      const defs = [
+        { id: "all", label: "별표: 전체" },
+        { id: "gte4", label: "★4+" },
+        { id: "eq5", label: "★★★★★" },
+        { id: "eq4", label: "★★★★" },
+        { id: "eq3", label: "★★★" },
+        { id: "eq2", label: "★★" },
+        { id: "eq1", label: "★1" },
+        { id: "any", label: "★있음" }
+      ];
+      const pills = defs.filter(d => {
+        if (d.id === "eq2" || d.id === "eq1") {
+          return tabBase.some(it => matchesStarFilter(it, d.id)) || state.starFilter === d.id;
+        }
+        return true;
+      });
+      bar.innerHTML = pills.map(d => {
+        const cnt = tabBase.filter(it => matchesStarFilter(it, d.id)).length;
+        const activeCls = state.starFilter === d.id ? "is-active" : "";
+        return `
+          <button type="button" class="star-pill ${activeCls}" data-star="${d.id}">
+            <span>${d.label}</span>
+            <span class="star-cnt">${cnt}</span>
+          </button>
+        `;
+      }).join("");
+    }
+
     function renderProgress() {
-      document.getElementById("progressPill").textContent = `완료 ${state.doneIds.size}/${OPIC_DATA.length}`;
+      document.getElementById("progressPill").textContent = `${state.doneIds.size}/${OPIC_DATA.length}`;
     }
 
     function renderPrefsUI() {
@@ -4097,10 +4422,16 @@
       const items = getItemsForTab(state.activeTab);
 
       if (!items.length) {
+        const emptyTitle = state.starFilter !== "all"
+          ? "해당 별표 조건의 문항이 없습니다"
+          : "⭐ 복습노트가 비어 있습니다";
+        const emptyDesc = state.starFilter !== "all"
+          ? "상단 별표 필터를 '별표: 전체'로 바꾸어 보세요."
+          : "문항 오른쪽 상단의 ☆ 버튼을 눌러<br />헷갈리거나 집중 복습할 문항을 모아보세요!";
         container.innerHTML = `
           <div class="empty-state">
-            <strong>⭐ 복습노트가 비어 있습니다</strong>
-            문항 오른쪽 상단의 ☆ 버튼을 눌러<br />헷갈리거나 집중 복습할 문항을 모아보세요!
+            <strong>${emptyTitle}</strong>
+            ${emptyDesc}
           </div>
         `;
         updatePlaybackUI();
@@ -4111,6 +4442,9 @@
         const numStr = String(item.id).padStart(2, "0");
         const isStarred = state.starredIds.has(item.id);
         const isDone = state.doneIds.has(item.id);
+        const starsHtml = item.stars > 0
+          ? `<span class="star-rating-pill" aria-label="별표 ${item.stars}개">${"★".repeat(item.stars)}</span>`
+          : "";
 
         return `
           <article class="q-card ${isDone ? "is-done" : ""}" data-id="${item.id}">
@@ -4118,6 +4452,7 @@
               <div class="card-meta">
                 <span class="item-num">#${numStr}</span>
                 <span class="type-badge ${getBadgeClass(item.badge)}">${escapeHtml(item.badge)}</span>
+                ${starsHtml}
                 <span class="card-title">${escapeHtml(item.title)}</span>
               </div>
               <div class="card-actions">
@@ -4278,12 +4613,21 @@
         }
       });
 
-      // Tabs
+      // Tabs & Star Filter
       document.getElementById("tabBar").addEventListener("click", e => {
         const btn = e.target.closest(".tab-pill");
         if (!btn) return;
         state.activeTab = btn.dataset.tab;
         renderTabs();
+        renderStarFilters();
+        renderCards();
+      });
+
+      document.getElementById("starFilterBar").addEventListener("click", e => {
+        const btn = e.target.closest(".star-pill");
+        if (!btn) return;
+        state.starFilter = btn.dataset.star;
+        renderStarFilters();
         renderCards();
       });
 
@@ -4425,6 +4769,7 @@
       renderProgress();
       renderPrefsUI();
       renderTabs();
+      renderStarFilters();
       renderCards();
       renderFillerModal();
       bindEvents();
