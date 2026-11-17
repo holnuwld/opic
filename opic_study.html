@@ -2463,12 +2463,55 @@
         queueIndex: 0,
         sentIndex: 0,
         sessionToken: 0,
-        delayTimer: null
+        delayTimer: null,
+        chimeTimer: null
       }
     };
 
     const audioPlayer = typeof Audio !== "undefined" ? new Audio() : null;
     if (audioPlayer) audioPlayer.preload = "auto";
+    let audioCtx = null;
+
+    function unlockAudioContext() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      if (!audioCtx) {
+        try {
+          audioCtx = new AudioCtx();
+        } catch {
+          return null;
+        }
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function playTransitionChime() {
+      const ctx = unlockAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const notes = [
+          { freq: 783.99, delay: 0, dur: 0.16, peak: 0.07 },
+          { freq: 1046.5, delay: 0.09, dur: 0.24, peak: 0.085 }
+        ];
+        notes.forEach(({ freq, delay, dur, peak }) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + delay);
+          gain.gain.setValueAtTime(0.0001, now + delay);
+          gain.gain.linearRampToValueAtTime(peak, now + delay + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + delay);
+          osc.stop(now + delay + dur + 0.02);
+        });
+      } catch {}
+    }
 
     window._activeUtterance = null;
 
@@ -2811,30 +2854,22 @@
 
     function getTtsAudioUrl(itemId, part) {
       const defItem = DEFAULT_OPIC_DATA.find(x => x.id === itemId);
-      const curItem = OPIC_DATA.find(x => x.id === itemId);
-      if (!defItem || !curItem) return null;
-
-      // Fall back to Web Speech API automatically if user edited the English script in-app
-      if (part === "Q") {
-        if ((curItem.qEn || "").replace(/\s+/g, " ").trim() !== (defItem.qEn || "").replace(/\s+/g, " ").trim()) {
-          return null;
-        }
-      } else {
-        if ((curItem.aEnPlain || "").replace(/\s+/g, " ").trim() !== (defItem.aEnPlain || "").replace(/\s+/g, " ").trim()) {
-          return null;
-        }
-      }
+      if (!defItem) return null;
 
       const numStr = String(defItem.id).padStart(2, "0");
       const safeTitle = sanitizeAudioFilename(defItem.title);
       const fileName = part === "Q" ? `${numStr}_Q_${safeTitle}.mp3` : `${numStr}_${safeTitle}.mp3`;
-      return encodeURI(`tts/${fileName}`);
+      return `tts/${encodeURIComponent(fileName)}`;
     }
 
     function clearDelayTimer() {
       if (state.playback.delayTimer) {
         clearTimeout(state.playback.delayTimer);
         state.playback.delayTimer = null;
+      }
+      if (state.playback.chimeTimer) {
+        clearTimeout(state.playback.chimeTimer);
+        state.playback.chimeTimer = null;
       }
     }
 
@@ -2898,6 +2933,7 @@
       const wasActive = state.playback.active;
       const webSpeaking = hasWebTts && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
       clearDelayTimer();
+      unlockAudioContext();
       state.playback.sessionToken += 1;
       const myToken = state.playback.sessionToken;
 
@@ -3141,7 +3177,8 @@
       }
 
       const sameItem = curBlock && nextBlock.itemId === curBlock.itemId;
-      const pauseMs = sameItem ? 600 : 800;
+      const shouldChime = !sameItem && (pb.scope === "tab" || pb.scope === "random");
+      const pauseMs = sameItem ? 600 : (shouldChime ? 1050 : 800);
       pb.queueIndex = nextIdx;
       pb.sentIndex = 0;
 
@@ -3151,6 +3188,14 @@
         ? "잠시 후 답변..."
         : "다음 문항 이동...";
       scrollToActiveBlock();
+
+      if (shouldChime) {
+        pb.chimeTimer = setTimeout(() => {
+          if (state.playback.sessionToken === myToken && !state.playback.paused) {
+            playTransitionChime();
+          }
+        }, 160);
+      }
 
       pb.delayTimer = setTimeout(() => {
         if (pb.sessionToken === myToken && !pb.paused) {
@@ -3176,6 +3221,7 @@
     function resumePlayback() {
       const pb = state.playback;
       if (!pb.active || !pb.paused) return;
+      unlockAudioContext();
       pb.paused = false;
       const myToken = ++pb.sessionToken;
       acquireWakeLock();
@@ -4295,6 +4341,7 @@
 
       // Mini Player Controls
       document.getElementById("btnAudioSource").addEventListener("click", () => {
+        unlockAudioContext();
         state.prefs.audioSource = state.prefs.audioSource === "file" ? "web" : "file";
         savePrefs();
         renderPrefsUI();
