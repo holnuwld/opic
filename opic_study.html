@@ -957,17 +957,17 @@
       max-width: 480px;
       background: #0f172a;
       color: #f8fafc;
-      padding: 6px 10px calc(6px + var(--safe-bottom));
+      padding: 6px 8px calc(6px + var(--safe-bottom));
       z-index: 50;
       box-shadow: var(--shadow-player);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       white-space: nowrap;
     }
 
     .player-now {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       color: #93c5fd;
       white-space: nowrap;
@@ -980,8 +980,36 @@
     .player-controls {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       flex-shrink: 0;
+    }
+
+    .source-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 800;
+      height: 32px;
+      padding: 0 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .source-btn:active {
+      transform: scale(0.95);
+    }
+
+    .source-btn.is-file {
+      background: #0d9488;
+      border-color: #14b8a6;
+      color: #ffffff;
     }
 
     .p-btn {
@@ -990,10 +1018,10 @@
       background: rgba(255, 255, 255, 0.08);
       color: #f8fafc;
       height: 32px;
-      min-width: 30px;
-      padding: 0 6px;
+      min-width: 28px;
+      padding: 0 5px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
@@ -1008,7 +1036,7 @@
     .p-btn.p-main {
       background: #2563eb;
       border-color: #3b82f6;
-      min-width: 34px;
+      min-width: 32px;
       font-weight: 800;
     }
 
@@ -1025,7 +1053,7 @@
       font-size: 11px;
       font-weight: 800;
       height: 32px;
-      padding: 0 6px;
+      padding: 0 5px;
       border-radius: 8px;
       cursor: pointer;
       white-space: nowrap;
@@ -1214,6 +1242,7 @@
   <aside class="mini-player" aria-label="오디오 미니 플레이어">
     <div id="playerNow" class="player-now">대기 중</div>
     <div class="player-controls">
+      <button type="button" id="btnAudioSource" class="source-btn is-file" aria-label="음성 소스 전환 (파일/내장)">🎵 파일</button>
       <button type="button" id="btnPrev" class="p-btn" aria-label="이전 문항">⏮</button>
       <button type="button" id="btnPlayPause" class="p-btn p-main" aria-label="재생/일시정지">▶</button>
       <button type="button" id="btnStop" class="p-btn" aria-label="정지">⏹</button>
@@ -1312,13 +1341,13 @@
         qKeywords: "Last healthy food · Where & with whom · Taste & health benefits",
         qEn: "Now, tell me about the last time you actually ate some healthy food. Where did you eat it and who did you eat it with? How did it taste and what good did it do for you? Give me all the details.",
         qKo: "최근에 실제로 건강한 음식을 먹었던 때에 대해 말해주세요. 어디서 누구와 먹었나요? 맛은 어땠고 어떤 좋은 점이 있었나요? 자세히 설명해주세요.",
-        aKeywords: "🤒 Son's stomachache ➔ 🥣 Veggie porridge (mild) ➔ 😊 Relaxed & warm",
+        aKeywords: "🤒 Wife's stomachache ➔ 🥣 Veggie porridge (mild) ➔ 😊 Relaxed & warm",
         aSections: [
           {
             step: "도입",
-            summary: "지난달 아들 배탈로 가볍고 건강한 식사 주문",
-            enHtml: "The last time I had a healthy meal was last month. My son <span class=\"hl-expr\">had an upset stomach</span> that day, so he didn't want to eat anything <span class=\"hl-expr\">too greasy or heavy</span>. My family decided to order something light and healthy for him instead of cooking.",
-            ko: "지난달에 건강한 식사를 한 적이 있습니다. 그날 아들이 배탈이 나서 너무 기름지거나 무거운 음식을 먹고 싶어 하지 않았습니다. 우리 가족은 요리하는 대신 아들을 위해 가볍고 건강한 음식을 주문하기로 했습니다."
+            summary: "지난달 아내 배탈로 가볍고 건강한 식사 주문",
+            enHtml: "The last time I had a healthy meal was last month. My wife <span class=\"hl-expr\">had an upset stomach</span> that day, so she didn't want to eat anything <span class=\"hl-expr\">too greasy or heavy</span>. My family decided to order something light and healthy for her instead of cooking.",
+            ko: "지난달에 건강한 식사를 한 적이 있습니다. 그날 아내가 배탈이 나서 너무 기름지거나 무거운 음식을 먹고 싶어 하지 않았습니다. 우리 가족은 요리하는 대신 아내를 위해 가볍고 건강한 음식을 주문하기로 했습니다."
           },
           {
             step: "전개",
@@ -1329,11 +1358,11 @@
           {
             step: "결론",
             summary: "속 더부룩함 해소 및 가족 모두의 만족",
-            enHtml: "After the meal, we felt <span class=\"hl-expr\">much more relaxed and less bloated</span>. My son also enjoyed it, and we all agreed it was <span class=\"hl-expr\">the right choice for that day</span>. It was a simple meal, but it made us all feel warm and healthy.",
-            ko: "식사 후 우리는 훨씬 편안해졌고 속 더부룩함도 덜했습니다. 아들도 맛있게 먹었고, 우리 모두 그날 최고의 선택이었다고 생각했습니다. 소박한 식사였지만 우리 모두를 따뜻하고 건강하게 만들어 준 식사였습니다."
+            enHtml: "After the meal, we felt <span class=\"hl-expr\">much more relaxed and less bloated</span>. My wife also enjoyed it, and we all agreed it was <span class=\"hl-expr\">the right choice for that day</span>. It was a simple meal, but it made us all feel warm and healthy.",
+            ko: "식사 후 우리는 훨씬 편안해졌고 속 더부룩함도 덜했습니다. 아내도 맛있게 먹었고, 우리 모두 그날 최고의 선택이었다고 생각했습니다. 소박한 식사였지만 우리 모두를 따뜻하고 건강하게 만들어 준 식사였습니다."
           }
         ],
-        aEnPlain: "The last time I had a healthy meal was last month. My son had an upset stomach that day, so he didn't want to eat anything too greasy or heavy. My family decided to order something light and healthy for him instead of cooking. We ordered vegetable porridge from a Korean porridge chain. It's a healthy dish made with rice, carrots, zucchini, and mushrooms, and it's easy to digest. Something people often eat when they're not feeling well. That porridge tasted really clean and mild. It didn't have strong spices, but it was warm and comforting. The rice was cooked just right. After the meal, we felt much more relaxed and less bloated. My son also enjoyed it, and we all agreed it was the right choice for that day. It was a simple meal, but it made us all feel warm and healthy."
+        aEnPlain: "The last time I had a healthy meal was last month. My wife had an upset stomach that day, so she didn't want to eat anything too greasy or heavy. My family decided to order something light and healthy for her instead of cooking. We ordered vegetable porridge from a Korean porridge chain. It's a healthy dish made with rice, carrots, zucchini, and mushrooms, and it's easy to digest. Something people often eat when they're not feeling well. That porridge tasted really clean and mild. It didn't have strong spices, but it was warm and comforting. The rice was cooked just right. After the meal, we felt much more relaxed and less bloated. My wife also enjoyed it, and we all agreed it was the right choice for that day. It was a simple meal, but it made us all feel warm and healthy."
       },
       {
         id: 2,
@@ -1374,7 +1403,7 @@
         qKeywords: "Family ill on dinner party day · Leave message to friend · Explain & reschedule",
         qEn: "I'm sorry, but there's a problem that I need you to resolve. On the day of your dinner party, one of your family members becomes ill. Call your friend and leave a message. Explain what has happened and then propose the plan to have dinner together in the near future.",
         qKo: "해결해야 할 문제가 있습니다. 저녁 모임 당일 가족 중 한 명이 아픕니다. 친구에게 전화해 메시지를 남기세요. 무슨 일이 생겼는지 설명하고 조만간 다시 저녁을 함께 먹을 계획을 제안하세요.",
-        aKeywords: "📞 Cancel dinner tonight ➔ 🤒 Son got COVID-19 (fever) ➔ 📅 Reschedule next weekend?",
+        aKeywords: "📞 Cancel dinner tonight ➔ 🤒 Wife got COVID-19 (fever) ➔ 📅 Reschedule next weekend?",
         aSections: [
           {
             step: "도입",
@@ -1384,9 +1413,9 @@
           },
           {
             step: "전개",
-            summary: "아들의 코로나 양성 판정 및 고열·기침 설명",
-            enHtml: "My son <span class=\"hl-expr\">tested positive for COVID-19</span> this morning. He's <span class=\"hl-expr\">running a high fever</span> and has been coughing a lot. I think it's best for him to rest.",
-            ko: "오늘 아침에 아들이 코로나19 양성 판정을 받았거든. 열도 많이 나고 기침도 심하게 해. 푹 쉬게 해주는 게 좋을 것 같아."
+            summary: "아내의 코로나 양성 판정 및 고열·기침 간호 설명",
+            enHtml: "My wife <span class=\"hl-expr\">tested positive for COVID-19</span> this morning. She's <span class=\"hl-expr\">running a high fever</span> and has been coughing a lot. I think it's best for her to rest and for me to <span class=\"hl-expr\">take care of her</span>.",
+            ko: "오늘 아침에 아내가 코로나19 양성 판정을 받았거든. 열도 많이 나고 기침도 심하게 해. 아내가 푹 쉬면서 내가 간호해 주는 게 좋을 것 같아."
           },
           {
             step: "결론",
@@ -1395,7 +1424,7 @@
             ko: "그래서 저녁 약속을 다시 잡았으면 해. 다음 주말 괜찮아? 아니면 언제 시간 되는지 알려주면 맞춰볼게. 내가 최대한 시간 맞춰볼게. 메시지 확인하면 전화 줘. 안녕."
           }
         ],
-        aEnPlain: "Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My son tested positive for COVID-19 this morning. He's running a high fever and has been coughing a lot. I think it's best for him to rest. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye."
+        aEnPlain: "Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My wife tested positive for COVID-19 this morning. She's running a high fever and has been coughing a lot. I think it's best for her to rest and for me to take care of her. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye."
       },
       {
         id: 4,
@@ -1711,11 +1740,11 @@
         id: 14,
         category: "special",
         badge: "연계경험",
-        title: "가족 때문에 계획 변경 (조카 돌보기)",
+        title: "가족 때문에 계획 변경 (여동생 조카 돌보기)",
         qKeywords: "Changed plans to help a family member · Why & what happened in detail",
         qEn: "That's the end of the situation. Has anything like that ever happened to you? Have you ever had to change your plans because one of your family members needed your help? Tell me about that episode in detail why you had to change your plans and what happened.",
         qKo: "상황극은 끝났습니다. 비슷한 일을 겪은 적이 있나요? 가족 중 한 명이 도움을 필요로 해서 계획을 변경해야 했던 적이 있나요? 왜 계획을 바꿔야 했는지와 무슨 일이 있었는지 자세히 말해주세요.",
-        aKeywords: "✈️ Jeju trip booked ➔ 👶 Brother's emergency → babysat ➔ 😢 Canceled, family first",
+        aKeywords: "✈️ Jeju trip booked ➔ 👶 Sister's emergency → babysat ➔ 😢 Canceled, family first",
         aSections: [
           {
             step: "도입",
@@ -1725,18 +1754,18 @@
           },
           {
             step: "전개",
-            summary: "당일 아침 오빠 부부 직장 비상상황으로 종일 조카 돌봄",
-            enHtml: "<span class=\"hl-filler\">However,</span> on the morning of the trip, my older brother and his wife suddenly <span class=\"hl-expr\">had a work emergency</span>. They asked me to <span class=\"hl-expr\">look after their little kid</span> for the whole day. Since there was nobody else available, I <span class=\"hl-expr\">ended up babysitting</span> instead of heading to the airport.",
-            ko: "하지만 여행 당일 아침, 친오빠와 새언니에게 갑작스러운 회사 비상 상황이 생겼습니다. 종일 어린 조카를 봐달라고 부탁하더군요. 대신 돌봐줄 사람이 아무도 없었기 때문에 결국 공항 대신 조카를 보러 가야 했습니다."
+            summary: "당일 아침 여동생 부부 직장 비상상황으로 종일 조카 돌봄",
+            enHtml: "<span class=\"hl-filler\">However,</span> on the morning of the trip, my younger sister and her husband suddenly <span class=\"hl-expr\">had a work emergency</span>. They asked me to <span class=\"hl-expr\">look after their little kid</span> for the whole day. Since there was nobody else available, I <span class=\"hl-expr\">ended up babysitting</span> instead of heading to the airport.",
+            ko: "하지만 여행 당일 아침, 여동생과 매제에게 갑작스러운 회사 비상 상황이 생겼습니다. 종일 어린 조카를 봐달라고 부탁하더군요. 대신 돌봐줄 사람이 아무도 없었기 때문에 결국 공항 대신 조카를 보러 가야 했습니다."
           },
           {
             step: "결론",
             summary: "일정 조정 실패로 취소했지만 가족 우선이라 후회 없음",
-            enHtml: "I tried to reschedule the trip, but <span class=\"hl-filler\">you know,</span> it was not easy. Eventually, I had to cancel everything, and I was <span class=\"hl-expr\">honestly disappointed</span>. <span class=\"hl-filler\">Well,</span> even though I missed that trip, I <span class=\"hl-expr\">don't regret helping</span> my brother's family. <span class=\"hl-expr\">Things happen, and family comes first.</span>",
+            enHtml: "I tried to reschedule the trip, but <span class=\"hl-filler\">you know,</span> it was not easy. Eventually, I had to cancel everything, and I was <span class=\"hl-expr\">honestly disappointed</span>. <span class=\"hl-filler\">Well,</span> even though I missed that trip, I <span class=\"hl-expr\">don't regret helping</span> my sister's family. <span class=\"hl-expr\">Things happen, and family comes first.</span>",
             ko: "여행 일정을 조정해보려고 했지만 아시다시피 쉽지 않았습니다. 결국 모든 것을 취소해야 했고 솔직히 너무 아쉬웠습니다. 비록 여행은 못 갔지만 가족을 도운 것을 후회하지는 않습니다. 살다 보면 이런 일도 생길 수 있고, 가족이 최우선이니까요."
           }
         ],
-        aEnPlain: "Yes, I had this kind of incident about 10 years ago. My friends and I wanted to take a trip to Jeju Island. We planned everything and booked our flight tickets. So, at that point, we were really looking forward to the trip. However, on the morning of the trip, my older brother and his wife suddenly had a work emergency. They asked me to look after their little kid for the whole day. Since there was nobody else available, I ended up babysitting instead of heading to the airport. I tried to reschedule the trip, but you know, it was not easy. Eventually, I had to cancel everything, and I was honestly disappointed. Well, even though I missed that trip, I don't regret helping my brother's family. Things happen, and family comes first."
+        aEnPlain: "Yes, I had this kind of incident about 10 years ago. My friends and I wanted to take a trip to Jeju Island. We planned everything and booked our flight tickets. So, at that point, we were really looking forward to the trip. However, on the morning of the trip, my younger sister and her husband suddenly had a work emergency. They asked me to look after their little kid for the whole day. Since there was nobody else available, I ended up babysitting instead of heading to the airport. I tried to reschedule the trip, but you know, it was not easy. Eventually, I had to cancel everything, and I was honestly disappointed. Well, even though I missed that trip, I don't regret helping my sister's family. Things happen, and family comes first."
       },
       {
         id: 15,
@@ -1901,28 +1930,28 @@
         qKeywords: "Activities with family at home · What you do on weekdays vs. weekends",
         qEn: "Tell me about the activities that you and your family like to do at home. What do you usually do with your family on weekdays? What do you do on weekends?",
         qKo: "가족들과 집에서 즐겨 하는 활동에 대해 말해주세요. 평일에는 주로 무엇을 하고, 주말에는 무엇을 하나요?",
-        aKeywords: "💼 Busy weekdays (brief talk) ➔ 🧹 Weekend chores together ➔ 📺 Read books & Netflix",
+        aKeywords: "💼 Busy weekdays with wife ➔ 🧹 Weekend chores together ➔ 📺 Read books & Netflix",
         aSections: [
           {
             step: "도입",
-            summary: "가족 구성원 소개 및 바쁜 평일 일상",
-            enHtml: "I live together with my wife and two sons. On weekdays, my family members are usually <span class=\"hl-expr\">too busy to spend much time together</span>. My wife and I have work, and our sons go to school, so we only get to <span class=\"hl-expr\">talk briefly</span> during dinner or right before bed.",
-            ko: "저는 아내와 두 아들과 함께 살고 있습니다. 평일에는 가족들 모두가 너무 바빠서 함께 보낼 시간이 많지 않습니다. 아내와 저는 일을 하고, 아들들은 학교에 가기 때문에 저녁 식사 시간이나 잠들기 직전에 잠깐 대화를 나누는 것이 전부입니다."
+            summary: "아내와 거주 소개 및 둘 다 바쁜 평일 일상",
+            enHtml: "I live together with my wife. On weekdays, my wife and I are usually <span class=\"hl-expr\">too busy to spend much time together</span>. We both have work, so we only get to <span class=\"hl-expr\">talk briefly</span> during dinner or right before bed.",
+            ko: "저는 아내와 함께 살고 있습니다. 평일에는 아내와 저 둘 다 너무 바빠서 함께 보낼 시간이 많지 않습니다. 둘 다 일을 하기 때문에 저녁 식사 시간이나 잠들기 직전에 잠깐 대화를 나누는 것이 전부입니다."
           },
           {
             step: "전개",
-            summary: "주말 온 가족이 역할 나누어 함께하는 집안일",
-            enHtml: "On weekends, we like to <span class=\"hl-expr\">do some house chores as a family</span>. My wife usually cooks and manages the kitchen because she's good at organizing things. I take care of the rest, including cleaning the living room and taking out the trash, since I don't mind moving around and <span class=\"hl-expr\">staying active</span>. Our sons help by tidying up their rooms. Sometimes, handling house chores is tiring, but it's <span class=\"hl-expr\">worth doing</span>.",
-            ko: "주말에는 온 가족이 다 함께 집안일을 하는 것을 좋아합니다. 아내는 정리 정돈을 잘해서 주로 요리와 주방 관리를 담당합니다. 저는 몸을 움직이고 활동적인 것을 꺼리지 않아서 거실 청소와 쓰레기 배출을 포함한 나머지 일들을 맡습니다. 아들들은 자기 방을 정리하며 돕습니다. 때로는 집안일을 하는 것이 피곤하기도 하지만 충분히 가치 있는 일입니다."
+            summary: "주말 아내와 역할 나누어 함께하는 집안일",
+            enHtml: "On weekends, we like to <span class=\"hl-expr\">do some house chores together</span>. My wife usually cooks and manages the kitchen because she's good at organizing things. I take care of the rest, including cleaning the living room and taking out the trash, since I don't mind moving around and <span class=\"hl-expr\">staying active</span>. Sometimes, handling house chores is tiring, but it's <span class=\"hl-expr\">worth doing</span>.",
+            ko: "주말에는 함께 집안일을 하는 것을 좋아합니다. 아내는 정리 정돈을 잘해서 주로 요리와 주방 관리를 담당합니다. 저는 몸을 움직이고 활동적인 것을 꺼리지 않아서 거실 청소와 쓰레기 배출을 포함한 나머지 일들을 맡습니다. 때로는 집안일을 하는 것이 피곤하기도 하지만 충분히 가치 있는 일입니다."
           },
           {
             step: "결론",
             summary: "집안일 후 독서와 넷플릭스 시청으로 휴식",
             enHtml: "After we finish all the chores, we often read books together or watch a movie on Netflix to <span class=\"hl-expr\">unwind and enjoy each other's company</span>.",
-            ko: "모든 집안일을 마친 후에는 함께 책을 읽거나 넷플릭스로 영화를 보며 피로를 풀고 가족들과의 단란한 시간을 즐깁니다."
+            ko: "모든 집안일을 마친 후에는 함께 책을 읽거나 넷플릭스로 영화를 보며 피로를 풀고 둘만의 단란한 시간을 즐깁니다."
           }
         ],
-        aEnPlain: "I live together with my wife and two sons. On weekdays, my family members are usually too busy to spend much time together. My wife and I have work, and our sons go to school, so we only get to talk briefly during dinner or right before bed. On weekends, we like to do some house chores as a family. My wife usually cooks and manages the kitchen because she's good at organizing things. I take care of the rest, including cleaning the living room and taking out the trash, since I don't mind moving around and staying active. Our sons help by tidying up their rooms. Sometimes, handling house chores is tiring, but it's worth doing. After we finish all the chores, we often read books together or watch a movie on Netflix to unwind and enjoy each other's company."
+        aEnPlain: "I live together with my wife. On weekdays, my wife and I are usually too busy to spend much time together. We both have work, so we only get to talk briefly during dinner or right before bed. On weekends, we like to do some house chores together. My wife usually cooks and manages the kitchen because she's good at organizing things. I take care of the rest, including cleaning the living room and taking out the trash, since I don't mind moving around and staying active. Sometimes, handling house chores is tiring, but it's worth doing. After we finish all the chores, we often read books together or watch a movie on Netflix to unwind and enjoy each other's company."
       },
       {
         id: 21,
@@ -2021,11 +2050,11 @@
         id: 24,
         category: "survey",
         badge: "가사분담(과거)",
-        title: "[가사분담] 어릴 적 맡았던 집안 역할 (방 청소·동생 돌보기)",
+        title: "[가사분담] 어릴 적 맡았던 집안 역할 (방 청소·여동생 돌보기)",
         qKeywords: "Childhood responsibilities at home · What you were expected to do & how you handled them",
         qEn: "Tell me about the responsibilities that you had at home when you were a child. What were you expected to do? How did you handle those responsibilities?",
         qKo: "어렸을 때 집에서 맡았던 역할에 대해 말해주세요. 어떤 일을 해야 했고, 그 역할들을 어떻게 해냈나요?",
-        aKeywords: "🧹 Cleaned room on weekends ➔ 👦 Looked after little brother ➔ 🌱 Helped me grow",
+        aKeywords: "🧹 Cleaned room on weekends ➔ 👧 Looked after little sister ➔ 🌱 Helped me grow",
         aSections: [
           {
             step: "도입",
@@ -2035,9 +2064,9 @@
           },
           {
             step: "전개",
-            summary: "바쁜 부모님 대신 남동생을 돌보며 책임감 습득",
-            enHtml: "I was also expected to <span class=\"hl-expr\">look after my younger brother</span> when my parents were busy. I played with him, helped him with homework, and made sure he didn't <span class=\"hl-expr\">get into trouble</span>. It <span class=\"hl-expr\">felt good to be trusted</span>, and I learned how to be more responsible and helpful.",
-            ko: "또한 부모님이 바쁘실 때는 남동생을 돌보는 일도 맡았습니다. 동생과 놀아주고, 숙제를 도와주고, 말썽을 피우지 않도록 보살폈습니다. 부모님께 신뢰를 받는 것이 뿌듯했고, 책임감 있고 남을 돕는 법을 배웠습니다."
+            summary: "바쁜 부모님 대신 여동생을 돌보며 책임감 습득",
+            enHtml: "I was also expected to <span class=\"hl-expr\">look after my younger sister</span> when my parents were busy. I played with her, helped her with homework, and made sure she didn't <span class=\"hl-expr\">get into trouble</span>. It <span class=\"hl-expr\">felt good to be trusted</span>, and I learned how to be more responsible and helpful.",
+            ko: "또한 부모님이 바쁘실 때는 여동생을 돌보는 일도 맡았습니다. 여동생과 놀아주고, 숙제를 도와주고, 말썽을 피우지 않도록 보살폈습니다. 부모님께 신뢰를 받는 것이 뿌듯했고, 책임감 있고 남을 돕는 법을 배웠습니다."
           },
           {
             step: "결론",
@@ -2046,7 +2075,7 @@
             ko: "돌아보면 그런 소박한 역할들이 제가 성장하는 데 큰 밑거름이 되었습니다."
           }
         ],
-        aEnPlain: "When I was a child, I didn't have many chores, but I was in charge of cleaning my room every weekend. I had to sweep the floor, wipe down my desk, and make sure everything was in the right place. My parents believed it was important for me to keep my own space clean and organized. It wasn't always fun, but I knew it was my job, so I did my best. I was also expected to look after my younger brother when my parents were busy. I played with him, helped him with homework, and made sure he didn't get into trouble. It felt good to be trusted, and I learned how to be more responsible and helpful. Looking back, those simple tasks helped me grow a lot."
+        aEnPlain: "When I was a child, I didn't have many chores, but I was in charge of cleaning my room every weekend. I had to sweep the floor, wipe down my desk, and make sure everything was in the right place. My parents believed it was important for me to keep my own space clean and organized. It wasn't always fun, but I knew it was my job, so I did my best. I was also expected to look after my younger sister when my parents were busy. I played with her, helped her with homework, and made sure she didn't get into trouble. It felt good to be trusted, and I learned how to be more responsible and helpful. Looking back, those simple tasks helped me grow a lot."
       },
       {
         id: 25,
@@ -2211,59 +2240,59 @@
         qKeywords: "Vacations at home · Who you spend time with & why",
         qEn: "You indicated in the survey that you have vacations at your home. Tell me about a person or people you like to see and spend time with at home.",
         qKo: "설문에서 집에서 휴가를 보낸다고 답하셨는데, 집에서 함께 만나 시간을 보내고 싶은 사람들에 대해 말해주세요.",
-        aKeywords: "👦👦 Home vacation with 2 sons ➔ ⏳ Busy weekdays → Focus on kids ➔ ❤️ Stronger bond & priority",
+        aKeywords: "💑 Home vacation with wife ➔ ⏳ Busy weekdays → Focus on her ➔ ❤️ Stronger bond & recharge",
         aSections: [
           {
             step: "도입",
-            summary: "두 아들과 보내는 집 휴가 및 평소 바쁜 평일의 아쉬움",
-            enHtml: "During my vacations at home, I like to spend time with my family, especially my two sons. Usually, I'm very busy with work, so I don't get to <span class=\"hl-expr\">spend enough quality time</span> with them. They always want to play with me, but it's not easy to make time during the week. That's why, during vacations, I <span class=\"hl-expr\">make a real effort to focus on them</span>, whether it's playing games, watching movies, or just talking together.",
-            ko: "집에서 휴가를 보낼 때 저는 가족들, 특히 두 아들과 함께 시간을 보내는 것을 좋아합니다. 평소에는 일하느라 너무 바빠서 아이들과 양질의 시간을 충분히 보내지 못합니다. 아이들은 늘 저와 놀고 싶어 하지만 평일에는 시간을 내기가 쉽지 않습니다. 그래서 휴가 기간만큼은 게임을 하든, 영화를 보든, 대화를 나누든 온전히 아이들에게 집중하려고 진심으로 노력합니다."
+            summary: "아내와 보내는 집 휴가 및 바쁜 평일 대신 함께하는 여유",
+            enHtml: "During my vacations at home, I like to spend time with my wife. Usually, we are both very busy with work, so we don't get to <span class=\"hl-expr\">spend enough quality time</span> together. We always talk about doing things together, but it's not easy to make time during the busy week. That's why, during vacations, I <span class=\"hl-expr\">make a real effort to focus on her</span> and enjoy our time together, whether it's watching movies, cooking delicious meals, or just relaxing at home.",
+            ko: "집에서 휴가를 보낼 때 저는 아내와 함께 시간을 보내는 것을 가장 좋아합니다. 평소에는 둘 다 일하느라 너무 바빠서 함께 양질의 시간을 충분히 보내지 못합니다. 늘 무언가를 같이 하자고 이야기하지만 바쁜 평일에는 시간을 내기가 쉽지 않습니다. 그래서 휴가 기간만큼은 아내에게 온전히 집중하고, 함께 영화를 보거나 맛있는 음식을 요리하고, 집에서 여유를 즐기려고 진심으로 노력합니다."
           },
           {
             step: "전개",
-            summary: "함께 웃고 대화하며 깊어지는 가족 유대와 최우선 가치 전달",
-            enHtml: "Whenever we spend vacation time together, I feel like our <span class=\"hl-expr\">relationship gets stronger</span>. We laugh more, talk more, and understand each other better. It's a chance for me to show them that <span class=\"hl-expr\">they are my priority</span>, even if I'm busy most of the time.",
-            ko: "휴가를 함께 보낼 때마다 가족 간의 유대감이 더욱 끈끈해지는 것을 느낍니다. 우리는 더 많이 웃고, 더 많은 이야기를 나누며, 서로를 더 잘 이해하게 됩니다. 늘 바쁘더라도 아이들이 제 인생의 최우선 순위임을 보여줄 수 있는 소중한 기회입니다."
+            summary: "함께 웃고 대화하며 깊어지는 부부 유대와 재충전",
+            enHtml: "Whenever we spend vacation time together, I feel like our <span class=\"hl-expr\">relationship gets stronger</span>. We laugh more, talk more, and understand each other better. It's a great chance for us to <span class=\"hl-expr\">reconnect and recharge</span> away from daily stress.",
+            ko: "휴가를 함께 보낼 때마다 부부 사이의 유대감이 더욱 끈끈해지는 것을 느낍니다. 우리는 더 많이 웃고, 더 많은 이야기를 나누며, 서로를 더 잘 이해하게 됩니다. 일상의 스트레스에서 벗어나 서로 유대감을 다지고 에너지를 재충전할 수 있는 소중한 기회입니다."
           },
           {
             step: "결론",
-            summary: "가능한 한 아이들과 많은 시간을 보내려는 다짐",
-            enHtml: "<span class=\"hl-filler\">So, yeah,</span> I try to spend time with my sons <span class=\"hl-expr\">as much as possible</span>.",
-            ko: "그렇기 때문에 휴가 때는 두 아들과 가능한 한 많은 시간을 보내려고 노력합니다."
+            summary: "가능한 한 아내와 많은 시간을 보내려는 다짐",
+            enHtml: "<span class=\"hl-filler\">So, yeah,</span> I try to spend time with my wife <span class=\"hl-expr\">as much as possible</span>.",
+            ko: "그렇기 때문에 휴가 때는 아내와 가능한 한 많은 시간을 보내려고 노력합니다."
           }
         ],
-        aEnPlain: "During my vacations at home, I like to spend time with my family, especially my two sons. Usually, I'm very busy with work, so I don't get to spend enough quality time with them. They always want to play with me, but it's not easy to make time during the week. That's why, during vacations, I make a real effort to focus on them, whether it's playing games, watching movies, or just talking together. Whenever we spend vacation time together, I feel like our relationship gets stronger. We laugh more, talk more, and understand each other better. It's a chance for me to show them that they are my priority, even if I'm busy most of the time. So, yeah, I try to spend time with my sons as much as possible."
+        aEnPlain: "During my vacations at home, I like to spend time with my wife. Usually, we are both very busy with work, so we don't get to spend enough quality time together. We always talk about doing things together, but it's not easy to make time during the busy week. That's why, during vacations, I make a real effort to focus on her and enjoy our time together, whether it's watching movies, cooking delicious meals, or just relaxing at home. Whenever we spend vacation time together, I feel like our relationship gets stronger. We laugh more, talk more, and understand each other better. It's a great chance for us to reconnect and recharge away from daily stress. So, yeah, I try to spend time with my wife as much as possible."
       },
       {
         id: 31,
         category: "survey",
         badge: "집캉스(루틴)",
-        title: "[집캉스] 집에서 휴가 보낼 때 아이들과 주로 하는 활동",
+        title: "[집캉스] 집에서 휴가 보낼 때 아내와 주로 하는 활동",
         qKeywords: "What you usually do with family during a vacation at home",
         qEn: "What do you usually do with the person or people you like to see or spend time with when you have a vacation at home?",
         qKo: "집에서 휴가를 보낼 때 함께 시간을 보내는 사람들과 주로 무엇을 하시나요?",
-        aKeywords: "🏠 Indoors: cartoons & LEGO ➔ 🚲 Park: bikes, catch & picnic ➔ 🌿 Refreshed & family bond",
+        aKeywords: "🏠 Indoors: Netflix, cook & coffee ➔ 🌳 Park: walk, talk & mini picnic ➔ 🌿 Refreshed & no work stress",
         aSections: [
           {
             step: "도입",
-            summary: "아이들과 집 안에서 만화·보드게임·레고 조립하며 즐기는 시간",
-            enHtml: "When I have a vacation with my sons, we usually do some simple things around the house. We watch cartoons or action movies together, play board games, and sometimes <span class=\"hl-expr\">build things with blocks or LEGO</span>. They love it when I join them, and I really enjoy seeing them laugh and have fun. These small moments help me relax and <span class=\"hl-expr\">feel closer to them</span>.",
-            ko: "아이들과 함께 집에서 휴가를 보낼 때 우리는 주로 집 안팎에서 소소한 일들을 합니다. 함께 만화나 액션 영화를 보고, 보드게임을 하거나 블록, 레고를 조립하기도 합니다. 아이들은 제가 함께 놀아줄 때 무척 좋아하고, 저 또한 아이들이 웃고 즐거워하는 모습을 보는 것이 큰 행복입니다. 이런 소소한 순간들이 긴장을 풀고 아이들과 한층 더 가까워지는 계기가 됩니다."
+            summary: "아내와 집에서 넷플릭스 정주행·특별 요리·커피와 음악 감상",
+            enHtml: "When I have a vacation at home with my wife, we usually do some relaxing and fun things together. We <span class=\"hl-expr\">binge-watch drama series or movies</span> on Netflix, cook special dishes together, and enjoy listening to our favorite music while sipping coffee. We really enjoy making delicious food together and <span class=\"hl-expr\">having deep conversations</span> over a meal. These small, peaceful moments help us <span class=\"hl-expr\">completely unwind</span> and feel closer to each other.",
+            ko: "아내와 함께 집에서 휴가를 보낼 때 우리는 주로 편안하고 즐거운 일들을 함께합니다. 넷플릭스로 드라마 시리즈나 영화를 몰아보고, 특별한 요리를 함께 만들며, 커피를 마시면서 좋아하는 음악을 듣습니다. 맛있는 음식을 함께 만들어 식사하며 깊은 대화를 나누는 것을 무척 좋아합니다. 이런 소소하고 평화로운 순간들이 긴장을 완전히 풀고 서로 더 가까워지게 해 줍니다."
           },
           {
             step: "전개",
-            summary: "아파트 근처 공원에서 자전거·캐치볼·잔디밭 미니 피크닉",
-            enHtml: "We also like going to the park near our apartment during vacations. We ride bikes, play catch, or just walk around and talk. Sometimes we take snacks and <span class=\"hl-expr\">have a mini picnic on the grass</span>. Spending time outdoors like this makes us <span class=\"hl-expr\">feel refreshed</span>, and it's a great way to <span class=\"hl-expr\">bond without any distractions</span>.",
-            ko: "또한 휴가 중에는 아파트 근처 공원에 나가는 것도 좋아합니다. 자전거를 타거나, 캐치볼을 하거나, 도란도란 걸으며 이야기를 나눕니다. 가끔은 간식을 챙겨 잔디밭에서 소풍을 즐기기도 합니다. 이렇게 야외에서 시간을 보내면 기분 전환이 되고, 아무런 방해 없이 가족 간의 정을 쌓는 훌륭한 방법이 됩니다."
+            summary: "아파트 근처 공원 산책·벤치 대화·잔디밭 커피 피크닉",
+            enHtml: "We also like going to the park near our apartment during vacations. We take a walk, enjoy the fresh air, or just sit on a bench and talk for hours. Sometimes we grab some coffee and snacks to <span class=\"hl-expr\">have a mini picnic on the grass</span>. Spending time outdoors like this makes us <span class=\"hl-expr\">feel refreshed</span>, and it's a wonderful way to <span class=\"hl-expr\">relax without any work stress</span>.",
+            ko: "또한 휴가 중에는 아파트 근처 공원에 나가는 것도 좋아합니다. 산책을 하며 상쾌한 공기를 마시거나, 벤치에 앉아 몇 시간씩 이야기를 나눕니다. 가끔은 커피와 간식을 챙겨 잔디밭에서 작은 소풍을 즐기기도 합니다. 이렇게 야외에서 시간을 보내면 기분 전환이 되고, 업무 스트레스 없이 쉴 수 있는 멋진 방법이 됩니다."
           },
           {
             step: "결론",
-            summary: "휴가 때 주로 하는 일상 활동 마무리",
-            enHtml: "<span class=\"hl-filler\">Overall,</span> these are the things we usually do when we have vacations.",
-            ko: "전반적으로 이것이 우리가 휴가를 보낼 때 주로 하는 활동들입니다."
+            summary: "집에서 휴가 보낼 때 주로 하는 활동 마무리",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> these are the things we usually do when we have vacations at home.",
+            ko: "전반적으로 이것이 우리가 집에서 휴가를 보낼 때 주로 하는 활동들입니다."
           }
         ],
-        aEnPlain: "When I have a vacation with my sons, we usually do some simple things around the house. We watch cartoons or action movies together, play board games, and sometimes build things with blocks or LEGO. They love it when I join them, and I really enjoy seeing them laugh and have fun. These small moments help me relax and feel closer to them. We also like going to the park near our apartment during vacations. We ride bikes, play catch, or just walk around and talk. Sometimes we take snacks and have a mini picnic on the grass. Spending time outdoors like this makes us feel refreshed, and it's a great way to bond without any distractions. Overall, these are the things we usually do when we have vacations."
+        aEnPlain: "When I have a vacation at home with my wife, we usually do some relaxing and fun things together. We binge-watch drama series or movies on Netflix, cook special dishes together, and enjoy listening to our favorite music while sipping coffee. We really enjoy making delicious food together and having deep conversations over a meal. These small, peaceful moments help us completely unwind and feel closer to each other. We also like going to the park near our apartment during vacations. We take a walk, enjoy the fresh air, or just sit on a bench and talk for hours. Sometimes we grab some coffee and snacks to have a mini picnic on the grass. Spending time outdoors like this makes us feel refreshed, and it's a wonderful way to relax without any work stress. Overall, these are the things we usually do when we have vacations at home."
       },
       {
         id: 32,
@@ -2419,7 +2448,8 @@
         playMode: "qa", // 'qa' | 'a' | 'q'
         rate: 1.0,
         voiceName: "",
-        popupFontSize: 16
+        popupFontSize: 16,
+        audioSource: "file" // 'file' | 'web'
       },
       voices: [],
       wakeLock: null,
@@ -2428,6 +2458,7 @@
         paused: false,
         scope: "single", // 'single' | 'tab' | 'random' | 'sentence'
         repeatOne: false,
+        usingAudioFile: false,
         queue: [], // [{ itemId, part: 'Q'|'A', sentences: string[] }]
         queueIndex: 0,
         sentIndex: 0,
@@ -2436,7 +2467,20 @@
       }
     };
 
+    const audioPlayer = typeof Audio !== "undefined" ? new Audio() : null;
+    if (audioPlayer) audioPlayer.preload = "auto";
+
     window._activeUtterance = null;
+
+    const LEGACY_SCRIPT_SIGNATURES = {
+      1: "My son had an upset stomach",
+      3: "My son tested positive for COVID-19",
+      14: "my older brother and his wife",
+      20: "I live together with my wife and two sons.",
+      24: "look after my younger brother",
+      30: "especially my two sons.",
+      31: "When I have a vacation with my sons,"
+    };
 
     // --- Persistence ---
     function applyItemPatch(item, patch) {
@@ -2474,12 +2518,32 @@
           if (typeof p.popupFontSize === "number" && p.popupFontSize >= 13 && p.popupFontSize <= 26) {
             state.prefs.popupFontSize = p.popupFontSize;
           }
+          if (p.audioSource === "file" || p.audioSource === "web") {
+            state.prefs.audioSource = p.audioSource;
+          }
         }
       } catch {}
       try {
         const e = JSON.parse(localStorage.getItem(STORAGE_KEYS.edits) || "{}");
         if (e && typeof e === "object") {
+          let migrated = false;
+          for (const [idStr, sig] of Object.entries(LEGACY_SCRIPT_SIGNATURES)) {
+            const patch = e[idStr];
+            if (patch && typeof patch.aEnPlain === "string" && patch.aEnPlain.includes(sig)) {
+              const defItem = DEFAULT_OPIC_DATA.find(x => x.id === Number(idStr));
+              const qUnchanged = !defItem || !patch.qEn || patch.qEn.trim() === defItem.qEn.trim();
+              if (qUnchanged) {
+                delete e[idStr];
+              } else {
+                delete patch.aKeywords;
+                delete patch.aSections;
+                delete patch.aEnPlain;
+              }
+              migrated = true;
+            }
+          }
           state.edits = e;
+          if (migrated) saveEdits();
           for (const [idStr, patch] of Object.entries(e)) {
             const item = OPIC_DATA.find(x => x.id === Number(idStr));
             if (item) applyItemPatch(item, patch);
@@ -2737,11 +2801,59 @@
       return state.voices.find(v => v.name === state.prefs.voiceName) || state.voices[0];
     }
 
-    // --- TTS Engine ---
+    // --- TTS & Audio File Engine ---
+    function sanitizeAudioFilename(name) {
+      return String(name || "")
+        .replace(/[\\/:*?"<>|]/g, "_")
+        .trim()
+        .replace(/\s+/g, "_");
+    }
+
+    function getTtsAudioUrl(itemId, part) {
+      const defItem = DEFAULT_OPIC_DATA.find(x => x.id === itemId);
+      const curItem = OPIC_DATA.find(x => x.id === itemId);
+      if (!defItem || !curItem) return null;
+
+      // Fall back to Web Speech API automatically if user edited the English script in-app
+      if (part === "Q") {
+        if ((curItem.qEn || "").replace(/\s+/g, " ").trim() !== (defItem.qEn || "").replace(/\s+/g, " ").trim()) {
+          return null;
+        }
+      } else {
+        if ((curItem.aEnPlain || "").replace(/\s+/g, " ").trim() !== (defItem.aEnPlain || "").replace(/\s+/g, " ").trim()) {
+          return null;
+        }
+      }
+
+      const numStr = String(defItem.id).padStart(2, "0");
+      const safeTitle = sanitizeAudioFilename(defItem.title);
+      const fileName = part === "Q" ? `${numStr}_Q_${safeTitle}.mp3` : `${numStr}_${safeTitle}.mp3`;
+      return encodeURI(`tts/${fileName}`);
+    }
+
     function clearDelayTimer() {
       if (state.playback.delayTimer) {
         clearTimeout(state.playback.delayTimer);
         state.playback.delayTimer = null;
+      }
+    }
+
+    function stopAudioElement(resetSrc = true) {
+      if (!audioPlayer) return;
+      audioPlayer.ontimeupdate = null;
+      audioPlayer.onended = null;
+      audioPlayer.onerror = null;
+      try {
+        audioPlayer.pause();
+      } catch {}
+      if (resetSrc) {
+        try {
+          audioPlayer.currentTime = 0;
+        } catch {}
+        try {
+          audioPlayer.removeAttribute("src");
+          audioPlayer.load();
+        } catch {}
       }
     }
 
@@ -2750,10 +2862,12 @@
       state.playback.sessionToken += 1;
       state.playback.active = false;
       state.playback.paused = false;
+      state.playback.usingAudioFile = false;
       state.playback.queue = [];
       state.playback.queueIndex = 0;
       state.playback.sentIndex = 0;
       window._activeUtterance = null;
+      stopAudioElement(true);
       if ("speechSynthesis" in window) {
         try {
           window.speechSynthesis.cancel();
@@ -2767,8 +2881,13 @@
     }
 
     function startQueue(queue, scope, initialSentIdx = 0) {
-      if (!("speechSynthesis" in window)) {
+      const hasWebTts = "speechSynthesis" in window;
+      if (state.prefs.audioSource === "web" && !hasWebTts) {
         showToast("이 브라우저는 내장 음성(TTS)을 지원하지 않습니다.");
+        return;
+      }
+      if (!audioPlayer && !hasWebTts) {
+        showToast("오디오 재생이 지원되지 않는 브라우저입니다.");
         return;
       }
       if (!queue.length) {
@@ -2777,6 +2896,7 @@
       }
 
       const wasActive = state.playback.active;
+      const webSpeaking = hasWebTts && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
       clearDelayTimer();
       state.playback.sessionToken += 1;
       const myToken = state.playback.sessionToken;
@@ -2788,16 +2908,19 @@
       state.playback.queueIndex = 0;
       state.playback.sentIndex = initialSentIdx;
 
-      if (wasActive || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        window.speechSynthesis.cancel();
+      stopAudioElement(true);
+      if (webSpeaking || (wasActive && state.prefs.audioSource === "web")) {
+        if (hasWebTts) {
+          try { window.speechSynthesis.cancel(); } catch {}
+        }
         state.playback.delayTimer = setTimeout(() => {
           if (state.playback.sessionToken === myToken) {
-            speakCurrentSentence(myToken);
+            playCurrentBlock(myToken);
           }
         }, 50);
       } else {
-        // Trigger synchronously inside user gesture for iOS Safari audio unlock
-        speakCurrentSentence(myToken);
+        // Trigger synchronously inside user gesture for mobile audio unlock
+        playCurrentBlock(myToken);
       }
 
       acquireWakeLock();
@@ -2817,9 +2940,103 @@
       }
     }
 
+    function playCurrentBlock(myToken) {
+      const pb = state.playback;
+      if (!pb.active || pb.paused || pb.sessionToken !== myToken) return;
+
+      const block = pb.queue[pb.queueIndex];
+      if (!block) {
+        stopPlayback();
+        return;
+      }
+
+      const audioUrl =
+        state.prefs.audioSource === "file" && pb.scope !== "sentence"
+          ? getTtsAudioUrl(block.itemId, block.part)
+          : null;
+
+      if (audioUrl && audioPlayer) {
+        pb.usingAudioFile = true;
+        if ("speechSynthesis" in window) {
+          try { window.speechSynthesis.cancel(); } catch {}
+        }
+        stopAudioElement(false);
+
+        const lengths = block.sentences.map(s => Math.max(1, s.length));
+        const totalLen = lengths.reduce((a, b) => a + b, 0) || 1;
+        const cumEndRatios = [];
+        let acc = 0;
+        for (const len of lengths) {
+          acc += len;
+          cumEndRatios.push(acc / totalLen);
+        }
+
+        const fallbackToWebTts = () => {
+          if (state.playback.sessionToken !== myToken || state.playback.paused) return;
+          pb.usingAudioFile = false;
+          stopAudioElement(true);
+          if ("speechSynthesis" in window) {
+            speakCurrentSentence(myToken);
+          } else {
+            advanceToNextBlock(myToken);
+          }
+        };
+
+        audioPlayer.ontimeupdate = () => {
+          if (state.playback.sessionToken !== myToken || state.playback.paused) return;
+          if (!audioPlayer.duration || !isFinite(audioPlayer.duration) || audioPlayer.duration <= 0) return;
+          const progress = audioPlayer.currentTime / audioPlayer.duration;
+          let nextIdx = cumEndRatios.length - 1;
+          for (let i = 0; i < cumEndRatios.length; i++) {
+            if (progress < cumEndRatios[i]) {
+              nextIdx = i;
+              break;
+            }
+          }
+          if (nextIdx !== pb.sentIndex) {
+            pb.sentIndex = nextIdx;
+            updatePlaybackUI();
+          }
+        };
+
+        audioPlayer.onended = () => {
+          if (state.playback.sessionToken !== myToken || state.playback.paused) return;
+          pb.sentIndex = Math.max(0, block.sentences.length - 1);
+          advanceToNextBlock(myToken);
+        };
+
+        audioPlayer.onerror = () => {
+          fallbackToWebTts();
+        };
+
+        audioPlayer.src = audioUrl;
+        audioPlayer.playbackRate = state.prefs.rate;
+        try {
+          audioPlayer.currentTime = 0;
+        } catch {}
+        updatePlaybackUI();
+
+        const playPromise = audioPlayer.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {
+            fallbackToWebTts();
+          });
+        }
+        return;
+      }
+
+      pb.usingAudioFile = false;
+      speakCurrentSentence(myToken);
+    }
+
     function speakCurrentSentence(myToken) {
       const pb = state.playback;
       if (!pb.active || pb.paused || pb.sessionToken !== myToken) return;
+      if (!("speechSynthesis" in window)) {
+        stopPlayback();
+        showToast("이 브라우저는 내장 음성(TTS)을 지원하지 않습니다.");
+        return;
+      }
 
       const block = pb.queue[pb.queueIndex];
       if (!block) {
@@ -2910,7 +3127,7 @@
             if (pb.sessionToken === myToken && !pb.paused) {
               syncPopupWithPlayback();
               scrollToActiveBlock();
-              speakCurrentSentence(myToken);
+              playCurrentBlock(myToken);
             }
           }, 700);
           return;
@@ -2937,7 +3154,7 @@
 
       pb.delayTimer = setTimeout(() => {
         if (pb.sessionToken === myToken && !pb.paused) {
-          speakCurrentSentence(myToken);
+          playCurrentBlock(myToken);
         }
       }, pauseMs);
     }
@@ -2947,7 +3164,9 @@
       clearDelayTimer();
       state.playback.sessionToken += 1;
       state.playback.paused = true;
-      if ("speechSynthesis" in window) {
+      if (state.playback.usingAudioFile && audioPlayer) {
+        try { audioPlayer.pause(); } catch {}
+      } else if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch {}
       }
       releaseWakeLock();
@@ -2955,12 +3174,29 @@
     }
 
     function resumePlayback() {
-      if (!state.playback.active || !state.playback.paused) return;
-      state.playback.paused = false;
-      const myToken = ++state.playback.sessionToken;
+      const pb = state.playback;
+      if (!pb.active || !pb.paused) return;
+      pb.paused = false;
+      const myToken = ++pb.sessionToken;
       acquireWakeLock();
       updatePlaybackUI();
-      speakCurrentSentence(myToken);
+
+      if (pb.usingAudioFile && state.prefs.audioSource === "file" && audioPlayer && audioPlayer.src) {
+        const block = pb.queue[pb.queueIndex];
+        audioPlayer.playbackRate = state.prefs.rate;
+        audioPlayer.onended = () => {
+          if (state.playback.sessionToken !== myToken || state.playback.paused) return;
+          if (block) pb.sentIndex = Math.max(0, block.sentences.length - 1);
+          advanceToNextBlock(myToken);
+        };
+        const p = audioPlayer.play();
+        if (p && typeof p.catch === "function") {
+          p.catch(() => playCurrentBlock(myToken));
+        }
+        return;
+      }
+
+      playCurrentBlock(myToken);
     }
 
     function jumpQueueItem(direction) {
@@ -2992,14 +3228,21 @@
       pb.queueIndex = targetIdx;
       pb.sentIndex = 0;
       pb.paused = false;
-      window.speechSynthesis.cancel();
+      stopAudioElement(true);
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch {}
+      }
       acquireWakeLock();
       syncPopupWithPlayback();
       updatePlaybackUI();
       scrollToActiveBlock();
-      pb.delayTimer = setTimeout(() => {
-        if (pb.sessionToken === myToken) speakCurrentSentence(myToken);
-      }, 60);
+      if (state.prefs.audioSource === "file") {
+        playCurrentBlock(myToken);
+      } else {
+        pb.delayTimer = setTimeout(() => {
+          if (pb.sessionToken === myToken) playCurrentBlock(myToken);
+        }, 60);
+      }
     }
 
     function playSinglePart(itemId, part) {
@@ -3071,12 +3314,14 @@
       const myToken = pb.sessionToken;
       pb.active = true;
       pb.paused = false;
+      pb.usingAudioFile = false;
       pb.scope = "sentence";
       pb.queue = [{ itemId, part, sentences: [sentences[sidx]], displaySentIdx: sidx }];
       pb.queueIndex = 0;
       pb.sentIndex = 0;
 
-      if (wasActive || window.speechSynthesis.speaking) {
+      stopAudioElement(true);
+      if ("speechSynthesis" in window && (wasActive || window.speechSynthesis.speaking)) {
         window.speechSynthesis.cancel();
         pb.delayTimer = setTimeout(() => {
           if (pb.sessionToken === myToken) speakCurrentSentence(myToken);
@@ -3152,10 +3397,11 @@
 
       if (pb.active && curBlock && curItem) {
         const numStr = String(curItem.id).padStart(2, "0");
-        const prefix = pb.scope === "random" ? "🔀 " : "";
+        const randPrefix = pb.scope === "random" ? "🔀 " : "";
+        const srcPrefix = pb.usingAudioFile ? "🎵 " : "";
         const stateText = pb.paused ? "일시정지" : `${pb.sentIndex + 1}/${curBlock.sentences.length}`;
         document.getElementById("playerNow").textContent =
-          `${prefix}#${numStr} ${curBlock.part} (${stateText})`;
+          `${randPrefix}${srcPrefix}#${numStr} ${curBlock.part} (${stateText})`;
       }
 
       // Highlight cards, buttons, sentences in DOM
@@ -3789,6 +4035,13 @@
         btn.classList.toggle("is-active", btn.dataset.mode === state.prefs.playMode);
       });
 
+      const btnAudioSource = document.getElementById("btnAudioSource");
+      if (btnAudioSource) {
+        const isFile = state.prefs.audioSource === "file";
+        btnAudioSource.textContent = isFile ? "🎵 파일" : "📱 내장";
+        btnAudioSource.classList.toggle("is-file", isFile);
+      }
+
       document.getElementById("btnRate").textContent = `${state.prefs.rate.toFixed(state.prefs.rate === 1 ? 1 : 2).replace(/\.00$/, ".0")}x`;
       applyPopupFontSize();
     }
@@ -4041,6 +4294,32 @@
       });
 
       // Mini Player Controls
+      document.getElementById("btnAudioSource").addEventListener("click", () => {
+        state.prefs.audioSource = state.prefs.audioSource === "file" ? "web" : "file";
+        savePrefs();
+        renderPrefsUI();
+        const isFile = state.prefs.audioSource === "file";
+        showToast(isFile ? "🎵 TTS 음성파일(MP3) 재생으로 전환되었습니다." : "📱 기기 내장 TTS 재생으로 전환되었습니다.");
+
+        const pb = state.playback;
+        if (pb.active && pb.scope !== "sentence") {
+          clearDelayTimer();
+          stopAudioElement(true);
+          if ("speechSynthesis" in window) {
+            try { window.speechSynthesis.cancel(); } catch {}
+          }
+          pb.sessionToken += 1;
+          const myToken = pb.sessionToken;
+          pb.usingAudioFile = isFile;
+          pb.sentIndex = 0;
+          if (!pb.paused) {
+            playCurrentBlock(myToken);
+          } else {
+            updatePlaybackUI();
+          }
+        }
+      });
+
       document.getElementById("btnPlayPause").addEventListener("click", () => {
         if (!state.playback.active) {
           playTabAll();
@@ -4067,14 +4346,21 @@
         savePrefs();
         renderPrefsUI();
         if (state.playback.active && !state.playback.paused) {
-          // Apply new speed immediately on current sentence
           const pb = state.playback;
+          if (pb.usingAudioFile && audioPlayer) {
+            audioPlayer.playbackRate = state.prefs.rate;
+            showToast(`재생 속도 ${state.prefs.rate}x`);
+            return;
+          }
+          // Apply new speed immediately on current sentence (Web Speech API)
           clearDelayTimer();
           pb.sessionToken += 1;
           const myToken = pb.sessionToken;
-          window.speechSynthesis.cancel();
+          if ("speechSynthesis" in window) {
+            try { window.speechSynthesis.cancel(); } catch {}
+          }
           pb.delayTimer = setTimeout(() => {
-            if (pb.sessionToken === myToken) speakCurrentSentence(myToken);
+            if (pb.sessionToken === myToken) playCurrentBlock(myToken);
           }, 50);
         }
       });
