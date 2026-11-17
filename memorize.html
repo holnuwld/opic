@@ -528,6 +528,29 @@
       font-weight: 800;
     }
 
+    .source-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 800;
+      height: 32px;
+      padding: 0 7px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .source-btn.is-file {
+      background: #0d9488;
+      border-color: #14b8a6;
+      color: #ffffff;
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -645,6 +668,7 @@
   <aside class="mini-player" aria-label="암기 미니 플레이어">
     <div id="playerNow" class="player-now">대기 중</div>
     <div class="player-controls">
+      <button type="button" id="btnAudioSource" class="source-btn is-file" aria-label="음성 소스 전환 (파일/내장)">🎵 파일</button>
       <button type="button" id="btnPrev" class="p-btn" aria-label="이전 문장">⏮</button>
       <button type="button" id="btnPlayPause" class="p-btn p-main" aria-label="재생/일시정지">▶</button>
       <button type="button" id="btnStop" class="p-btn" aria-label="정지">⏹</button>
@@ -796,6 +820,7 @@
       repeatCount: 3,
       rate: 1.0,
       voiceName: "",
+      audioSource: "file", // 'file' | 'web'
       voices: [],
       deck: [],
       deckPos: 0,
@@ -803,12 +828,15 @@
       curRepeat: 1,
       playing: false,
       paused: false,
+      usingAudioFile: false,
       sessionToken: 0,
       delayTimer: null,
       chimeTimer: null,
       wakeLock: null
     };
 
+    const audioPlayer = typeof Audio !== "undefined" ? new Audio() : null;
+    if (audioPlayer) audioPlayer.preload = "auto";
     window._memUtterance = null;
     let audioCtx = null;
 
@@ -886,6 +914,7 @@
         if (typeof p.repeatCount === "number" && p.repeatCount >= 1 && p.repeatCount <= 5) state.repeatCount = p.repeatCount;
         if (RATES.includes(p.rate)) state.rate = p.rate;
         if (typeof p.voiceName === "string") state.voiceName = p.voiceName;
+        if (p.audioSource === "file" || p.audioSource === "web") state.audioSource = p.audioSource;
       } catch {}
     }
 
@@ -894,8 +923,27 @@
         scopePct: state.scopePct,
         repeatCount: state.repeatCount,
         rate: state.rate,
-        voiceName: state.voiceName
+        voiceName: state.voiceName,
+        audioSource: state.audioSource
       }));
+    }
+
+    function getMemAudioUrl(rank) {
+      return `tts/mem/m${String(rank).padStart(3, "0")}.mp3`;
+    }
+
+    function stopAudioElement(resetSrc = true) {
+      if (!audioPlayer) return;
+      audioPlayer.onended = null;
+      audioPlayer.onerror = null;
+      try { audioPlayer.pause(); } catch {}
+      if (resetSrc) {
+        try { audioPlayer.currentTime = 0; } catch {}
+        try {
+          audioPlayer.removeAttribute("src");
+          audioPlayer.load();
+        } catch {}
+      }
     }
 
     function getActivePool() {
@@ -1023,8 +1071,10 @@
       state.sessionToken += 1;
       state.playing = false;
       state.paused = false;
+      state.usingAudioFile = false;
       state.curRepeat = 1;
       window._memUtterance = null;
+      stopAudioElement(true);
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch {}
       }
@@ -1035,19 +1085,13 @@
       }
     }
 
-    function speakCurrentRepeat(myToken) {
-      if (!state.playing || state.paused || state.sessionToken !== myToken) return;
+    function speakWithWebTts(myToken, item) {
+      state.usingAudioFile = false;
       if (!("speechSynthesis" in window)) {
         stopMemorize();
-        showToast("이 브라우저는 내장 음성(TTS)을 지원하지 않습니다.");
+        showToast("음성 재생이 지원되지 않는 브라우저입니다.");
         return;
       }
-
-      const item = getCurrentItem();
-      if (!item) return;
-
-      renderCard();
-      renderListHighlight();
       updateStatusLine();
 
       const utt = new SpeechSynthesisUtterance(item.en);
@@ -1079,6 +1123,52 @@
         stopMemorize();
         showToast("음성 재생 중 오류가 발생했습니다.");
       }
+    }
+
+    function speakCurrentRepeat(myToken) {
+      if (!state.playing || state.paused || state.sessionToken !== myToken) return;
+
+      const item = getCurrentItem();
+      if (!item) return;
+
+      renderCard();
+      renderListHighlight();
+
+      if (state.audioSource === "file" && audioPlayer) {
+        state.usingAudioFile = true;
+        if ("speechSynthesis" in window) {
+          try { window.speechSynthesis.cancel(); } catch {}
+        }
+        stopAudioElement(false);
+
+        const audioUrl = getMemAudioUrl(item.rank);
+        const fallback = () => {
+          if (state.sessionToken !== myToken || !state.playing || state.paused) return;
+          stopAudioElement(true);
+          speakWithWebTts(myToken, item);
+        };
+
+        audioPlayer.onended = () => {
+          if (state.sessionToken !== myToken || !state.playing || state.paused) return;
+          handleRepeatFinished(myToken);
+        };
+        audioPlayer.onerror = () => fallback();
+
+        if (!audioPlayer.src || !audioPlayer.src.endsWith(audioUrl)) {
+          audioPlayer.src = audioUrl;
+        }
+        audioPlayer.playbackRate = state.rate;
+        try { audioPlayer.currentTime = 0; } catch {}
+        updateStatusLine();
+
+        const p = audioPlayer.play();
+        if (p && typeof p.catch === "function") {
+          p.catch(() => fallback());
+        }
+        return;
+      }
+
+      speakWithWebTts(myToken, item);
     }
 
     function handleRepeatFinished(myToken) {
@@ -1114,19 +1204,25 @@
     }
 
     function startMemorize() {
-      if (!("speechSynthesis" in window)) {
+      const hasWeb = "speechSynthesis" in window;
+      if (state.audioSource === "web" && !hasWeb) {
         showToast("이 브라우저는 내장 음성(TTS)을 지원하지 않습니다.");
+        return;
+      }
+      if (!audioPlayer && !hasWeb) {
+        showToast("오디오 재생이 지원되지 않는 브라우저입니다.");
         return;
       }
       unlockAudioContext();
       clearTimers();
+      stopAudioElement(true);
       state.sessionToken += 1;
       const myToken = state.sessionToken;
       state.playing = true;
       state.paused = false;
       state.curRepeat = 1;
 
-      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      if (hasWeb && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
         try { window.speechSynthesis.cancel(); } catch {}
         state.delayTimer = setTimeout(() => {
           if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
@@ -1143,7 +1239,9 @@
       clearTimers();
       state.sessionToken += 1;
       state.paused = true;
-      if ("speechSynthesis" in window) {
+      if (state.usingAudioFile && audioPlayer) {
+        try { audioPlayer.pause(); } catch {}
+      } else if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch {}
       }
       releaseWakeLock();
@@ -1157,12 +1255,25 @@
       const myToken = ++state.sessionToken;
       acquireWakeLock();
       renderAll();
+
+      if (state.usingAudioFile && state.audioSource === "file" && audioPlayer && audioPlayer.src && !audioPlayer.ended) {
+        audioPlayer.playbackRate = state.rate;
+        audioPlayer.onended = () => {
+          if (state.sessionToken !== myToken || !state.playing || state.paused) return;
+          handleRepeatFinished(myToken);
+        };
+        const p = audioPlayer.play();
+        if (p && typeof p.catch === "function") p.catch(() => speakCurrentRepeat(myToken));
+        return;
+      }
+
       speakCurrentRepeat(myToken);
     }
 
     function jumpRandomNext() {
       unlockAudioContext();
       clearTimers();
+      stopAudioElement(true);
       state.sessionToken += 1;
       const myToken = state.sessionToken;
       advanceToRandomNext();
@@ -1171,9 +1282,13 @@
       }
       if (state.playing && !state.paused) {
         renderAll();
-        state.delayTimer = setTimeout(() => {
-          if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
-        }, 60);
+        if (state.audioSource === "file") {
+          speakCurrentRepeat(myToken);
+        } else {
+          state.delayTimer = setTimeout(() => {
+            if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
+          }, 60);
+        }
       } else {
         state.playing = true;
         state.paused = false;
@@ -1190,6 +1305,7 @@
       }
       unlockAudioContext();
       clearTimers();
+      stopAudioElement(true);
       const prevItem = state.history.pop();
       const idx = state.deck.findIndex(x => x.rank === prevItem.rank);
       if (idx >= 0) {
@@ -1205,9 +1321,13 @@
       }
       if (state.playing && !state.paused) {
         renderAll();
-        state.delayTimer = setTimeout(() => {
-          if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
-        }, 60);
+        if (state.audioSource === "file") {
+          speakCurrentRepeat(myToken);
+        } else {
+          state.delayTimer = setTimeout(() => {
+            if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
+          }, 60);
+        }
       } else {
         renderAll();
       }
@@ -1215,6 +1335,8 @@
 
     function jumpToRank(rank) {
       unlockAudioContext();
+      clearTimers();
+      stopAudioElement(true);
       const pool = getActivePool();
       const target = pool.find(x => x.rank === rank);
       if (!target) return;
@@ -1231,7 +1353,6 @@
         resetDeck(rank);
       }
       state.curRepeat = 1;
-      clearTimers();
       state.sessionToken += 1;
       const myToken = state.sessionToken;
       state.playing = true;
@@ -1241,9 +1362,13 @@
       }
       acquireWakeLock();
       renderAll();
-      state.delayTimer = setTimeout(() => {
-        if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
-      }, 60);
+      if (state.audioSource === "file") {
+        speakCurrentRepeat(myToken);
+      } else {
+        state.delayTimer = setTimeout(() => {
+          if (state.sessionToken === myToken) speakCurrentRepeat(myToken);
+        }, 60);
+      }
     }
 
     function renderSettings() {
@@ -1255,6 +1380,12 @@
       document.querySelectorAll("#repeatRow .seg-btn").forEach(btn => {
         btn.classList.toggle("is-active", Number(btn.dataset.repeat) === state.repeatCount);
       });
+      const btnSrc = document.getElementById("btnAudioSource");
+      if (btnSrc) {
+        const isFile = state.audioSource === "file";
+        btnSrc.textContent = isFile ? "🎵 파일" : "📱 내장";
+        btnSrc.classList.toggle("is-file", isFile);
+      }
       document.getElementById("btnRate").textContent = `${state.rate.toFixed(state.rate === 1 ? 1 : 2).replace(/\.00$/, ".0")}x`;
     }
 
@@ -1318,8 +1449,9 @@
         el.textContent = "대기 중";
         return;
       }
+      const srcPrefix = state.usingAudioFile ? "🎵 " : "";
       const status = state.paused ? "일시정지" : `${state.curRepeat}/${state.repeatCount}회`;
-      el.textContent = `🎲 #${String(item.itemId).padStart(2, "0")} (${status})`;
+      el.textContent = `${srcPrefix}#${String(item.itemId).padStart(2, "0")} (${status})`;
     }
 
     function renderList() {
@@ -1389,7 +1521,28 @@
         state.rate = RATES[(idx + 1) % RATES.length];
         savePrefs();
         renderSettings();
+        if (state.playing && state.usingAudioFile && audioPlayer) {
+          audioPlayer.playbackRate = state.rate;
+        }
         showToast(`재생 속도 ${state.rate}x`);
+      });
+
+      document.getElementById("btnAudioSource").addEventListener("click", () => {
+        unlockAudioContext();
+        state.audioSource = state.audioSource === "file" ? "web" : "file";
+        savePrefs();
+        renderSettings();
+        const isFile = state.audioSource === "file";
+        showToast(isFile ? "🎵 원어민 TTS 파일(MP3) 모드" : "📱 기기 내장 TTS 모드");
+        if (state.playing && !state.paused) {
+          clearTimers();
+          stopAudioElement(true);
+          if ("speechSynthesis" in window) {
+            try { window.speechSynthesis.cancel(); } catch {}
+          }
+          state.sessionToken += 1;
+          speakCurrentRepeat(state.sessionToken);
+        }
       });
 
       document.getElementById("voiceSelect").addEventListener("change", e => {
