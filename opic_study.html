@@ -174,22 +174,64 @@
       border-color: #f59e0b;
     }
 
-    .voice-select-top {
+    .search-box-top {
       flex: 1;
+      min-width: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-top {
+      width: 100%;
       min-width: 0;
       height: 30px;
       background: rgba(15, 23, 42, 0.35);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.28);
       border-radius: 999px;
-      padding: 0 8px;
-      font-size: 11px;
+      padding: 0 26px 0 10px;
+      font-size: 11.5px;
       font-weight: 600;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
     }
 
-    .voice-select-top option {
-      background: #0f172a;
+    .search-input-top::placeholder {
+      color: rgba(255, 255, 255, 0.72);
+      font-weight: 500;
+    }
+
+    .search-input-top:focus {
+      background: rgba(15, 23, 42, 0.55);
+      border-color: rgba(255, 255, 255, 0.75);
+    }
+
+    .search-input-top::-webkit-search-cancel-button {
+      display: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 5px;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
       color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-clear-btn[hidden] {
+      display: none;
     }
 
     /* Sticky Topic Tabs */
@@ -1288,9 +1330,10 @@
       <div class="utility-bar">
         <button type="button" id="btnToggleKo" class="util-btn">한글 OFF</button>
         <button type="button" id="btnToggleBlind" class="util-btn">블라인드 OFF</button>
-        <select id="voiceSelect" class="voice-select-top" aria-label="여성 원어민 TTS 음성 선택">
-          <option value="">음성 로딩...</option>
-        </select>
+        <div class="search-box-top">
+          <input type="search" id="searchInput" class="search-input-top" placeholder="🔍 스크립트·키워드 검색" aria-label="스크립트 검색" autocomplete="off" />
+          <button type="button" id="btnClearSearch" class="search-clear-btn" aria-label="검색어 지우기" hidden>✕</button>
+        </div>
         <button type="button" id="btnOpenFillers" class="util-btn filler-btn">💡 필러</button>
       </div>
     </header>
@@ -2687,6 +2730,7 @@
     const state = {
       activeTab: "all",
       starFilter: "all", // 'all' | 'any' | 'gte4' | 'eq5' | 'eq4' | 'eq3' | 'eq2' | 'eq1'
+      searchQuery: "",
       starredIds: new Set(),
       doneIds: new Set(),
       edits: {},
@@ -2968,6 +3012,31 @@
       return { html: wrapped, nextIdx: idx };
     }
 
+    function matchesSearchQuery(item, rawQuery) {
+      const q = String(rawQuery || "").trim().toLowerCase();
+      if (!q) return true;
+      const numStr = String(item.id).padStart(2, "0");
+      const secText = Array.isArray(item.aSections)
+        ? item.aSections.map(s => `${s.summary || ""} ${s.ko || ""}`).join(" ")
+        : "";
+      const haystack = [
+        `#${item.id}`,
+        `#${numStr}`,
+        String(item.id),
+        item.title || "",
+        item.badge || "",
+        item.qKeywords || "",
+        item.aKeywords || "",
+        item.qEn || "",
+        item.qKo || "",
+        item.aEnPlain || "",
+        secText
+      ].join(" ").toLowerCase();
+
+      const tokens = q.split(/\s+/).filter(Boolean);
+      return tokens.every(tok => haystack.includes(tok));
+    }
+
     function matchesStarFilter(item, filterId) {
       const s = Number(item.stars || 0);
       if (filterId === "all") return true;
@@ -2986,6 +3055,9 @@
       if (tabId === "all") base = OPIC_DATA;
       else if (tabId === "starred") base = OPIC_DATA.filter(item => state.starredIds.has(item.id));
       else base = OPIC_DATA.filter(item => item.category === tabId);
+      if (state.searchQuery && state.searchQuery.trim()) {
+        base = base.filter(item => matchesSearchQuery(item, state.searchQuery));
+      }
       if (ignoreStarFilter) return base;
       return base.filter(item => matchesStarFilter(item, state.starFilter));
     }
@@ -3104,9 +3176,9 @@
     }
 
     function loadVoices() {
+      const sel = document.getElementById("voiceSelect");
       if (!("speechSynthesis" in window)) {
-        const sel = document.getElementById("voiceSelect");
-        sel.innerHTML = `<option value="">TTS 미지원</option>`;
+        if (sel) sel.innerHTML = `<option value="">TTS 미지원</option>`;
         return;
       }
       const all = window.speechSynthesis.getVoices() || [];
@@ -3117,9 +3189,8 @@
         .map(x => x.voice);
 
       state.voices = englishVoices;
-      const sel = document.getElementById("voiceSelect");
-      if (englishVoices.length === 0) {
-        sel.innerHTML = `<option value="">여성 기본 (en-US)</option>`;
+      if (!englishVoices.length) {
+        if (sel) sel.innerHTML = `<option value="">여성 기본 (en-US)</option>`;
         return;
       }
 
@@ -3127,6 +3198,7 @@
         state.prefs.voiceName = englishVoices[0].name;
       }
 
+      if (!sel) return;
       sel.innerHTML = englishVoices
         .map(v => `<option value="${escapeHtml(v.name)}">${escapeHtml(v.name)} (${escapeHtml(v.lang)})</option>`)
         .join("");
@@ -4774,12 +4846,17 @@
       const items = getItemsForTab(state.activeTab);
 
       if (!items.length) {
-        const emptyTitle = state.starFilter !== "all"
-          ? "해당 별표 조건의 문항이 없습니다"
-          : "⭐ 복습노트가 비어 있습니다";
-        const emptyDesc = state.starFilter !== "all"
-          ? "상단 별표 필터를 '별표: 전체'로 바꾸어 보세요."
-          : "문항 오른쪽 상단의 ☆ 버튼을 눌러<br />헷갈리거나 집중 복습할 문항을 모아보세요!";
+        const hasSearch = Boolean(state.searchQuery && state.searchQuery.trim());
+        const emptyTitle = hasSearch
+          ? "🔍 검색 결과가 없습니다"
+          : (state.starFilter !== "all"
+            ? "해당 별표 조건의 문항이 없습니다"
+            : "⭐ 복습노트가 비어 있습니다");
+        const emptyDesc = hasSearch
+          ? "다른 검색어를 입력하거나 상단 탭·별표 필터를 '전체'로 변경해 보세요."
+          : (state.starFilter !== "all"
+            ? "상단 별표 필터를 '별표: 전체'로 바꾸어 보세요."
+            : "문항 오른쪽 상단의 ☆ 버튼을 눌러<br />헷갈리거나 집중 복습할 문항을 모아보세요!");
         container.innerHTML = `
           <div class="empty-state">
             <strong>${emptyTitle}</strong>
@@ -5144,11 +5221,37 @@
         }
       });
 
-      document.getElementById("voiceSelect").addEventListener("change", e => {
-        state.prefs.voiceName = e.target.value;
-        savePrefs();
-        showToast("음성이 변경되었습니다.");
-      });
+      const searchInput = document.getElementById("searchInput");
+      const btnClearSearch = document.getElementById("btnClearSearch");
+      if (searchInput) {
+        const applySearch = (val) => {
+          state.searchQuery = val || "";
+          if (btnClearSearch) {
+            btnClearSearch.hidden = !state.searchQuery.trim();
+          }
+          renderTabs();
+          renderStarFilters();
+          renderCards();
+        };
+        searchInput.addEventListener("input", e => {
+          applySearch(e.target.value);
+        });
+        searchInput.addEventListener("keydown", e => {
+          if (e.key === "Escape") {
+            searchInput.value = "";
+            applySearch("");
+          } else if (e.key === "Enter") {
+            searchInput.blur();
+          }
+        });
+        if (btnClearSearch) {
+          btnClearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            applySearch("");
+            searchInput.focus();
+          });
+        }
+      }
     }
 
     // --- Init ---
