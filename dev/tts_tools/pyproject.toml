@@ -1,0 +1,19 @@
+[project]
+name = "opic-tts"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "kangsj1306-tech", email = "kangsj1306@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "edge-tts>=7.3.1",
+    "faster-whisper>=1.2.1",
+]
+
+[project.scripts]
+opic-tts = "opic_tts:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
