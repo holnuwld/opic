@@ -131,12 +131,12 @@ Let me tell you about my visit to Daecheon Beach with my family last summer. It 
 - **한국어 번역:** 해결해야 할 문제가 있습니다. 저녁 모임 당일 가족 중 한 명이 아픕니다. 친구에게 전화해 메시지를 남기세요. 무슨 일이 생겼는지 설명하고 조만간 다시 저녁을 함께 먹을 계획을 제안하세요.
 
 ### Answer (A)
-- **키워드:** 📞 Hi Jamie (short notice, can't make it tonight) ➔ 🤒 Wife tested positive COVID-19 (fever & cough) ➔ 🤝 She rests, I take care of her ➔ 📅 Reschedule next weekend? (call me when free)
+- **키워드:** 📞 Hi Lia (short notice, can't make it tonight) ➔ 🤒 Wife tested positive COVID-19 (fever & cough) ➔ 🤝 She rests, I take care of her ➔ 📅 Reschedule next weekend? (call me when free)
 
-#### 도입 (Intro) — 친구 제이미에게 오늘 저녁 취소 양해 인사
-Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight.
+#### 도입 (Intro) — 친구 리아에게 오늘 저녁 취소 양해 인사
+Hi there, Lia. It's me, Sam. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight.
 
-> 안녕 제이미, 나 헤더야. 오늘 저녁 식사 때문에 전화했어. 갑작스러운 연락이라 미안하지만, 오늘 저녁은 못 갈 것 같아.
+> 안녕 리아, 나 샘이야. 오늘 저녁 식사 때문에 전화했어. 갑작스러운 연락이라 미안하지만, 오늘 저녁은 못 갈 것 같아.
 
 #### 전개 (Body) — 아내의 코로나 양성 판정 및 고열·기침 간호 설명
 My wife tested positive for COVID-19 this morning. She's running a high fever and has been coughing a lot. I think it's best for her to rest and for me to take care of her.
@@ -150,7 +150,7 @@ So, I was hoping we could reschedule our dinner. Would next weekend work for you
 
 #### 전체 영문 스크립트 (복사/TTS용)
 ```text
-Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My wife tested positive for COVID-19 this morning. She's running a high fever and has been coughing a lot. I think it's best for her to rest and for me to take care of her. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye.
+Hi there, Lia. It's me, Sam. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My wife tested positive for COVID-19 this morning. She's running a high fever and has been coughing a lot. I think it's best for her to rest and for me to take care of her. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye.
 ```
 
 ---
@@ -166,12 +166,12 @@ Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know 
 - **한국어 번역:** 상황을 하나 드릴 테니 연기해 보세요. 다른 커플을 집에 저녁 식사로 초대하려 합니다. 친구들이 오기에 가장 좋은 요일과 시간을 정하기 위해 가족에게 서너 가지 질문을 하세요.
 
 ### Answer (A)
-- **키워드:** 👫 Honey, invite Jamie's couple? ➔ 📅 What day best? They're free Sunday ➔ 🕖 What time? Is 7-ish okay? (not early/late) ➔ 🍽️ What food prepare? (ask what they like, all set)
+- **키워드:** 👫 Honey, invite Lia's couple? ➔ 📅 What day best? They're free Sunday ➔ 🕖 What time? Is 7-ish okay? (not early/late) ➔ 🍽️ What food prepare? (ask what they like, all set)
 
 #### 도입 (Intro) — 초대 의사 확인 및 이번 주 일요일 가능 여부 질문
-Honey, do you remember Jamie? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too?
+Honey, do you remember Lia? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too?
 
-> 여보, 제이미 기억나? 당신만 괜찮다면 그 부부를 집에 초대해서 저녁을 같이 먹을까 하는데, 어떻게 생각해? 좋아! 그럼 언제가 가장 좋아? 이번 주 일요일에 시간 된다고 들었는데, 당신도 괜찮아?
+> 여보, 리아 기억나? 당신만 괜찮다면 그 부부를 집에 초대해서 저녁을 같이 먹을까 하는데, 어떻게 생각해? 좋아! 그럼 언제가 가장 좋아? 이번 주 일요일에 시간 된다고 들었는데, 당신도 괜찮아?
 
 #### 전개 (Body) — 저녁 7시 전후 시간대 조율
 Then what time do you think is good? Is 7-ish okay? I think it's a nice time, not too early, not too late.
@@ -185,7 +185,7 @@ And oh yeah, what should we prepare for dinner? If we can't decide right now, I 
 
 #### 전체 영문 스크립트 (복사/TTS용)
 ```text
-Honey, do you remember Jamie? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too? Then what time do you think is good? Is 7-ish okay? I think it's a nice time, not too early, not too late. And oh yeah, what should we prepare for dinner? If we can't decide right now, I can just ask them what kind of food they like. All right, it's all set.
+Honey, do you remember Lia? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too? Then what time do you think is good? Is 7-ish okay? I think it's a nice time, not too early, not too late. And oh yeah, what should we prepare for dinner? If we can't decide right now, I can just ask them what kind of food they like. All right, it's all set.
 ```
 
 ---
@@ -204,9 +204,9 @@ Honey, do you remember Jamie? If you are okay with it, I was thinking of invitin
 - **키워드:** 📞 Hi Jake, broke borrowed MP3 ➔ 💥 Dropped, slipped & hit ground ➔ 📱 Cracked screen, won't turn on ➔ 🛠️ Fix at service center or buy new same model?
 
 #### 도입 (Intro) — 제이크에게 전화 목적 및 파손 사과
-Hello Jake, it's me Heather. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it.
+Hello Jake, it's me Sam. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it.
 
-> 안녕 제이크, 나 헤더야. 지난주에 빌린 MP3 플레이어 때문에 전화했어. 미안한데, 내가 고장 낸 것 같아.
+> 안녕 제이크, 나 샘이야. 지난주에 빌린 MP3 플레이어 때문에 전화했어. 미안한데, 내가 고장 낸 것 같아.
 
 #### 전개 (Body) — 실수로 떨어뜨린 경위와 화면 금·전원 꺼짐 상태 설명
 I dropped it by mistake when I was using it. It slipped out of my hands and hit the ground pretty hard. Now it's not working properly. The screen is cracked and it won't turn on at all.
@@ -220,7 +220,7 @@ So, I'm wondering if I can get it fixed at the service center. If it can be fixe
 
 #### 전체 영문 스크립트 (복사/TTS용)
 ```text
-Hello Jake, it's me Heather. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it. I dropped it by mistake when I was using it. It slipped out of my hands and hit the ground pretty hard. Now it's not working properly. The screen is cracked and it won't turn on at all. So, I'm wondering if I can get it fixed at the service center. If it can be fixed, I'll take care of it right away. Oh, okay... Or, here's another option: why don't I buy you a new one? Do you want the same model? Thank you for your understanding. I'm so sorry again.
+Hello Jake, it's me Sam. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it. I dropped it by mistake when I was using it. It slipped out of my hands and hit the ground pretty hard. Now it's not working properly. The screen is cracked and it won't turn on at all. So, I'm wondering if I can get it fixed at the service center. If it can be fixed, I'll take care of it right away. Oh, okay... Or, here's another option: why don't I buy you a new one? Do you want the same model? Thank you for your understanding. I'm so sorry again.
 ```
 
 ---
@@ -309,9 +309,9 @@ Excuse me, I'm here about my tickets. I'm sorry, but there is something wrong wi
 - **키워드:** 📞 Hi Jake, current MP3 broke (need new) ➔ 🔥 Popular models? Recommend Samsung M2? ➔ 💰 Know price of that model? ➔ 🏷️ Any special deals/discounts?
 
 #### 도입 (Intro) — 제이크에게 고장 사유 및 전화 목적 전달
-Hello Jake, this is Heather. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you.
+Hello Jake, this is Sam. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you.
 
-> 안녕 제이크, 나 헤더야. MP3 플레이어 구매 관련해서 물어보려고 전화했어. 지금 쓰는 게 고장 나서 새 걸 사려고 하거든. 너 MP3 플레이어에 대해 잘 안다고 들었는데 맞지? 응, 그래서 전화했어.
+> 안녕 제이크, 나 샘이야. MP3 플레이어 구매 관련해서 물어보려고 전화했어. 지금 쓰는 게 고장 나서 새 걸 사려고 하거든. 너 MP3 플레이어에 대해 잘 안다고 들었는데 맞지? 응, 그래서 전화했어.
 
 #### 전개 (Body) — 인기 제품 종류 및 삼성 M2 추천 여부 질문
 What kinds of MP3 players are popular these days? Could you give me any recommendations? I've heard Samsung M2 is really popular. Would you suggest it, too?
@@ -325,7 +325,7 @@ Then, do you know the price of that model? Are there any special deals or discou
 
 #### 전체 영문 스크립트 (복사/TTS용)
 ```text
-Hello Jake, this is Heather. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you. What kinds of MP3 players are popular these days? Could you give me any recommendations? I've heard Samsung M2 is really popular. Would you suggest it, too? Then, do you know the price of that model? Are there any special deals or discounts we could use? It would be nice if I could get a good deal. Thank you for your information. Bye.
+Hello Jake, this is Sam. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you. What kinds of MP3 players are popular these days? Could you give me any recommendations? I've heard Samsung M2 is really popular. Would you suggest it, too? Then, do you know the price of that model? Are there any special deals or discounts we could use? It would be nice if I could get a good deal. Thank you for your information. Bye.
 ```
 
 ---

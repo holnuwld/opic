@@ -140,7 +140,7 @@ const { sandbox, fakeStorageData } = makeSandbox();
 const ctx = vm.createContext(sandbox);
 const code = m[1].replace("init();", "/* test harness */");
 vm.runInContext(
-  code + "\nwindow.__ex = { OPIC_DATA, DEFAULT_OPIC_DATA, SENTENCE_TIMINGS, TABS, state, splitSentences, splitHtmlBySentences, stripHtmlToPlain, sanitizeAudioFilename, getTtsAudioUrl, getItemsForTab, matchesSearchQuery, matchesStarFilter, loadVoices, loadState, advanceToNextBlock, advanceSentence, getSentenceStartSec, getSentenceEndSec, playFromPopupSentence, playSinglePart, playTabAll, playTabRandom, resumePlayback, pausePlayback, openScriptPopup, closeScriptPopup, stopPlayback, startQueue, buildQueueFromItems, audioPlayer, __bindEvents: bindEvents };",
+  code + "\nwindow.__ex = { OPIC_DATA, DEFAULT_OPIC_DATA, SENTENCE_TIMINGS, IM3_DATA_MAP, IM3_TIMINGS, getEffectiveItem, TABS, state, splitSentences, splitHtmlBySentences, stripHtmlToPlain, sanitizeAudioFilename, getTtsAudioUrl, getItemsForTab, matchesSearchQuery, matchesStarFilter, loadVoices, loadState, advanceToNextBlock, advanceSentence, getSentenceStartSec, getSentenceEndSec, playFromPopupSentence, playSinglePart, playTabAll, playTabRandom, resumePlayback, pausePlayback, openScriptPopup, closeScriptPopup, stopPlayback, startQueue, buildQueueFromItems, audioPlayer, __bindEvents: bindEvents };",
   ctx
 );
 const ex = sandbox.__ex;
@@ -576,6 +576,62 @@ if (Object.keys(timingsJson).length !== 80) {
   throw new Error(`Expected 80 entries in dev/tests/timings.json, got ${Object.keys(timingsJson).length}`);
 }
 console.log("Consolidated opic_script/opic_script.md, 80 numbered Q/A MP3s, 120 mem MP3s, and dev/tests/timings.json verified.");
+
+// === 5. Verify IM3 mode, 40 IM3 scripts, IM3_TIMINGS, 40 IM3 MP3s, and opic_script_im3.md ===
+const im3MdPath = path.join(REPO_ROOT, "opic_script", "opic_script_im3.md");
+const im3Md = fs.readFileSync(im3MdPath, "utf8");
+const im3TtsDir = path.join(REPO_ROOT, "tts", "im3");
+const im3ExportTtsDir = path.join(scriptTtsDir, "im3");
+if (Object.keys(ex.IM3_DATA_MAP).length !== 40) {
+  throw new Error(`Expected 40 IM3 scripts, got ${Object.keys(ex.IM3_DATA_MAP).length}`);
+}
+if (Object.keys(ex.IM3_TIMINGS).length !== 40) {
+  throw new Error(`Expected 40 IM3_TIMINGS entries, got ${Object.keys(ex.IM3_TIMINGS).length}`);
+}
+ex.state.prefs.level = "im3";
+for (const it of ex.OPIC_DATA) {
+  const eff = ex.getEffectiveItem(it);
+  const im3 = ex.IM3_DATA_MAP[it.id];
+  if (!im3 || eff.aEnPlain !== im3.aEnPlain) {
+    throw new Error(`getEffectiveItem IM3 mismatch on #${it.id}`);
+  }
+  if (!eff.aSections || eff.aSections.length !== 3) {
+    throw new Error(`IM3 #${it.id} missing 3 sections`);
+  }
+  const plainFromSections = eff.aSections.map(s => ex.stripHtmlToPlain(s.enHtml)).join(" ");
+  if (plainFromSections !== eff.aEnPlain) {
+    throw new Error(`IM3 #${it.id} aEnPlain mismatch`);
+  }
+  for (const sec of eff.aSections) {
+    const opens = (sec.enHtml.match(/<span\b/g) || []).length;
+    const closes = (sec.enHtml.match(/<\/span>/g) || []).length;
+    if (opens !== closes) throw new Error(`IM3 #${it.id} unbalanced spans`);
+  }
+  const sents = ex.splitSentences(eff.aEnPlain);
+  if (ex.IM3_TIMINGS[`${it.id}_A`]?.length !== sents.length) {
+    throw new Error(`IM3 #${it.id}_A timing mismatch: ${ex.IM3_TIMINGS[`${it.id}_A`]?.length} vs ${sents.length}`);
+  }
+  const numStr = String(it.id).padStart(2, "0");
+  const safeTitle = ex.sanitizeAudioFilename(it.title);
+  const mp3Name = `${numStr}_A_${safeTitle}.mp3`;
+  if (ex.getTtsAudioUrl(it.id, "A") !== `tts/im3/${encodeURIComponent(mp3Name)}`) {
+    throw new Error(`IM3 #${it.id} getTtsAudioUrl mismatch`);
+  }
+  for (const dir of [im3TtsDir, im3ExportTtsDir]) {
+    const st = fs.statSync(path.join(dir, mp3Name));
+    if (!st.isFile() || st.size < 1000) throw new Error(`Invalid IM3 MP3: ${path.join(dir, mp3Name)}`);
+  }
+  if (!im3Md.includes(`## #${numStr}. ${it.title}`) || !im3Md.includes(eff.aEnPlain)) {
+    throw new Error(`opic_script_im3.md missing #${numStr}`);
+  }
+}
+ex.playFromPopupSentence(1, "A", 2);
+if (!ex.state.playback.active || ex.state.playback.sentIndex !== 2 || !ex.audioPlayer.src.includes("tts/im3/")) {
+  throw new Error("IM3 single-sentence tap playback failed");
+}
+ex.stopPlayback();
+ex.state.prefs.level = "al";
+console.log("All 40 IM3 scripts, IM3_TIMINGS, 40 IM3 MP3s, opic_script_im3.md, and IM3 playback verified.");
 
 // Verify SHA-256 mirror parity
 const sha = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
