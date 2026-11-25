@@ -633,6 +633,49 @@ ex.stopPlayback();
 ex.state.prefs.level = "al";
 console.log("All 40 IM3 scripts, IM3_TIMINGS, 40 IM3 MP3s, opic_script_im3.md, and IM3 playback verified.");
 
+// Verify top AL/IM3 toggle button, blind mode removal, and .hl-key core sentence highlights
+if (!html.includes('id="btnTopLevel"') || !html.includes('id="btnPopupLevel"')) {
+  throw new Error("Expected #btnTopLevel and #btnPopupLevel in opic_study.html");
+}
+for (const forbidden of ['id="btnToggleKo"', 'id="btnToggleBlind"', 'class="level-row"', 'hl-expr', 'blindMode', 'blind-on']) {
+  if (html.includes(forbidden)) {
+    throw new Error(`Found removed blind/level-row/hl-expr artifact in opic_study.html: ${forbidden}`);
+  }
+}
+for (const item of ex.OPIC_DATA) {
+  if (!Array.isArray(item.aSections) || item.aSections.length !== 3) {
+    throw new Error(`Expected 3 aSections in AL item #${item.id}`);
+  }
+  for (const sec of item.aSections) {
+    if (!String(sec.enHtml || "").includes('class="hl-key"')) {
+      throw new Error(`Missing .hl-key highlight in AL item #${item.id} (${sec.step})`);
+    }
+  }
+}
+for (const [id, im3] of Object.entries(ex.IM3_DATA_MAP)) {
+  if (!Array.isArray(im3.aSections) || im3.aSections.length !== 3) {
+    throw new Error(`Expected 3 aSections in IM3 item #${id}`);
+  }
+  for (const sec of im3.aSections) {
+    if (!String(sec.enHtml || "").includes('class="hl-key"')) {
+      throw new Error(`Missing .hl-key highlight in IM3 item #${id} (${sec.step})`);
+    }
+  }
+}
+const btnTopLevel = sandbox.document.getElementById("btnTopLevel");
+const btnPopupLevel = sandbox.document.getElementById("btnPopupLevel");
+btnTopLevel.__trigger("click", {});
+if (ex.state.prefs.level !== "im3" || btnTopLevel.textContent !== "🌱 IM3" || btnPopupLevel.textContent !== "🌱 IM3") {
+  throw new Error(`#btnTopLevel click did not switch to IM3 cleanly (level=${ex.state.prefs.level}, top=${btnTopLevel.textContent}, popup=${btnPopupLevel.textContent})`);
+}
+ex.openScriptPopup(1, "A");
+btnPopupLevel.__trigger("click", {});
+if (ex.state.prefs.level !== "al" || btnTopLevel.textContent !== "🎯 AL" || btnPopupLevel.textContent !== "🎯 AL") {
+  throw new Error(`#btnPopupLevel click did not switch back to AL cleanly (level=${ex.state.prefs.level}, top=${btnTopLevel.textContent}, popup=${btnPopupLevel.textContent})`);
+}
+ex.closeScriptPopup();
+console.log("Top AL/IM3 button (#btnTopLevel), blind removal, and 240-paragraph .hl-key highlights verified.");
+
 // Verify SHA-256 mirror parity
 const sha = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
 if (sha(path.join(REPO_ROOT, "opic_study.html")) !== sha(path.join(REPO_ROOT, "index.html"))) {
