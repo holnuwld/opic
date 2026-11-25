@@ -140,7 +140,7 @@ const { sandbox, fakeStorageData } = makeSandbox();
 const ctx = vm.createContext(sandbox);
 const code = m[1].replace("init();", "/* test harness */");
 vm.runInContext(
-  code + "\nwindow.__ex = { OPIC_DATA, DEFAULT_OPIC_DATA, SENTENCE_TIMINGS, TABS, state, splitSentences, splitHtmlBySentences, stripHtmlToPlain, sanitizeAudioFilename, getTtsAudioUrl, getItemsForTab, matchesSearchQuery, matchesStarFilter, loadVoices, loadState, advanceToNextBlock, advanceSentence, getSentenceStartSec, getSentenceEndSec, playFromPopupSentence, playSinglePart, playTabAll, playTabRandom, resumePlayback, pausePlayback, openScriptPopup, closeScriptPopup, stopPlayback, startQueue, buildQueueFromItems, audioPlayer, __bindEvents: bindEvents };",
+  code + "\nwindow.__ex = { OPIC_DATA, DEFAULT_OPIC_DATA, OPIC_DATA_AL, OPIC_DATA_IM, SENTENCE_TIMINGS, SENTENCE_TIMINGS_IM, FILLER_GROUPS, TABS, state, splitSentences, splitHtmlBySentences, stripHtmlToPlain, sanitizeAudioFilename, getTtsAudioUrl, getExactTimingsForBlock, setDifficultyLevel, toggleDifficultyLevel, getItemsForTab, matchesSearchQuery, matchesStarFilter, loadVoices, loadState, advanceToNextBlock, advanceSentence, getSentenceStartSec, getSentenceEndSec, playFromPopupSentence, playSinglePart, playTabAll, playTabRandom, resumePlayback, pausePlayback, openScriptPopup, closeScriptPopup, stopPlayback, startQueue, buildQueueFromItems, audioPlayer, __bindEvents: bindEvents };",
   ctx
 );
 const ex = sandbox.__ex;
@@ -228,7 +228,7 @@ const memSb = makeSandbox().sandbox;
 const memCtx = vm.createContext(memSb);
 vm.runInContext(
   mm[1].replace("init();", "/* test harness */") +
-  "\nwindow.__mem = { MEMORIZE_BANK, SCOPE_COUNT, state, audioPlayer, getMemAudioUrl, getActivePool, resetDeck, handleRepeatFinished, advanceToRandomNext, speakCurrentRepeat };",
+  "\nwindow.__mem = { MEMORIZE_BANK, MEMORIZE_BANK_AL, MEMORIZE_BANK_IM, SCOPE_COUNT, state, audioPlayer, getMemAudioUrl, getActivePool, setMemorizeLevel, toggleMemorizeLevel, resetDeck, handleRepeatFinished, advanceToRandomNext, speakCurrentRepeat };",
   memCtx
 );
 const mem = memSb.__mem;
@@ -576,6 +576,137 @@ if (Object.keys(timingsJson).length !== 80) {
   throw new Error(`Expected 80 entries in dev/tests/timings.json, got ${Object.keys(timingsJson).length}`);
 }
 console.log("Consolidated opic_script/opic_script.md, 80 numbered Q/A MP3s, 120 mem MP3s, and dev/tests/timings.json verified.");
+
+// === 5. Verify IM/AL split, toggle buttons, IM scripts, IM timings, IM MP3s, and IM memorize ===
+if (!html.includes('id="btnToggleLevel"') || !html.includes('id="btnPopupToggleLevel"')) {
+  throw new Error("Missing #btnToggleLevel or #btnPopupToggleLevel in opic_study.html");
+}
+if (!memHtml.includes('id="btnToggleLevel"')) {
+  throw new Error("Missing #btnToggleLevel in memorize.html");
+}
+
+// Verify all 40 IM items parity, HTML tags, timings, and MP3 files
+ex.setDifficultyLevel("IM", { silent: true });
+if (ex.state.prefs.level !== "IM" || fakeStorageData["opic_study_level_v1"] !== "IM") {
+  throw new Error("Failed to switch opic_study.html to IM mode");
+}
+if (ex.OPIC_DATA.length !== 40) throw new Error(`Expected 40 IM items, got ${ex.OPIC_DATA.length}`);
+
+let imMp3Count = 0;
+for (const it of ex.OPIC_DATA) {
+  const arrows = (it.aKeywords.match(/➔/g) || []).length;
+  if (arrows < 3) throw new Error(`IM #${it.id} expected >= 3 arrows in aKeywords`);
+  if (!it.aSections || it.aSections.length !== 3) throw new Error(`IM #${it.id} missing 3 sections`);
+  const plainFromSections = it.aSections.map(s => ex.stripHtmlToPlain(s.enHtml)).join(" ");
+  if (plainFromSections !== it.aEnPlain) {
+    throw new Error(`IM #${it.id} aEnPlain mismatch`);
+  }
+  const aSents = ex.splitSentences(it.aEnPlain);
+  let idx = 0;
+  for (const sec of it.aSections) {
+    const res = ex.splitHtmlBySentences(sec.enHtml, it.id, "A", idx);
+    idx = res.nextIdx;
+    const opens = (sec.enHtml.match(/<span\b/g) || []).length;
+    const closes = (sec.enHtml.match(/<\/span>/g) || []).length;
+    if (opens !== closes) throw new Error(`IM #${it.id} unbalanced spans`);
+  }
+  if (aSents.length !== idx) throw new Error(`IM #${it.id} sentence mismatch`);
+  if (ex.SENTENCE_TIMINGS_IM[`${it.id}_A`]?.length !== aSents.length) {
+    throw new Error(`IM #${it.id}_A timing mismatch`);
+  }
+
+  const aUrl = ex.getTtsAudioUrl(it.id, "A");
+  if (!aUrl.startsWith("tts/im/")) throw new Error(`Expected tts/im/ URL in IM mode, got ${aUrl}`);
+  const fullA = path.join(REPO_ROOT, "tts", "im", decodeURIComponent(aUrl.slice("tts/im/".length)));
+  const statA = fs.statSync(fullA);
+  if (!statA.isFile() || statA.size < 1000) throw new Error(`Invalid IM MP3: ${fullA}`);
+  imMp3Count++;
+
+  const qUrl = ex.getTtsAudioUrl(it.id, "Q");
+  if (!qUrl.startsWith("tts/") || qUrl.startsWith("tts/im/")) {
+    throw new Error(`Expected shared Q MP3 URL in IM mode, got ${qUrl}`);
+  }
+}
+
+// Verify click toggle and level-isolated edits
+fakeStorageData["opic_study_edits_im_v1"] = JSON.stringify({
+  "1": {
+    aKeywords: "📅 IM custom edit ➔ 🍲 Porridge ➔ 🥄 Warm ➔ 😌 Good",
+    aEnPlain: "Custom IM edit text.",
+    aSections: [
+      { enHtml: "Custom IM edit text.", ko: "커스텀 IM 수정" },
+      { enHtml: "Part 2.", ko: "2" },
+      { enHtml: "Part 3.", ko: "3" }
+    ]
+  }
+});
+ex.setDifficultyLevel("IM", { silent: true });
+if (ex.OPIC_DATA.find(x => x.id === 1).aEnPlain !== "Custom IM edit text.") {
+  throw new Error("Expected IM edit to load only in IM mode");
+}
+ex.openScriptPopup(1, "A");
+const popLvlBtn = sandbox.document.getElementById("btnPopupToggleLevel");
+popLvlBtn.__trigger("click", {});
+if (ex.state.prefs.level !== "AL" || !ex.getTtsAudioUrl(1, "A").startsWith("tts/01_") || ex.OPIC_DATA.find(x => x.id === 1).aEnPlain === "Custom IM edit text.") {
+  throw new Error("Popup toggle button failed to switch IM -> AL or leaked IM edit into AL");
+}
+delete fakeStorageData["opic_study_edits_im_v1"];
+const topLvlBtn = sandbox.document.getElementById("btnToggleLevel");
+topLvlBtn.__trigger("click", {});
+if (ex.state.prefs.level !== "IM" || !ex.getTtsAudioUrl(1, "A").startsWith("tts/im/01_")) {
+  throw new Error("Top toggle button failed to switch AL -> IM");
+}
+ex.closeScriptPopup();
+
+// Verify IM memorize bank & 120 IM mem MP3s
+mem.setMemorizeLevel("IM", { silent: true });
+if (mem.state.level !== "IM" || mem.MEMORIZE_BANK.length !== 120) {
+  throw new Error("Failed to switch memorize.html to IM mode");
+}
+if (mem.getMemAudioUrl(1) !== "tts/im/mem/m001.mp3") {
+  throw new Error(`Unexpected IM memorize URL: ${mem.getMemAudioUrl(1)}`);
+}
+const imCandidates = ex.OPIC_DATA_IM.filter(x => x.category === "survey" || x.stars >= 4);
+const imCandIds = new Set(imCandidates.map(x => x.id));
+for (const entry of mem.MEMORIZE_BANK) {
+  if (!imCandIds.has(entry.itemId)) throw new Error(`IM mem #${entry.rank} itemId #${entry.itemId} not in candidate pool`);
+  const srcItem = ex.OPIC_DATA_IM.find(x => x.id === entry.itemId);
+  if (!ex.splitSentences(srcItem.aEnPlain).includes(entry.en)) {
+    throw new Error(`IM mem #${entry.rank} sentence not found in IM #${entry.itemId}: ${entry.en}`);
+  }
+  const fname = `m${String(entry.rank).padStart(3, "0")}.mp3`;
+  const st = fs.statSync(path.join(REPO_ROOT, "tts", "im", "mem", fname));
+  if (!st.isFile() || st.size < 1000) throw new Error(`Invalid IM mem MP3: ${fname}`);
+}
+
+// Verify IM consolidated exports
+const imMdPath = path.join(REPO_ROOT, "opic_script", "opic_script_im.md");
+const imMd = fs.readFileSync(imMdPath, "utf8");
+const imScriptTtsDir = path.join(scriptTtsDir, "im");
+const imScriptMemDir = path.join(imScriptTtsDir, "mem");
+for (const it of ex.OPIC_DATA_IM) {
+  const numStr = String(it.id).padStart(2, "0");
+  const safeTitle = ex.sanitizeAudioFilename(it.title);
+  if (!imMd.includes(`## #${numStr}. ${it.title}`) || !imMd.includes(it.aEnPlain)) {
+    throw new Error(`opic_script_im.md missing #${numStr}`);
+  }
+  const st = fs.statSync(path.join(imScriptTtsDir, `${numStr}_A_${safeTitle}.mp3`));
+  if (!st.isFile() || st.size < 1000) throw new Error(`Missing exported IM MP3 for #${numStr}`);
+}
+for (let r = 1; r <= 120; r++) {
+  const fname = `m${String(r).padStart(3, "0")}.mp3`;
+  const st = fs.statSync(path.join(imScriptMemDir, fname));
+  if (!st.isFile() || st.size < 1000) throw new Error(`Invalid exported IM mem MP3: ${fname}`);
+}
+const timingsImJson = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "dev", "tests", "timings_im.json"), "utf8"));
+if (Object.keys(timingsImJson).length !== 40) {
+  throw new Error(`Expected 40 entries in dev/tests/timings_im.json, got ${Object.keys(timingsImJson).length}`);
+}
+
+// Switch back to AL cleanly
+ex.setDifficultyLevel("AL", { silent: true });
+mem.setMemorizeLevel("AL", { silent: true });
+console.log(`IM/AL split, toggle, ${imMp3Count} IM A MP3s, 120 IM mem MP3s, timings_im.json & opic_script_im.md verified.`);
 
 // Verify SHA-256 mirror parity
 const sha = (p) => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");

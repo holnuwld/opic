@@ -64,25 +64,85 @@
       background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
       color: #ffffff;
       padding: 10px 12px 8px;
+      transition: background 0.2s ease;
+    }
+
+    body.level-im .top-header {
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
     }
 
     .header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 7px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
     }
 
     .app-title {
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-size: 15px;
+      gap: 4px;
+      font-size: 14.5px;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin: 0;
       white-space: nowrap;
+    }
+
+    .level-toggle {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.36);
+      background: rgba(15, 23, 42, 0.28);
+      border-radius: 999px;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .level-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .lvl-opt {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: rgba(255, 255, 255, 0.78);
+      line-height: 1.1;
+      transition: all 0.15s;
+    }
+
+    .lvl-opt.is-selected {
+      background: #ffffff;
+      color: #1e3a8a;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
+    }
+
+    body.level-im .lvl-opt.is-selected {
+      color: #0f766e;
+    }
+
+    body.level-im .tab-pill.is-active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    body.level-im .util-btn.is-active {
+      color: #0f766e;
     }
 
     .header-right {
@@ -835,12 +895,35 @@
       background: var(--surface);
       color: var(--text-sub);
       font-size: 11.5px;
-      font-weight: 700;
+      font-weight: 800;
       height: 28px;
       padding: 0 8px;
-      border-radius: 7px;
+      border-radius: 8px;
       cursor: pointer;
+      white-space: nowrap;
       flex-shrink: 0;
+    }
+
+    .pop-level-btn {
+      appearance: none;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e40af;
+      font-size: 11px;
+      font-weight: 800;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    body.level-im .pop-level-btn {
+      border-color: #99f6e4;
+      background: #f0fdfa;
+      color: #0f766e;
     }
 
     .popup-body {
@@ -1320,7 +1403,13 @@
     <!-- Top Header & Utility Bar -->
     <header class="top-header">
       <div class="header-row">
-        <h1 class="app-title">🎧 OPIc 스터디</h1>
+        <div class="header-left">
+          <h1 class="app-title">🎧 OPIc</h1>
+          <button type="button" id="btnToggleLevel" class="level-toggle" aria-label="스크립트 난이도 전환 (IM / AL)" aria-pressed="false" title="IM(쉬운 스크립트) / AL(고득점) 전환">
+            <span class="lvl-opt" data-lvl="IM">IM</span>
+            <span class="lvl-opt is-selected" data-lvl="AL">AL</span>
+          </button>
+        </div>
         <div class="header-right">
           <a href="survey.html" class="survey-link-btn">📋 서베이</a>
           <a href="memorize.html" class="memorize-link-btn">🧠 암기</a>
@@ -1384,6 +1473,7 @@
             <span id="popupBadge" class="popup-num">#01 A</span>
             <span id="popupTitle" class="popup-title">제목</span>
           </div>
+          <button type="button" id="btnPopupToggleLevel" class="pop-level-btn" aria-label="팝업 난이도 전환 (IM / AL)">AL ⇄ IM</button>
           <button type="button" id="btnPopupSwitchPart" class="pop-switch-btn" aria-label="질문/답변 전환">Q⇄A</button>
         </div>
         <div class="popup-actions">
@@ -1422,7 +1512,7 @@
       { id: "starred", label: "⭐ 복습노트" }
     ];
 
-    const FILLER_GROUPS = [
+    const FILLER_GROUPS_AL = [
       {
         title: "⏱️ 자연스러운 연결 & 시간 벌기 (Fillers)",
         items: [
@@ -1454,6 +1544,41 @@
         ]
       }
     ];
+
+    const FILLER_GROUPS_IM = [
+      {
+        title: "⏱️ 쉬운 연결 & 첫 마디 (IM Fillers)",
+        items: [
+          { en: "Well, let me tell you about...", ko: "음, ~에 대해 말씀드릴게요." },
+          { en: "First, ... Second, ... Finally, ...", ko: "첫째로, ... 둘째로, ... 마지막으로, ..." },
+          { en: "However, there was a problem.", ko: "하지만 문제가 하나 있었어요." },
+          { en: "So, I tried to fix it.", ko: "그래서 해결하려고 했어요." },
+          { en: "I am really sorry, but...", ko: "정말 미안한데, ..." }
+        ]
+      },
+      {
+        title: "😊 쉬운 감정·상태 표현 (IM Reactions)",
+        items: [
+          { en: "I was really happy with it.", ko: "그게 정말 마음에 들었어요." },
+          { en: "I was so surprised to see it.", ko: "그걸 보고 정말 깜짝 놀랐어요." },
+          { en: "It is clean, quiet, and comfortable.", ko: "깨끗하고 조용하고 편안해요." },
+          { en: "It always makes me feel good.", ko: "항상 기분을 좋게 만들어 줘요." },
+          { en: "I felt sad, but I do not regret it.", ko: "아쉬웠지만 후회하지 않아요." }
+        ]
+      },
+      {
+        title: "🎬 간단한 마무리 (IM Closing)",
+        items: [
+          { en: "Overall, I really love it.", ko: "전반적으로 정말 좋아해요." },
+          { en: "All in all, it is a great place to visit.", ko: "전반적으로 가기에 정말 좋은 곳이에요." },
+          { en: "I want to go back there someday.", ko: "언젠가 거기에 다시 가고 싶어요." },
+          { en: "Now I always check twice.", ko: "이제는 항상 두 번 확인해요." },
+          { en: "Family comes first.", ko: "가족이 최우선이에요." }
+        ]
+      }
+    ];
+
+    const FILLER_GROUPS = FILLER_GROUPS_AL;
 
     const OPIC_DATA = [
       {
@@ -1526,13 +1651,13 @@
         qKeywords: "Dinner party day family member ill · Call friend & leave message · Explain situation & propose dinner plan",
         qEn: "I'm sorry, but there's a problem that I need you to resolve. On the day of your dinner party, one of your family members becomes ill. Call your friend and leave a message. Explain what has happened and then propose the plan to have dinner together in the near future.",
         qKo: "해결해야 할 문제가 있습니다. 저녁 모임 당일 가족 중 한 명이 아픕니다. 친구에게 전화해 메시지를 남기세요. 무슨 일이 생겼는지 설명하고 조만간 다시 저녁을 함께 먹을 계획을 제안하세요.",
-        aKeywords: "📞 Hi Jamie (short notice, can't make it tonight) ➔ 🤒 Wife tested positive COVID-19 (fever & cough) ➔ 🤝 She rests, I take care of her ➔ 📅 Reschedule next weekend? (call me when free)",
+        aKeywords: "📞 Hi Lia (short notice, can't make it tonight) ➔ 🤒 Wife tested positive COVID-19 (fever & cough) ➔ 🤝 She rests, I take care of her ➔ 📅 Reschedule next weekend? (call me when free)",
         aSections: [
           {
             step: "도입",
-            summary: "친구 제이미에게 오늘 저녁 취소 양해 인사",
-            enHtml: "Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know <span class=\"hl-expr\">this is short notice</span>, but I don't think we can <span class=\"hl-expr\">make it tonight</span>.",
-            ko: "안녕 제이미, 나 헤더야. 오늘 저녁 식사 때문에 전화했어. 갑작스러운 연락이라 미안하지만, 오늘 저녁은 못 갈 것 같아."
+            summary: "친구 리아에게 오늘 저녁 취소 양해 인사",
+            enHtml: "Hi there, Lia. It's me, Sam. I'm calling about our dinner tonight. I know <span class=\"hl-expr\">this is short notice</span>, but I don't think we can <span class=\"hl-expr\">make it tonight</span>.",
+            ko: "안녕 리아, 나 샘이야. 오늘 저녁 식사 때문에 전화했어. 갑작스러운 연락이라 미안하지만, 오늘 저녁은 못 갈 것 같아."
           },
           {
             step: "전개",
@@ -1547,7 +1672,7 @@
             ko: "그래서 저녁 약속을 다시 잡았으면 해. 다음 주말 괜찮아? 아니면 언제 시간 되는지 알려주면 맞춰볼게. 내가 최대한 시간 맞춰볼게. 메시지 확인하면 전화 줘. 안녕."
           }
         ],
-        aEnPlain: "Hi there, Jamie. It's me, Heather. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My wife tested positive for COVID-19 this morning. She's running a high fever and has been coughing a lot. I think it's best for her to rest and for me to take care of her. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye."
+        aEnPlain: "Hi there, Lia. It's me, Sam. I'm calling about our dinner tonight. I know this is short notice, but I don't think we can make it tonight. My wife tested positive for COVID-19 this morning. She's running a high fever and has been coughing a lot. I think it's best for her to rest and for me to take care of her. So, I was hoping we could reschedule our dinner. Would next weekend work for you? Or if you let me know when you are available, we can figure something out. I'll try to be flexible. K, give me a call when you get this. Bye."
       },
       {
         id: 4,
@@ -1557,13 +1682,13 @@
         qKeywords: "Invite another couple for dinner · Ask family 3–4 questions · Best day, time & details",
         qEn: "I'd like to give you a situation and ask you to act it out. You want to invite another couple to your home for dinner. Ask your family member three or four questions to find out when the best day and time is to have your friends come for dinner.",
         qKo: "상황을 하나 드릴 테니 연기해 보세요. 다른 커플을 집에 저녁 식사로 초대하려 합니다. 친구들이 오기에 가장 좋은 요일과 시간을 정하기 위해 가족에게 서너 가지 질문을 하세요.",
-        aKeywords: "👫 Honey, invite Jamie's couple? ➔ 📅 What day best? They're free Sunday ➔ 🕖 What time? Is 7-ish okay? (not early/late) ➔ 🍽️ What food prepare? (ask what they like, all set)",
+        aKeywords: "👫 Honey, invite Lia's couple? ➔ 📅 What day best? They're free Sunday ➔ 🕖 What time? Is 7-ish okay? (not early/late) ➔ 🍽️ What food prepare? (ask what they like, all set)",
         aSections: [
           {
             step: "도입",
             summary: "초대 의사 확인 및 이번 주 일요일 가능 여부 질문",
-            enHtml: "Honey, do you remember Jamie? If you are okay with it, I was thinking of <span class=\"hl-expr\">inviting her couple over for dinner</span>. What do you think? Great! So, <span class=\"hl-expr\">what day works best for you</span>? I heard they're free this Sunday. Would that work for you, too?",
-            ko: "여보, 제이미 기억나? 당신만 괜찮다면 그 부부를 집에 초대해서 저녁을 같이 먹을까 하는데, 어떻게 생각해? 좋아! 그럼 언제가 가장 좋아? 이번 주 일요일에 시간 된다고 들었는데, 당신도 괜찮아?"
+            enHtml: "Honey, do you remember Lia? If you are okay with it, I was thinking of <span class=\"hl-expr\">inviting her couple over for dinner</span>. What do you think? Great! So, <span class=\"hl-expr\">what day works best for you</span>? I heard they're free this Sunday. Would that work for you, too?",
+            ko: "여보, 리아 기억나? 당신만 괜찮다면 그 부부를 집에 초대해서 저녁을 같이 먹을까 하는데, 어떻게 생각해? 좋아! 그럼 언제가 가장 좋아? 이번 주 일요일에 시간 된다고 들었는데, 당신도 괜찮아?"
           },
           {
             step: "전개",
@@ -1578,7 +1703,7 @@
             ko: "그리고 아, 저녁 메뉴로는 뭘 준비할까? 지금 결정 못 하겠으면 그 친구들한테 어떤 음식 좋아하는지 물어볼게. 좋아, 그럼 그렇게 하자."
           }
         ],
-        aEnPlain: "Honey, do you remember Jamie? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too? Then what time do you think is good? Is 7-ish okay? I think it's a nice time, not too early, not too late. And oh yeah, what should we prepare for dinner? If we can't decide right now, I can just ask them what kind of food they like. All right, it's all set."
+        aEnPlain: "Honey, do you remember Lia? If you are okay with it, I was thinking of inviting her couple over for dinner. What do you think? Great! So, what day works best for you? I heard they're free this Sunday. Would that work for you, too? Then what time do you think is good? Is 7-ish okay? I think it's a nice time, not too early, not too late. And oh yeah, what should we prepare for dinner? If we can't decide right now, I can just ask them what kind of food they like. All right, it's all set."
       },
       {
         id: 5,
@@ -1593,8 +1718,8 @@
           {
             step: "도입",
             summary: "제이크에게 전화 목적 및 파손 사과",
-            enHtml: "Hello Jake, it's me Heather. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it.",
-            ko: "안녕 제이크, 나 헤더야. 지난주에 빌린 MP3 플레이어 때문에 전화했어. 미안한데, 내가 고장 낸 것 같아."
+            enHtml: "Hello Jake, it's me Sam. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it.",
+            ko: "안녕 제이크, 나 샘이야. 지난주에 빌린 MP3 플레이어 때문에 전화했어. 미안한데, 내가 고장 낸 것 같아."
           },
           {
             step: "전개",
@@ -1609,7 +1734,7 @@
             ko: "그래서 서비스 센터에 맡겨서 수리할 수 있는지 알아보려고 해. 수리가 가능하면 내가 바로 처리할게. 아, 그래... 아니면 다른 방법도 있어. 내가 새 걸로 하나 사주는 건 어때? 똑같은 모델로 사줄까? 이해해 줘서 고마워. 다시 한번 정말 미안해."
           }
         ],
-        aEnPlain: "Hello Jake, it's me Heather. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it. I dropped it by mistake when I was using it. It slipped out of my hands and hit the ground pretty hard. Now it's not working properly. The screen is cracked and it won't turn on at all. So, I'm wondering if I can get it fixed at the service center. If it can be fixed, I'll take care of it right away. Oh, okay... Or, here's another option: why don't I buy you a new one? Do you want the same model? Thank you for your understanding. I'm so sorry again."
+        aEnPlain: "Hello Jake, it's me Sam. I'm calling about your MP3 player that I borrowed last week. I'm sorry, but I think I broke it. I dropped it by mistake when I was using it. It slipped out of my hands and hit the ground pretty hard. Now it's not working properly. The screen is cracked and it won't turn on at all. So, I'm wondering if I can get it fixed at the service center. If it can be fixed, I'll take care of it right away. Oh, okay... Or, here's another option: why don't I buy you a new one? Do you want the same model? Thank you for your understanding. I'm so sorry again."
       },
       {
         id: 6,
@@ -1688,8 +1813,8 @@
           {
             step: "도입",
             summary: "제이크에게 고장 사유 및 전화 목적 전달",
-            enHtml: "Hello Jake, this is Heather. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. <span class=\"hl-expr\">I've heard you know pretty much about</span> MP3 players, right? <span class=\"hl-filler\">Yeah,</span> that's why I'm calling you.",
-            ko: "안녕 제이크, 나 헤더야. MP3 플레이어 구매 관련해서 물어보려고 전화했어. 지금 쓰는 게 고장 나서 새 걸 사려고 하거든. 너 MP3 플레이어에 대해 잘 안다고 들었는데 맞지? 응, 그래서 전화했어."
+            enHtml: "Hello Jake, this is Sam. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. <span class=\"hl-expr\">I've heard you know pretty much about</span> MP3 players, right? <span class=\"hl-filler\">Yeah,</span> that's why I'm calling you.",
+            ko: "안녕 제이크, 나 샘이야. MP3 플레이어 구매 관련해서 물어보려고 전화했어. 지금 쓰는 게 고장 나서 새 걸 사려고 하거든. 너 MP3 플레이어에 대해 잘 안다고 들었는데 맞지? 응, 그래서 전화했어."
           },
           {
             step: "전개",
@@ -1704,7 +1829,7 @@
             ko: "그럼 그 모델 가격이 얼만지 알아? 혹시 할인받거나 특가로 살 수 있는 방법이 있을까? 저렴하게 살 수 있으면 좋을 텐데. 정보 알려줘서 고마워. 안녕!"
           }
         ],
-        aEnPlain: "Hello Jake, this is Heather. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you. What kinds of MP3 players are popular these days? Could you give me any recommendations? I've heard Samsung M2 is really popular. Would you suggest it, too? Then, do you know the price of that model? Are there any special deals or discounts we could use? It would be nice if I could get a good deal. Thank you for your information. Bye."
+        aEnPlain: "Hello Jake, this is Sam. I'm calling to ask about buying an MP3 player. I want to get a new one because my current one is not working. I've heard you know pretty much about MP3 players, right? Yeah, that's why I'm calling you. What kinds of MP3 players are popular these days? Could you give me any recommendations? I've heard Samsung M2 is really popular. Would you suggest it, too? Then, do you know the price of that model? Are there any special deals or discounts we could use? It would be nice if I could get a good deal. Thank you for your information. Bye."
       },
       {
         id: 9,
@@ -2713,16 +2838,998 @@
       if (typeof it.stars !== "number") it.stars = 0;
     });
 
+    const IM_ANSWERS = {
+      1: {
+        aKeywords: "📅 Last month wife sick ➔ 🍲 Ordered light veggie porridge (rice/carrots) ➔ 🥄 Warm, soft & mild taste ➔ 😌 Felt good & right choice",
+        aSections: [
+          {
+            step: "도입",
+            summary: "지난달 아내가 배가 아파서 가벼운 음식 주문",
+            enHtml: "The last time I ate healthy food was last month. My wife had a <span class=\"hl-expr\">stomachache</span> that day. She did not want heavy food, so we ordered something <span class=\"hl-expr\">light and healthy</span>.",
+            ko: "지난달에 건강한 음식을 먹었습니다. 그날 아내가 배가 아팠습니다. 무거운 음식은 먹고 싶지 않아서 가볍고 건강한 음식을 주문했습니다."
+          },
+          {
+            step: "전개",
+            summary: "쌀·당근이 들어간 부드럽고 따뜻한 야채죽 묘사",
+            enHtml: "We ordered <span class=\"hl-expr\">vegetable porridge</span> from a famous shop. It has rice and carrots, so it is <span class=\"hl-expr\">easy to eat</span>. The porridge was warm, soft, and <span class=\"hl-expr\">not salty</span>.",
+            ko: "유명한 가게에서 야채죽을 주문했습니다. 쌀과 당근이 들어가서 먹기 편합니다. 죽은 따뜻하고 부드러웠으며 짜지 않았습니다."
+          },
+          {
+            step: "결론",
+            summary: "속이 편해졌고 좋은 선택이었음",
+            enHtml: "<span class=\"hl-filler\">After eating it,</span> my wife felt much better. It was a simple meal, and it was <span class=\"hl-expr\">good for our health</span>.",
+            ko: "먹고 난 뒤 아내는 훨씬 좋아졌습니다. 간단한 식사였지만 우리 건강에 좋았습니다."
+          }
+        ],
+        aEnPlain: "The last time I ate healthy food was last month. My wife had a stomachache that day. She did not want heavy food, so we ordered something light and healthy. We ordered vegetable porridge from a famous shop. It has rice and carrots, so it is easy to eat. The porridge was warm, soft, and not salty. After eating it, my wife felt much better. It was a simple meal, and it was good for our health."
+      },
+      2: {
+        aKeywords: "🏖️ Daecheon Beach w/ family (last summer) ➔ 👀 Very big, wide & blue ocean ➔ 🚶 Many happy people walking & resting ➔ 🌅 Pretty sunset → want to go again",
+        aSections: [
+          {
+            step: "도입",
+            summary: "지난여름 가족과 간 크고 넓은 대천해수욕장",
+            enHtml: "<span class=\"hl-filler\">Let me tell you about</span> Daecheon Beach. I went there with my family last summer. It is in Boryeong. The beach was very <span class=\"hl-expr\">big and wide</span>, and the ocean was <span class=\"hl-expr\">bright blue</span>.",
+            ko: "대천해수욕장에 대해 말씀드릴게요. 지난여름 가족과 함께 다녀왔습니다. 보령에 있습니다. 해변이 정말 크고 넓었고 바다는 파랬습니다."
+          },
+          {
+            step: "전개",
+            summary: "걷고 쉬는 활기찬 사람들과 예쁜 일몰",
+            enHtml: "There were many people there. Some people walked on the sand, and others just <span class=\"hl-expr\">sat and relaxed</span>. Everyone looked happy. In the evening, the <span class=\"hl-expr\">sunset was very pretty</span>. The sky turned orange and pink.",
+            ko: "거기에 사람이 많았습니다. 모래 위를 걷는 사람도 있고 앉아서 쉬는 사람도 있었습니다. 다들 행복해 보였습니다. 저녁에는 일몰이 정말 예뻤습니다. 하늘이 주황색과 분홍색으로 변했습니다."
+          },
+          {
+            step: "결론",
+            summary: "즐거웠던 기억과 재방문 희망",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> it was a great place. I <span class=\"hl-expr\">want to go back</span> there someday.",
+            ko: "전반적으로 정말 좋은 곳이었습니다. 언젠가 거기에 다시 가고 싶습니다."
+          }
+        ],
+        aEnPlain: "Let me tell you about Daecheon Beach. I went there with my family last summer. It is in Boryeong. The beach was very big and wide, and the ocean was bright blue. There were many people there. Some people walked on the sand, and others just sat and relaxed. Everyone looked happy. In the evening, the sunset was very pretty. The sky turned orange and pink. Overall, it was a great place. I want to go back there someday."
+      },
+      3: {
+        aKeywords: "📞 Hi Lia (sorry, can't meet tonight) ➔ 🤒 Wife has COVID-19 (fever & cough) ➔ 🤝 Must stay home & help her ➔ 📅 Meet next weekend? (call me back)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "리아에게 오늘 저녁 약속 취소 연락",
+            enHtml: "Hi Lia, this is Sam. I am calling about our dinner tonight. I am really sorry, but I <span class=\"hl-expr\">cannot go tonight</span>.",
+            ko: "안녕 리아, 나 샘이야. 오늘 저녁 식사 때문에 전화했어. 정말 미안한데, 오늘 밤엔 못 갈 것 같아."
+          },
+          {
+            step: "전개",
+            summary: "아내의 코로나와 고열·기침으로 집에서 간호 필요",
+            enHtml: "My wife <span class=\"hl-expr\">got COVID-19</span> this morning. She has a <span class=\"hl-expr\">high fever</span> and a bad cough. So I need to stay home and <span class=\"hl-expr\">help her</span>.",
+            ko: "오늘 아침에 아내가 코로나에 걸렸어. 열이 많이 나고 기침도 심해. 그래서 집에 있으면서 아내를 도와줘야 해."
+          },
+          {
+            step: "결론",
+            summary: "다음 주말로 약속 변경 제안 및 연락 요청",
+            enHtml: "<span class=\"hl-filler\">So,</span> can we <span class=\"hl-expr\">meet next weekend</span> instead? Let me know when you are free. Please <span class=\"hl-expr\">call me back</span>. Bye.",
+            ko: "그래서 대신 다음 주말에 만날 수 있을까? 언제 시간 되는지 알려줘. 확인하면 전화 줘. 안녕."
+          }
+        ],
+        aEnPlain: "Hi Lia, this is Sam. I am calling about our dinner tonight. I am really sorry, but I cannot go tonight. My wife got COVID-19 this morning. She has a high fever and a bad cough. So I need to stay home and help her. So, can we meet next weekend instead? Let me know when you are free. Please call me back. Bye."
+      },
+      4: {
+        aKeywords: "👫 Honey, invite Lia & husband? ➔ 📅 Free this Sunday (good for us?) ➔ 🕖 Meet at 7 p.m.? (not early/late) ➔ 🍽️ What food to cook? (ask them)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "아내에게 리아 부부 초대 의사 및 일요일 일정 질문",
+            enHtml: "Honey, do you want to <span class=\"hl-expr\">invite Lia and her husband</span> for dinner? They are free this Sunday. <span class=\"hl-expr\">Is Sunday good</span> for you?",
+            ko: "여보, 리아랑 남편을 저녁에 초대할까? 이번 주 일요일에 시간 된대. 일요일 괜찮아?"
+          },
+          {
+            step: "전개",
+            summary: "저녁 7시 시간대 확인",
+            enHtml: "Great! Then, what time should we meet? Is <span class=\"hl-expr\">7:00 p.m. okay</span>? I think 7:00 p.m. is not too early and <span class=\"hl-expr\">not too late</span>.",
+            ko: "좋아! 그럼 몇 시에 만날까? 저녁 7시 괜찮아? 너무 이르지도 늦지도 않고 좋은 것 같아."
+          },
+          {
+            step: "결론",
+            summary: "저녁 메뉴 질문 및 확인 마무리",
+            enHtml: "<span class=\"hl-filler\">Also,</span> what food should we cook? I can text Lia and ask what she likes. <span class=\"hl-expr\">Sounds good</span>!",
+            ko: "그리고 저녁 음식은 뭘 요리할까? 리아한테 문자해서 뭘 좋아하는지 물어볼게. 좋아!"
+          }
+        ],
+        aEnPlain: "Honey, do you want to invite Lia and her husband for dinner? They are free this Sunday. Is Sunday good for you? Great! Then, what time should we meet? Is 7:00 p.m. okay? I think 7:00 p.m. is not too early and not too late. Also, what food should we cook? I can text Lia and ask what she likes. Sounds good!"
+      },
+      5: {
+        aKeywords: "📞 Hi Jake, sorry I broke MP3 ➔ 💥 Dropped on floor by mistake ➔ 📱 Screen cracked, won't turn on ➔ 🛠️ Fix it or buy new one?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "제이크에게 빌린 MP3 파손 사과",
+            enHtml: "Hi Jake, it is Sam. I am calling about your MP3 player. I am very sorry, but <span class=\"hl-expr\">I broke it</span>.",
+            ko: "안녕 제이크, 나 샘이야. 네 MP3 플레이어 때문에 전화했어. 정말 미안한데 내가 고장 냈어."
+          },
+          {
+            step: "전개",
+            summary: "바닥에 떨어뜨려 화면 금가고 전원 안 켜짐",
+            enHtml: "I <span class=\"hl-expr\">dropped it on the floor</span> by mistake. Now the screen is cracked. Also, it <span class=\"hl-expr\">does not turn on</span>.",
+            ko: "실수로 바닥에 떨어뜨렸어. 지금 화면에 금이 갔고 전원도 안 켜져."
+          },
+          {
+            step: "결론",
+            summary: "수리 또는 새 제품 구매 선택지 제안",
+            enHtml: "<span class=\"hl-filler\">So,</span> I can <span class=\"hl-expr\">fix it at a shop</span> for you. Or I can <span class=\"hl-expr\">buy you a new one</span>. Which way is better for you? I am really sorry again.",
+            ko: "그래서 가게에 가서 고쳐줄게. 아니면 새 걸로 사줄까? 어떤 게 더 좋아? 다시 한번 정말 미안해."
+          }
+        ],
+        aEnPlain: "Hi Jake, it is Sam. I am calling about your MP3 player. I am very sorry, but I broke it. I dropped it on the floor by mistake. Now the screen is cracked. Also, it does not turn on. So, I can fix it at a shop for you. Or I can buy you a new one. Which way is better for you? I am really sorry again."
+      },
+      6: {
+        aKeywords: "🎬 Megabox? Buy 2 tickets tomorrow 7 p.m. ➔ 📋 What movies playing? Is 'The Odyssey' good? ➔ 💰 Price for 2 tickets? ➔ 🎟️ Any discount?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "메가박스 내일 저녁 7시 티켓 2장 문의",
+            enHtml: "Hello, is this Megabox? I want to <span class=\"hl-expr\">buy two tickets</span> for tomorrow. I want a <span class=\"hl-expr\">7:00 p.m. movie</span>.",
+            ko: "안녕하세요, 메가박스인가요? 내일 표 2장을 사고 싶습니다. 저녁 7시 영화를 원해요."
+          },
+          {
+            step: "전개",
+            summary: "상영 영화 및 오디세이 추천 여부 질문",
+            enHtml: "What movies are <span class=\"hl-expr\">playing tomorrow</span>? I heard \"The Odyssey\" is popular. Do you <span class=\"hl-expr\">recommend that movie</span>?",
+            ko: "내일 어떤 영화들이 상영하나요? '오디세이'가 인기가 많다고 들었는데, 그 영화 추천하시나요?"
+          },
+          {
+            step: "결론",
+            summary: "2장 가격 및 할인 혜택 문의",
+            enHtml: "<span class=\"hl-filler\">Also,</span> how much are two tickets? And do you have <span class=\"hl-expr\">any discounts</span>? Thank you for your help. Bye.",
+            ko: "그리고 티켓 2장에 얼마인가요? 혹시 할인 혜택도 있나요? 도와주셔서 감사합니다. 안녕히 계세요."
+          }
+        ],
+        aEnPlain: "Hello, is this Megabox? I want to buy two tickets for tomorrow. I want a 7:00 p.m. movie. What movies are playing tomorrow? I heard \"The Odyssey\" is popular. Do you recommend that movie? Also, how much are two tickets? And do you have any discounts? Thank you for your help. Bye."
+      },
+      7: {
+        aKeywords: "🎟️ Excuse me, wrong tickets ➔ ❌ Booked 7 p.m. online, got 9 p.m. ➔ 🔄 Can I change to 7 p.m.? ➔ 💸 Sold out → refund please (have plans)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "7시 예매했는데 9시 표를 받은 상황 설명",
+            enHtml: "Excuse me, there is a problem with my tickets. I <span class=\"hl-expr\">bought tickets online</span> for 7:00 p.m. <span class=\"hl-filler\">However,</span> these tickets say 9:00 p.m.",
+            ko: "실례합니다, 제 티켓에 문제가 있어요. 7시 영화를 온라인으로 샀는데 이 티켓은 9시라고 적혀 있어요."
+          },
+          {
+            step: "전개",
+            summary: "7시 영화로 교환 가능한지 확인",
+            enHtml: "<span class=\"hl-filler\">So,</span> can I <span class=\"hl-expr\">change them</span> to the 7:00 p.m. movie? Are there <span class=\"hl-expr\">any seats left</span>?",
+            ko: "혹시 7시 영화로 바꿀 수 있을까요? 남은 좌석이 있나요?"
+          },
+          {
+            step: "결론",
+            summary: "좌석 없으면 환불 요청 및 인사",
+            enHtml: "Oh, no seats left? Then can I <span class=\"hl-expr\">get a refund</span>? My friend and I have plans after 9:00 p.m. Thank you.",
+            ko: "아, 남은 자리가 없나요? 그럼 환불받을 수 있을까요? 친구랑 저랑 9시 이후에 다른 약속이 있어서요. 감사합니다."
+          }
+        ],
+        aEnPlain: "Excuse me, there is a problem with my tickets. I bought tickets online for 7:00 p.m. However, these tickets say 9:00 p.m. So, can I change them to the 7:00 p.m. movie? Are there any seats left? Oh, no seats left? Then can I get a refund? My friend and I have plans after 9:00 p.m. Thank you."
+      },
+      8: {
+        aKeywords: "📞 Hi Jake, my MP3 broke (need new) ➔ 🔥 Popular models? Is Samsung M2 good? ➔ 💰 How much is it? ➔ 🏷️ Where to buy cheap / any sale?",
+        aSections: [
+          {
+            step: "도입",
+            summary: "제이크에게 고장 난 MP3 교체 위해 전화",
+            enHtml: "Hi Jake, it is Sam. I want to <span class=\"hl-expr\">buy a new MP3 player</span> because mine broke. You <span class=\"hl-expr\">know a lot about</span> MP3 players, right? <span class=\"hl-filler\">So,</span> I want to ask you a few questions.",
+            ko: "안녕 제이크, 나 샘이야. 내 게 고장 나서 새 MP3 플레이어를 사고 싶어. 너 MP3에 대해 잘 알잖아, 맞지? 그래서 몇 가지 물어보려고 전화했어."
+          },
+          {
+            step: "전개",
+            summary: "인기 모델 및 삼성 M2 추천 여부 질문",
+            enHtml: "First, what MP3 players are <span class=\"hl-expr\">popular these days</span>? I heard the Samsung M2 is good. Do you <span class=\"hl-expr\">like that model</span>?",
+            ko: "먼저 요즘 어떤 MP3 플레이어가 인기 있어? 삼성 M2가 좋다고 들었는데 너도 그 모델 좋아해?"
+          },
+          {
+            step: "결론",
+            summary: "가격과 싸게 사는 할인 정보 질문",
+            enHtml: "Second, <span class=\"hl-expr\">how much is it</span>? Also, where can I <span class=\"hl-expr\">buy it cheap</span>? Are there any sales now? Thanks for your help. Bye!",
+            ko: "두 번째로 가격은 얼마야? 그리고 어디서 싸게 살 수 있어? 지금 세일하는 곳 있어? 도와줘서 고마워. 안녕!"
+          }
+        ],
+        aEnPlain: "Hi Jake, it is Sam. I want to buy a new MP3 player because mine broke. You know a lot about MP3 players, right? So, I want to ask you a few questions. First, what MP3 players are popular these days? I heard the Samsung M2 is good. Do you like that model? Second, how much is it? Also, where can I buy it cheap? Are there any sales now? Thanks for your help. Bye!"
+      },
+      9: {
+        aKeywords: "🤳 Bought Face ID phone years ago ➔ 😤 Face unlock often failed (slow) ➔ 🔧 Tried reset, went to A/S center ➔ ✅ Fixed camera sensor → visit A/S quickly",
+        aSections: [
+          {
+            step: "도입",
+            summary: "몇 년 전 얼굴 인식 스마트폰 구매",
+            enHtml: "Yes, this happened a few years ago. I bought a <span class=\"hl-expr\">new smartphone</span>. It had a <span class=\"hl-expr\">face unlock</span> feature. At first, I was very happy with it.",
+            ko: "네, 몇 년 전에 이런 일이 있었습니다. 새 스마트폰을 샀는데 얼굴 잠금 해제 기능이 있었습니다. 처음에는 아주 만족했습니다."
+          },
+          {
+            step: "전개",
+            summary: "얼굴 인식이 자주 실패해 불편했음",
+            enHtml: "<span class=\"hl-filler\">However,</span> the face unlock often <span class=\"hl-expr\">did not work</span>. It was very slow. I felt <span class=\"hl-expr\">really annoyed</span>.",
+            ko: "하지만 얼굴 잠금 해제가 자주 작동하지 않았습니다. 너무 느렸습니다. 정말 답답했습니다."
+          },
+          {
+            step: "결론",
+            summary: "재설정 후 서비스센터에서 카메라 센서 수리",
+            enHtml: "<span class=\"hl-filler\">So,</span> I restarted the phone, but it still did not work. I went to the <span class=\"hl-expr\">service center</span>. They fixed a small camera problem. Now I go there <span class=\"hl-expr\">right away</span> when my phone breaks.",
+            ko: "그래서 휴대폰을 다시 켜봤지만 여전히 안 되었습니다. 서비스 센터에 갔더니 작은 카메라 문제를 고쳐주었습니다. 이제는 휴대폰이 고장 나면 바로 센터에 갑니다."
+          }
+        ],
+        aEnPlain: "Yes, this happened a few years ago. I bought a new smartphone. It had a face unlock feature. At first, I was very happy with it. However, the face unlock often did not work. It was very slow. I felt really annoyed. So, I restarted the phone, but it still did not work. I went to the service center. They fixed a small camera problem. Now I go there right away when my phone breaks."
+      },
+      10: {
+        aKeywords: "📅 Check free time (like weekdays) ➔ 💻 Book online app or call office ➔ 📩 Confirm time & get text message ➔ ⏰ Arrive 10 min early",
+        aSections: [
+          {
+            step: "도입",
+            summary: "내 일정 확인 및 한가한 평일 예약 선호",
+            enHtml: "Making an appointment is easy for me. First, I <span class=\"hl-expr\">check my schedule</span> to see when I am free. I like <span class=\"hl-expr\">weekdays</span> because weekends are too busy.",
+            ko: "예약하는 것은 저에게 간단합니다. 먼저 제가 언제 시간이 되는지 일정을 확인합니다. 주말은 너무 바빠서 평일을 좋아합니다."
+          },
+          {
+            step: "전개",
+            summary: "간편한 앱/온라인 예약 또는 전화 후 문자 알림 받기",
+            enHtml: "Next, I use an <span class=\"hl-expr\">online app</span> or call the office. I prefer online booking because it is <span class=\"hl-expr\">fast and easy</span>. Then they <span class=\"hl-expr\">send me a text message</span> to confirm the time.",
+            ko: "다음으로 온라인 앱을 쓰거나 전화합니다. 온라인 예약이 빠르고 쉬워서 더 좋습니다. 그러면 시간을 확인하는 문자 메시지를 보내줍니다."
+          },
+          {
+            step: "결론",
+            summary: "약속 당일 10분 일찍 도착하기",
+            enHtml: "On that day, I try to <span class=\"hl-expr\">arrive 10 minutes early</span>. <span class=\"hl-filler\">So,</span> that is how I make an appointment.",
+            ko: "그날에는 10분 일찍 도착하려고 노력합니다. 이것이 제가 예약하는 방법입니다."
+          }
+        ],
+        aEnPlain: "Making an appointment is easy for me. First, I check my schedule to see when I am free. I like weekdays because weekends are too busy. Next, I use an online app or call the office. I prefer online booking because it is fast and easy. Then they send me a text message to confirm the time. On that day, I try to arrive 10 minutes early. So, that is how I make an appointment."
+      },
+      11: {
+        aKeywords: "⛰️ Child: hiked Seoraksan w/ dad & sister ➔ 🌲 Walked trails, tall trees & singing birds ➔ 🌄 Steep hills, great view at top ➔ 🍲 Hot chicken soup (best memory)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "어릴 적 아버지·여동생과 자주 간 설악산",
+            enHtml: "When I was a child, I often <span class=\"hl-expr\">went hiking</span> with my family. My dad, my sister, and I went to Seoraksan Mountain on weekends. I always felt <span class=\"hl-expr\">very excited</span>.",
+            ko: "어릴 때 가족과 자주 등산을 갔습니다. 주말에 아빠, 여동생과 설악산에 갔습니다. 저는 항상 매우 신났습니다."
+          },
+          {
+            step: "전개",
+            summary: "나무·새소리 즐기며 올라 본 멋진 정상 풍경",
+            enHtml: "We walked up the mountain and breathed <span class=\"hl-expr\">fresh air</span>. There were many tall trees and singing birds. The hill was steep, <span class=\"hl-filler\">but</span> the view at the top was <span class=\"hl-expr\">really beautiful</span>.",
+            ko: "산을 올라가며 상쾌한 공기를 마셨습니다. 큰 나무와 지저귀는 새들이 많았습니다. 언덕은 가팔랐지만 정상의 풍경은 정말 아름다웠습니다."
+          },
+          {
+            step: "결론",
+            summary: "하산 후 먹은 따뜻한 닭백숙과 최고의 추억",
+            enHtml: "After hiking, we ate <span class=\"hl-expr\">hot chicken soup</span> at a restaurant. It tasted so good. Those trips are my <span class=\"hl-expr\">best childhood memories</span>.",
+            ko: "등산 후에는 식당에서 따뜻한 닭백숙을 먹었습니다. 정말 맛있었습니다. 그 여행들은 제 어린 시절 최고의 추억입니다."
+          }
+        ],
+        aEnPlain: "When I was a child, I often went hiking with my family. My dad, my sister, and I went to Seoraksan Mountain on weekends. I always felt very excited. We walked up the mountain and breathed fresh air. There were many tall trees and singing birds. The hill was steep, but the view at the top was really beautiful. After hiking, we ate hot chicken soup at a restaurant. It tasted so good. Those trips are my best childhood memories."
+      },
+      12: {
+        aKeywords: "🗺️ Pick place & travel dates first ➔ 🔍 Search famous spots & good food ➔ 💻 Book hotel & tickets online ➔ 🧳 Day before: pack clothes & toothbrush",
+        aSections: [
+          {
+            step: "도입",
+            summary: "먼저 갈 곳과 날짜 정하기",
+            enHtml: "Before a trip, I do a few things in order. First, I <span class=\"hl-expr\">pick a place</span> and choose the dates. I also decide how long I will stay.",
+            ko: "여행 전에 몇 가지를 순서대로 합니다. 먼저 장소를 고르고 날짜를 정합니다. 얼마나 머물지도 결정합니다."
+          },
+          {
+            step: "전개",
+            summary: "관광지·맛집 검색 후 온라인 숙소·교통 예약",
+            enHtml: "Second, I <span class=\"hl-expr\">search online</span> for good restaurants and famous places. Next, I book a hotel and train or plane tickets. Online booking is <span class=\"hl-expr\">quick and simple</span>.",
+            ko: "둘째로 온라인에서 맛집과 유명한 곳을 검색합니다. 다음으로 호텔과 기차나 비행기 표를 예약합니다. 온라인 예약은 빠르고 간단합니다."
+          },
+          {
+            step: "결론",
+            summary: "전날 옷과 세면도구 등 짐 싸기",
+            enHtml: "Finally, the day before the trip, I <span class=\"hl-expr\">pack my bag</span>. I put in clothes, snacks, and my toothbrush. <span class=\"hl-filler\">That way,</span> I am <span class=\"hl-expr\">ready for the trip</span>.",
+            ko: "마지막으로 여행 전날 가방을 쌉니다. 옷, 간식, 칫솔을 넣습니다. 그러면 여행 준비가 끝납니다."
+          }
+        ],
+        aEnPlain: "Before a trip, I do a few things in order. First, I pick a place and choose the dates. I also decide how long I will stay. Second, I search online for good restaurants and famous places. Next, I book a hotel and train or plane tickets. Online booking is quick and simple. Finally, the day before the trip, I pack my bag. I put in clothes, snacks, and my toothbrush. That way, I am ready for the trip."
+      },
+      13: {
+        aKeywords: "🎬 Months ago saw 'Odyssey' w/ family at CGV ➔ ☕ Bought tickets & coffee before movie ➔ 🤩 Great story & cool scenes (3 hrs) ➔ 🍽️ Ate dinner & talked (happy day)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "몇 달 전 가족과 CGV에서 오디세이 관람",
+            enHtml: "I went to the movie theater a few months ago. I went to CGV with my family to watch \"Odyssey\". The theater was <span class=\"hl-expr\">very crowded</span>.",
+            ko: "몇 달 전에 영화관에 갔습니다. 가족과 함께 '오디세이'를 보러 CGV에 갔습니다. 영화관이 매우 붐볐습니다."
+          },
+          {
+            step: "전개",
+            summary: "영화 전 커피 마시고 3시간 재미있게 관람",
+            enHtml: "Before the movie, we bought tickets and <span class=\"hl-expr\">drank coffee</span>. We talked about the movie while waiting. The movie was three hours long, <span class=\"hl-filler\">but</span> it was <span class=\"hl-expr\">very exciting</span>. The story and pictures were amazing.",
+            ko: "영화 전에 표를 사고 커피를 마셨습니다. 기다리면서 영화 이야기를 했습니다. 영화가 3시간이나 되었지만 정말 재미있었습니다. 이야기와 영상이 멋졌습니다."
+          },
+          {
+            step: "결론",
+            summary: "영화 후 저녁 식사하며 대화 나눈 즐거운 하루",
+            enHtml: "After the movie, we <span class=\"hl-expr\">ate dinner nearby</span> and talked about it. We had a <span class=\"hl-expr\">really fun day</span> together.",
+            ko: "영화가 끝난 후 근처에서 저녁을 먹으며 이야기를 나눴습니다. 함께 정말 즐거운 하루를 보냈습니다."
+          }
+        ],
+        aEnPlain: "I went to the movie theater a few months ago. I went to CGV with my family to watch \"Odyssey\". The theater was very crowded. Before the movie, we bought tickets and drank coffee. We talked about the movie while waiting. The movie was three hours long, but it was very exciting. The story and pictures were amazing. After the movie, we ate dinner nearby and talked about it. We had a really fun day together."
+      },
+      14: {
+        aKeywords: "✈️ 10 yrs ago planned Jeju trip w/ friends ➔ 🚨 Morning of trip: sister's work emergency ➔ 👶 Stayed home & watched nephew all day ➔ 😢 Canceled trip (family comes first)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "10년 전 친구들과 기대하던 제주 여행 계획",
+            enHtml: "Yes, this happened about 10 years ago. My friends and I planned a <span class=\"hl-expr\">trip to Jeju Island</span>. We bought plane tickets and were <span class=\"hl-expr\">very excited</span>.",
+            ko: "네, 약 10년 전에 이런 일이 있었습니다. 친구들과 제주도 여행을 계획했습니다. 비행기 표도 사고 정말 신나 있었습니다."
+          },
+          {
+            step: "전개",
+            summary: "당일 아침 여동생 직장 일로 조카 돌보기",
+            enHtml: "<span class=\"hl-filler\">However,</span> on the trip morning, my sister had an <span class=\"hl-expr\">urgent problem at work</span>. Nobody could watch her young son. So I <span class=\"hl-expr\">took care of him</span> all day instead of going to the airport.",
+            ko: "그런데 여행 당일 아침에 여동생에게 직장에서 급한 일이 생겼습니다. 어린 아들을 봐줄 사람이 없었습니다. 그래서 공항에 가는 대신 하루 종일 조카를 돌봤습니다."
+          },
+          {
+            step: "결론",
+            summary: "여행은 취소했지만 가족이 우선이라 후회 없음",
+            enHtml: "In the end, I <span class=\"hl-expr\">canceled my trip</span>. I felt sad, <span class=\"hl-filler\">but</span> I do not regret it because <span class=\"hl-expr\">family comes first</span>.",
+            ko: "결국 여행을 취소했습니다. 아쉽긴 했지만 가족이 우선이라 후회하지 않습니다."
+          }
+        ],
+        aEnPlain: "Yes, this happened about 10 years ago. My friends and I planned a trip to Jeju Island. We bought plane tickets and were very excited. However, on the trip morning, my sister had an urgent problem at work. Nobody could watch her young son. So I took care of him all day instead of going to the airport. In the end, I canceled my trip. I felt sad, but I do not regret it because family comes first."
+      },
+      15: {
+        aKeywords: "🏠 Home vacation: hungry & about to eat ➔ 🎵 Heard favorite band from nearby park ➔ 🏃 Ran out → free surprise concert! ➔ 🎤 Sang loud (best show ever)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "집에서 밥 먹기 직전 옆 공원에서 들린 좋아하는 밴드 노래",
+            enHtml: "This happened a few years ago during my vacation. I was at home and <span class=\"hl-expr\">very hungry</span>. Just before eating, I heard live music from the <span class=\"hl-expr\">park next door</span>. It was my favorite band's song!",
+            ko: "몇 년 전 휴가 때 있었던 일입니다. 집에 있었는데 배가 아주 고팠습니다. 막 밥을 먹으려는데 옆 공원에서 라이브 음악이 들렸습니다. 제가 가장 좋아하는 밴드의 노래였습니다!"
+          },
+          {
+            step: "전개",
+            summary: "공원으로 달려가 깜짝 콘서트 열창",
+            enHtml: "I ran straight to the park without eating. <span class=\"hl-filler\">Surprisingly,</span> they were doing a <span class=\"hl-expr\">free concert</span>! Many people were jumping and cheering. I <span class=\"hl-expr\">sang along loudly</span> with everyone.",
+            ko: "밥도 안 먹고 바로 공원으로 달려갔습니다. 놀랍게도 무료 콘서트를 하고 있었습니다! 많은 사람들이 뛰며 환호하고 있었습니다. 저도 모두와 함께 크게 노래를 따라 불렀습니다."
+          },
+          {
+            step: "결론",
+            summary: "배고팠지만 평생 기억에 남는 최고 공연",
+            enHtml: "I stayed hungry for a while, <span class=\"hl-filler\">but</span> it was the <span class=\"hl-expr\">best show</span> I ever saw. I still smile when I go to that park.",
+            ko: "잠시 배는 고팠지만 제가 본 최고의 공연이었습니다. 지금도 그 공원에 갈 때마다 미소가 지어집니다."
+          }
+        ],
+        aEnPlain: "This happened a few years ago during my vacation. I was at home and very hungry. Just before eating, I heard live music from the park next door. It was my favorite band's song! I ran straight to the park without eating. Surprisingly, they were doing a free concert! Many people were jumping and cheering. I sang along loudly with everyone. I stayed hungry for a while, but it was the best show I ever saw. I still smile when I go to that park."
+      },
+      16: {
+        aKeywords: "🍽️ 2 yrs ago Jeju w/ wife → busy restaurant ➔ ✨ Saw Cha Eun-woo sitting in corner! ➔ 😱 Very handsome, so surprised ➔ 😳 Wife stared at him (funny memory)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "2년 전 아내와 제주 유명 식당 방문",
+            enHtml: "About two years ago, I went to Jeju Island with my wife. We went to a <span class=\"hl-expr\">famous restaurant</span> for lunch. The place was a little noisy, so I <span class=\"hl-expr\">looked around</span>.",
+            ko: "약 2년 전 아내와 제주도에 갔습니다. 점심을 먹으러 유명한 식당에 갔습니다. 식당이 조금 시끄러워서 주변을 둘러봤습니다."
+          },
+          {
+            step: "전개",
+            summary: "구석에 앉아 있는 차은우 보고 깜짝 놀람",
+            enHtml: "<span class=\"hl-filler\">Then,</span> I saw Cha Eun-woo sitting in the corner! He is a <span class=\"hl-expr\">very handsome</span> Korean actor. I was <span class=\"hl-expr\">so surprised</span> to see him in real life.",
+            ko: "그때 구석에 앉아 있는 차은우 씨를 봤습니다! 정말 잘생긴 한국 배우입니다. 실물로 봐서 정말 깜짝 놀랐습니다."
+          },
+          {
+            step: "결론",
+            summary: "눈을 못 떼는 아내 보며 웃기고 잊지 못할 추억",
+            enHtml: "I looked at my wife, and she could not stop watching him. I felt <span class=\"hl-expr\">a little sorry</span> for her because she sees me every day! It was a <span class=\"hl-expr\">really funny memory</span>.",
+            ko: "아내를 보니 그를 계속 쳐다보고 있었습니다. 매일 저를 봐야 하는 아내에게 조금 미안해졌습니다! 정말 웃긴 추억이었습니다."
+          }
+        ],
+        aEnPlain: "About two years ago, I went to Jeju Island with my wife. We went to a famous restaurant for lunch. The place was a little noisy, so I looked around. Then, I saw Cha Eun-woo sitting in the corner! He is a very handsome Korean actor. I was so surprised to see him in real life. I looked at my wife, and she could not stop watching him. I felt a little sorry for her because she sees me every day! It was a really funny memory."
+      },
+      17: {
+        aKeywords: "🎟️ 10 yrs ago booked movie online w/ wife ➔ 📅 Arrived at theater: wrong date on ticket ➔ ❌ Sold out today → couldn't watch ➔ ✅ Now always check twice before paying",
+        aSections: [
+          {
+            step: "도입",
+            summary: "10년 전 아내와 인기 영화 미리 예매",
+            enHtml: "Yes, I made a mistake about 10 years ago. My wife and I <span class=\"hl-expr\">booked movie tickets</span> online. We were very excited because it was a <span class=\"hl-expr\">popular movie</span>.",
+            ko: "네, 약 10년 전에 실수를 한 적이 있습니다. 아내와 온라인으로 영화 표를 예매했습니다. 인기 있는 영화라서 아주 기대했습니다."
+          },
+          {
+            step: "전개",
+            summary: "극장 도착 후 날짜를 잘못 예매한 걸 발견",
+            enHtml: "<span class=\"hl-filler\">However,</span> when we got to the theater, there was a problem. I booked the tickets for the <span class=\"hl-expr\">wrong day</span>. It was <span class=\"hl-expr\">my mistake</span>.",
+            ko: "하지만 극장에 도착했을 때 문제가 있었습니다. 제가 날짜를 잘못 예매한 것이었습니다. 제 실수였습니다."
+          },
+          {
+            step: "결론",
+            summary: "매진으로 못 보고 이후 항상 두 번 확인",
+            enHtml: "We tried to buy new tickets, <span class=\"hl-filler\">but</span> all seats were <span class=\"hl-expr\">sold out</span>. We could not watch the movie and felt sad. Now I <span class=\"hl-expr\">always check twice</span> when I book tickets.",
+            ko: "새 표를 사려 했지만 자리가 다 매진되었습니다. 영화를 못 봐서 아쉬웠습니다. 이제 표를 예매할 때는 항상 두 번 확인합니다."
+          }
+        ],
+        aEnPlain: "Yes, I made a mistake about 10 years ago. My wife and I booked movie tickets online. We were very excited because it was a popular movie. However, when we got to the theater, there was a problem. I booked the tickets for the wrong day. It was my mistake. We tried to buy new tickets, but all seats were sold out. We could not watch the movie and felt sad. Now I always check twice when I book tickets."
+      },
+      18: {
+        aKeywords: "🥾 Love nature & hiking mountain trails ➔ 🏖️ Swim & relax on nice beaches ➔ 🍜 Eat delicious local food (best part) ➔ 🛍️ Buy small gifts & shop",
+        aSections: [
+          {
+            step: "도입",
+            summary: "해외여행에서 자연 명소와 산책·등산 즐기기",
+            enHtml: "When I travel to another country, I like <span class=\"hl-expr\">outdoor activities</span>. First, I like to <span class=\"hl-expr\">go hiking</span> in the mountains. I can get exercise and see great views.",
+            ko: "다른 나라로 여행 갈 때 야외 활동을 좋아합니다. 먼저 산에서 등산하는 것을 좋아합니다. 운동도 하고 멋진 풍경도 볼 수 있습니다."
+          },
+          {
+            step: "전개",
+            summary: "해변에서 수영과 바닷바람 휴식",
+            enHtml: "Second, I also enjoy going to <span class=\"hl-expr\">the beach</span>. I like swimming in the ocean or just resting on the sand. The cool wind makes me <span class=\"hl-expr\">feel fresh</span>.",
+            ko: "둘째로 해변에 가는 것도 즐깁니다. 바다에서 수영하거나 모래 위에서 쉬는 것을 좋아합니다. 시원한 바람이 상쾌하게 해 줍니다."
+          },
+          {
+            step: "결론",
+            summary: "현지 맛집 탐방과 쇼핑으로 마무리",
+            enHtml: "Finally, I always eat <span class=\"hl-expr\">local food</span> and go shopping. Trying new food is the <span class=\"hl-expr\">best part of traveling</span> for me.",
+            ko: "마지막으로 항상 현지 음식을 먹고 쇼핑을 합니다. 새로운 음식을 먹는 것이 저에게 여행의 가장 좋은 부분입니다."
+          }
+        ],
+        aEnPlain: "When I travel to another country, I like outdoor activities. First, I like to go hiking in the mountains. I can get exercise and see great views. Second, I also enjoy going to the beach. I like swimming in the ocean or just resting on the sand. The cool wind makes me feel fresh. Finally, I always eat local food and go shopping. Trying new food is the best part of traveling for me."
+      },
+      19: {
+        aKeywords: "🏢 Yongin 3-bed apt w/ wife (living/kitchen/balcony) ➔ 🤫 Clean, comfortable & quiet area ➔ 🛋️ Favorite: bright living room w/ big sofa ➔ ❤️ Watch TV & relax after work (love home)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "아내와 사는 용인 방 3개 아파트와 조용한 동네",
+            enHtml: "I live in an apartment in Yongin with my wife. It has a living room, a kitchen, three bedrooms, and a balcony. It is not very big, <span class=\"hl-filler\">but</span> it is <span class=\"hl-expr\">clean and comfortable</span>. My neighborhood is <span class=\"hl-expr\">very quiet</span>, so I like living here.",
+            ko: "저는 아내와 함께 용인의 아파트에 살고 있습니다. 거실, 주방, 침실 3개, 발코니가 있습니다. 아주 크지는 않지만 깨끗하고 편안합니다. 동네가 매우 조용해서 여기서 사는 게 좋습니다."
+          },
+          {
+            step: "전개",
+            summary: "가장 좋아하는 밝은 거실과 큰 소파 묘사",
+            enHtml: "My <span class=\"hl-expr\">favorite room</span> is the living room. It is very bright because it has a big window. There is also a <span class=\"hl-expr\">large, soft sofa</span> in the room. I usually sit there and watch TV <span class=\"hl-expr\">after work</span>.",
+            ko: "제가 가장 좋아하는 방은 거실입니다. 큰 창문이 있어서 매우 밝습니다. 거실에는 크고 푹신한 소파도 있습니다. 저는 보통 퇴근 후에 거기 앉아서 TV를 봅니다."
+          },
+          {
+            step: "결론",
+            summary: "집에 대한 애정으로 마무리",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> I really love my home.",
+            ko: "전반적으로 저는 제 집을 정말 좋아합니다."
+          }
+        ],
+        aEnPlain: "I live in an apartment in Yongin with my wife. It has a living room, a kitchen, three bedrooms, and a balcony. It is not very big, but it is clean and comfortable. My neighborhood is very quiet, so I like living here. My favorite room is the living room. It is very bright because it has a big window. There is also a large, soft sofa in the room. I usually sit there and watch TV after work. Overall, I really love my home."
+      },
+      20: {
+        aKeywords: "💼 Live w/ wife, busy weekdays (talk at dinner) ➔ 🍳 Weekends: wife cooks & cleans kitchen ➔ 🧹 I clean living room & take out trash ➔ 📺 Read books & watch Netflix to rest",
+        aSections: [
+          {
+            step: "도입",
+            summary: "아내와 거주 및 바쁜 평일 짧은 대화",
+            enHtml: "I live with my wife. On weekdays, we are both <span class=\"hl-expr\">busy with work</span>. We only talk for a short time during dinner or <span class=\"hl-expr\">before bed</span>.",
+            ko: "저는 아내와 함께 삽니다. 평일에는 둘 다 일 때문에 바쁩니다. 저녁 먹을 때나 자기 전에만 잠깐 이야기합니다."
+          },
+          {
+            step: "전개",
+            summary: "주말 아내와 역할 나누어 함께 집안일",
+            enHtml: "On weekends, we do <span class=\"hl-expr\">housework together</span>. My wife cooks meals and cleans the kitchen. I clean the living room and <span class=\"hl-expr\">take out the trash</span>. Doing chores is a little tiring, <span class=\"hl-filler\">but</span> it is important.",
+            ko: "주말에는 함께 집안일을 합니다. 아내는 요리를 하고 주방을 치웁니다. 저는 거실을 청소하고 쓰레기를 버립니다. 집안일이 조금 피곤하지만 중요합니다."
+          },
+          {
+            step: "결론",
+            summary: "집안일 후 독서·넷플릭스 보며 휴식",
+            enHtml: "After we finish cleaning, we <span class=\"hl-expr\">read books</span> or watch movies on Netflix. It is a <span class=\"hl-expr\">great way to rest</span> together.",
+            ko: "청소를 끝낸 뒤에는 책을 읽거나 넷플릭스로 영화를 봅니다. 함께 쉬기에 정말 좋은 방법입니다."
+          }
+        ],
+        aEnPlain: "I live with my wife. On weekdays, we are both busy with work. We only talk for a short time during dinner or before bed. On weekends, we do housework together. My wife cooks meals and cleans the kitchen. I clean the living room and take out the trash. Doing chores is a little tiring, but it is important. After we finish cleaning, we read books or watch movies on Netflix. It is a great way to rest together."
+      },
+      21: {
+        aKeywords: "🏚️ Grew up in small old apt (happy memories) ➔ 🪵 Brown wood furniture, warm & safe feel ➔ 🚧 Moved away, never went back (maybe changed) ➔ 💭 Sometimes miss that old home",
+        aSections: [
+          {
+            step: "도입",
+            summary: "어릴 적 살던 작고 오래되었지만 행복한 아파트",
+            enHtml: "When I was a child, I lived in a <span class=\"hl-expr\">small, old apartment</span>. It was not fancy, <span class=\"hl-filler\">but</span> I have many <span class=\"hl-expr\">happy memories</span> there with my family.",
+            ko: "어릴 때 저는 작고 오래된 아파트에 살았습니다. 화려하진 않았지만 가족들과 행복한 추억이 많습니다."
+          },
+          {
+            step: "전개",
+            summary: "단순한 나무 가구와 아늑하고 안전했던 느낌",
+            enHtml: "The furniture was simple and made of <span class=\"hl-expr\">brown wood</span>. Even though the walls were old, the house felt <span class=\"hl-expr\">warm and safe</span>.",
+            ko: "가구는 단순했고 갈색 나무로 되어 있었습니다. 벽은 낡았지만 집은 따뜻하고 안전하게 느껴졌습니다."
+          },
+          {
+            step: "결론",
+            summary: "이사 후 가보지 않아 변화는 모르지만 가끔 그리움",
+            enHtml: "After we moved out, I <span class=\"hl-expr\">never went back</span> there. Maybe the neighborhood looks modern now. In my mind, it is still the same, and I <span class=\"hl-expr\">sometimes miss it</span>.",
+            ko: "이사 간 뒤로 거기에 다시 가보지 않았습니다. 아마 지금은 동네가 현대적으로 변했을 것입니다. 제 기억 속엔 여전히 그대로이고 가끔 그립습니다."
+          }
+        ],
+        aEnPlain: "When I was a child, I lived in a small, old apartment. It was not fancy, but I have many happy memories there with my family. The furniture was simple and made of brown wood. Even though the walls were old, the house felt warm and safe. After we moved out, I never went back there. Maybe the neighborhood looks modern now. In my mind, it is still the same, and I sometimes miss it."
+      },
+      22: {
+        aKeywords: "🎂 Age 11 secret plan w/ Dad: Mom's cake ➔ 😴 Delayed work & fell asleep ➔ 😬 Parents back: nothing ready (Dad angry, sorry) ➔ 🥰 Mom smiled → made cake together (happy day)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "11살 때 아빠와 준비한 엄마 생일 케이크와 낮잠 실수",
+            enHtml: "When I was 11, I wanted to make a <span class=\"hl-expr\">birthday cake</span> for my mom. My dad and I planned a surprise. I only had to put cream and fruit on a cake. <span class=\"hl-filler\">However,</span> I waited too long and <span class=\"hl-expr\">fell asleep</span>.",
+            ko: "11살 때 엄마를 위해 생일 케이크를 만들고 싶었습니다. 아빠와 깜짝 파티를 계획했습니다. 케이크에 생크림과 과일만 올리면 되었습니다. 그런데 너무 미루다가 잠들어 버렸습니다."
+          },
+          {
+            step: "전개",
+            summary: "부모님 귀가 후 아빠는 화나셨지만 엄마는 기뻐하심",
+            enHtml: "When my parents came home, nothing was ready. My dad was angry, and I felt <span class=\"hl-expr\">very sorry</span>. <span class=\"hl-filler\">But</span> my mom smiled because I <span class=\"hl-expr\">tried to make</span> it for her.",
+            ko: "부모님이 집에 오셨을 때 아무것도 준비되지 않았습니다. 아빠는 화가 나셨고 저는 정말 미안했습니다. 하지만 엄마는 제가 만들려고 노력했다며 웃어주셨습니다."
+          },
+          {
+            step: "결론",
+            summary: "다 함께 케이크 만들며 행복한 추억으로 마무리",
+            enHtml: "In the end, we <span class=\"hl-expr\">made the cake together</span>. It became a <span class=\"hl-expr\">happy memory</span> for my family.",
+            ko: "결국 우리는 다 함께 케이크를 만들었습니다. 우리 가족의 행복한 추억이 되었습니다."
+          }
+        ],
+        aEnPlain: "When I was 11, I wanted to make a birthday cake for my mom. My dad and I planned a surprise. I only had to put cream and fruit on a cake. However, I waited too long and fell asleep. When my parents came home, nothing was ready. My dad was angry, and I felt very sorry. But my mom smiled because I tried to make it for her. In the end, we made the cake together. It became a happy memory for my family."
+      },
+      23: {
+        aKeywords: "♻️ My job: sort trash at home (paper/plastic/glass/food) ➔ 💧 Wash & press bottles first ➔ 🗑️ Carry to apt bin & check right spot ➔ 🌍 Little tiring, good for Earth",
+        aSections: [
+          {
+            step: "도입",
+            summary: "집에서 분리수거 담당 및 종류별 분류",
+            enHtml: "At home, my job is <span class=\"hl-expr\">taking out the trash</span> and recycling. First, I <span class=\"hl-expr\">sort the trash</span> in the kitchen. We have different bags for paper, plastic, glass, and food waste. I also wash bottles and <span class=\"hl-expr\">make them flat</span>.",
+            ko: "집에서 제 역할은 쓰레기 배출과 분리수거입니다. 먼저 주방에서 쓰레기를 분류합니다. 종이, 플라스틱, 유리, 음식물 쓰레기 봉투가 각각 있습니다. 병을 씻고 납작하게 누르기도 합니다."
+          },
+          {
+            step: "전개",
+            summary: "아파트 분리수거장에 가져가 알맞은 통에 넣기",
+            enHtml: "Second, I carry the bags outside to the <span class=\"hl-expr\">apartment trash area</span>. I check the signs and put everything in the <span class=\"hl-expr\">right bin</span>.",
+            ko: "둘째로 봉투를 아파트 밖 분리수거장으로 들고 갑니다. 표지판을 보고 모든 것을 알맞은 통에 넣습니다."
+          },
+          {
+            step: "결론",
+            summary: "조금 귀찮아도 환경을 위해 꼭 필요한 일",
+            enHtml: "Sometimes it is a little tiring, <span class=\"hl-filler\">but</span> I do it to <span class=\"hl-expr\">keep the Earth clean</span>.",
+            ko: "가끔 조금 귀찮지만 지구를 깨끗하게 지키기 위해 이 일을 합니다."
+          }
+        ],
+        aEnPlain: "At home, my job is taking out the trash and recycling. First, I sort the trash in the kitchen. We have different bags for paper, plastic, glass, and food waste. I also wash bottles and make them flat. Second, I carry the bags outside to the apartment trash area. I check the signs and put everything in the right bin. Sometimes it is a little tiring, but I do it to keep the Earth clean."
+      },
+      24: {
+        aKeywords: "🧹 Child: cleaned my room every weekend ➔ 👍 Sweep floor & organize desk (my job) ➔ 👧 Helped & watched younger sister ➔ 🌱 Learned to be responsible & helpful",
+        aSections: [
+          {
+            step: "도입",
+            summary: "어릴 적 매주 주말 내 방 청소 담당",
+            enHtml: "When I was young, I did not have many chores. My main job was <span class=\"hl-expr\">cleaning my room</span> every weekend. I had to <span class=\"hl-expr\">sweep the floor</span> and clean my desk. I always tried to <span class=\"hl-expr\">do my best</span>.",
+            ko: "어릴 때는 집안일이 많지 않았습니다. 제 주된 일은 주말마다 제 방을 청소하는 것이었습니다. 바닥을 쓸고 책상을 치워야 했습니다. 저는 항상 최선을 다하려고 했습니다."
+          },
+          {
+            step: "전개",
+            summary: "바쁜 부모님 대신 여동생 돌보기",
+            enHtml: "Also, I sometimes <span class=\"hl-expr\">watched my younger sister</span> when my parents were busy. I played with her and <span class=\"hl-expr\">helped with her homework</span>.",
+            ko: "또한 부모님이 바쁘실 때는 가끔 여동생을 봐주기도 했습니다. 같이 놀아주고 숙제도 도와주었습니다."
+          },
+          {
+            step: "결론",
+            summary: "스스로 돕고 책임감 배우게 해 준 소중한 경험",
+            enHtml: "My parents were happy with me. Those chores helped me <span class=\"hl-expr\">grow up well</span>.",
+            ko: "부모님께서 저를 대견해하셨습니다. 그런 집안일 덕분에 제가 잘 성장할 수 있었습니다."
+          }
+        ],
+        aEnPlain: "When I was young, I did not have many chores. My main job was cleaning my room every weekend. I had to sweep the floor and clean my desk. I always tried to do my best. Also, I sometimes watched my younger sister when my parents were busy. I played with her and helped with her homework. My parents were happy with me. Those chores helped me grow up well."
+      },
+      25: {
+        aKeywords: "🎻 Like classical music best (calm & helps rest) ➔ 🎤 Also listen to trot (fun & energetic) ➔ 🔥 Look for new popular trot songs ➔ 🎵 No single favorite singer (like good songs)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "마음을 편하게 해주는 클래식 음악 선호",
+            enHtml: "I listen to many kinds of music, <span class=\"hl-filler\">but</span> my favorite is <span class=\"hl-expr\">classical music</span>. It sounds very calm and pretty. It helps me <span class=\"hl-expr\">rest after a busy day</span>.",
+            ko: "여러 종류의 음악을 듣지만 가장 좋아하는 것은 클래식 음악입니다. 아주 차분하고 아름답습니다. 바쁜 하루 뒤에 쉬는 데 도움이 됩니다."
+          },
+          {
+            step: "전개",
+            summary: "신나고 따라 부르기 쉬운 트로트도 즐김",
+            enHtml: "<span class=\"hl-filler\">Also,</span> I listen to <span class=\"hl-expr\">trot music</span> a lot these days. It is fun, energetic, and <span class=\"hl-expr\">easy to sing along</span>. It always makes me feel happy. I often look for <span class=\"hl-expr\">new popular songs</span>.",
+            ko: "또한 요즘에는 트로트 음악도 많이 듣습니다. 신나고 에너지가 넘치며 따라 부르기 쉽습니다. 항상 제 기분을 좋게 만들어 줍니다. 인기 있는 새 노래도 자주 찾아봅니다."
+          },
+          {
+            step: "결론",
+            summary: "특정 가수보다 좋은 노래 위주로 감상",
+            enHtml: "<span class=\"hl-filler\">Well,</span> I do not have just one favorite singer. When I <span class=\"hl-expr\">find a good song</span>, I listen to more songs by that singer.",
+            ko: "음, 딱 한 명만 가장 좋아하는 가수가 있지는 않습니다. 좋은 노래를 찾으면 그 가수의 다른 노래도 더 들어봅니다."
+          }
+        ],
+        aEnPlain: "I listen to many kinds of music, but my favorite is classical music. It sounds very calm and pretty. It helps me rest after a busy day. Also, I listen to trot music a lot these days. It is fun, energetic, and easy to sing along. It always makes me feel happy. I often look for new popular songs. Well, I do not have just one favorite singer. When I find a good song, I listen to more songs by that singer."
+      },
+      26: {
+        aKeywords: "📱 Use music app on smartphone (need internet) ➔ ♾️ Unlimited songs, saves phone space ➔ 🚗 Play in car while driving to work ➔ ❤️ Music makes every day happier",
+        aSections: [
+          {
+            step: "도입",
+            summary: "스마트폰 음악 앱으로 스트리밍 청취",
+            enHtml: "I usually listen to music with a <span class=\"hl-expr\">music app</span> on my phone. I just need the internet.",
+            ko: "저는 보통 휴대폰의 음악 앱으로 음악을 듣습니다. 인터넷만 있으면 됩니다."
+          },
+          {
+            step: "전개",
+            summary: "무제한 청취와 저장 공간 절약 장점",
+            enHtml: "With the app, I can listen to <span class=\"hl-expr\">many songs anytime</span> and anywhere. Also, it does not <span class=\"hl-expr\">use my phone space</span>, so it is very convenient.",
+            ko: "앱이 있으면 언제 어디서나 많은 노래를 들을 수 있습니다. 또한 휴대폰 저장 공간을 쓰지 않아서 아주 편리합니다."
+          },
+          {
+            step: "결론",
+            summary: "출퇴근 운전 중 카오디오로 즐기는 일상 음악",
+            enHtml: "For example, I often <span class=\"hl-expr\">connect my phone</span> to my car when I drive to work. Listening to music makes driving <span class=\"hl-expr\">fun and relaxing</span>. Music is a happy part of my daily life.",
+            ko: "예를 들어 출근할 때 차에 휴대폰을 자주 연결합니다. 음악을 들으면 운전이 즐겁고 편안해집니다. 음악은 제 일상의 행복한 부분입니다."
+          }
+        ],
+        aEnPlain: "I usually listen to music with a music app on my phone. I just need the internet. With the app, I can listen to many songs anytime and anywhere. Also, it does not use my phone space, so it is very convenient. For example, I often connect my phone to my car when I drive to work. Listening to music makes driving fun and relaxing. Music is a happy part of my daily life."
+      },
+      27: {
+        aKeywords: "🏫 Middle school: friend showed K-pop group ➔ 🔁 Played songs again & sang along ➔ 🌍 Later liked English pop (easy & fun) ➔ 🎶 Now: classical & trot by mood",
+        aSections: [
+          {
+            step: "도입",
+            summary: "중학교 때 친구 추천으로 시작한 K-pop 감상",
+            enHtml: "I first liked music in <span class=\"hl-expr\">middle school</span>. A friend showed me a K-pop group. I loved their music, so I listened to their songs <span class=\"hl-expr\">every day</span>. I played the same songs again and <span class=\"hl-expr\">sang along</span>.",
+            ko: "중학교 때 음악을 처음 좋아하게 되었습니다. 친구가 K-pop 그룹을 알려주었습니다. 노래가 너무 좋아서 매일 들었습니다. 같은 노래를 또 듣고 따라 불렀습니다."
+          },
+          {
+            step: "전개",
+            summary: "나이가 들며 영어 팝송으로도 취향 확장",
+            enHtml: "Later, I started listening to <span class=\"hl-expr\">foreign singers</span>, too. I really liked English pop songs because the melodies were <span class=\"hl-expr\">fun and catchy</span>.",
+            ko: "나중에는 외국 가수 노래도 듣기 시작했습니다. 멜로디가 재미있고 귀에 잘 들어와서 영어 팝송을 정말 좋아했습니다."
+          },
+          {
+            step: "결론",
+            summary: "지금은 기분에 따라 클래식과 트로트 감상",
+            enHtml: "Now I listen to different music <span class=\"hl-expr\">depending on my mood</span>. Sometimes I play classical music, and sometimes I enjoy trot.",
+            ko: "지금은 기분에 따라 다양한 음악을 듣습니다. 어떨 때는 클래식을 틀고, 어떨 때는 트로트를 즐깁니다."
+          }
+        ],
+        aEnPlain: "I first liked music in middle school. A friend showed me a K-pop group. I loved their music, so I listened to their songs every day. I played the same songs again and sang along. Later, I started listening to foreign singers, too. I really liked English pop songs because the melodies were fun and catchy. Now I listen to different music depending on my mood. Sometimes I play classical music, and sometimes I enjoy trot."
+      },
+      28: {
+        aKeywords: "🏠 At home: comedy, drama & action (easy to watch) ➔ 🍿 At theater: fantasy & Sci-fi movies ➔ 🔊 Big screen & great sound (very exciting) ➔ 🎭 Pick movie by place",
+        aSections: [
+          {
+            step: "도입",
+            summary: "집에서는 가볍고 편한 코미디·드라마·액션 선호",
+            enHtml: "I like many kinds of movies. At home, I like <span class=\"hl-expr\">comedies, dramas, and action movies</span>. They are easy to watch and <span class=\"hl-expr\">fun to enjoy</span>. I can <span class=\"hl-expr\">relax at home</span> without thinking too much.",
+            ko: "저는 다양한 영화를 좋아합니다. 집에서는 코미디, 드라마, 액션 영화를 좋아합니다. 보기 쉽고 재미있습니다. 너무 많이 생각하지 않고 집에서 편히 쉴 수 있습니다."
+          },
+          {
+            step: "전개",
+            summary: "영화관에서는 큰 화면과 사운드가 좋은 판타지·SF 선택",
+            enHtml: "<span class=\"hl-filler\">However,</span> when I go to a movie theater, I choose <span class=\"hl-expr\">fantasy or Sci-fi movies</span>. They look amazing on a <span class=\"hl-expr\">big screen</span>. The loud sound also makes the movie much more exciting.",
+            ko: "하지만 영화관에 갈 때는 판타지나 SF 영화를 고릅니다. 큰 화면에서 보면 정말 멋집니다. 큰 소리도 영화를 훨씬 더 신나게 만듭니다."
+          },
+          {
+            step: "결론",
+            summary: "장소에 따라 다양한 영화 즐기기",
+            enHtml: "<span class=\"hl-filler\">So,</span> I enjoy different movies <span class=\"hl-expr\">depending on the place</span>.",
+            ko: "그래서 장소에 따라 다른 영화를 즐깁니다."
+          }
+        ],
+        aEnPlain: "I like many kinds of movies. At home, I like comedies, dramas, and action movies. They are easy to watch and fun to enjoy. I can relax at home without thinking too much. However, when I go to a movie theater, I choose fantasy or Sci-fi movies. They look amazing on a big screen. The loud sound also makes the movie much more exciting. So, I enjoy different movies depending on the place."
+      },
+      29: {
+        aKeywords: "🎬 Favorite actor Yoo Hae-jin (very famous & natural) ➔ 📰 News on new movie: history debate ➔ 🪧 People protested outside his home ➔ ⚖️ Felt bad for him (not actor's fault)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "자연스러운 연기로 유명한 배우 유해진 소개",
+            enHtml: "Recently, I saw news about my favorite actor, Yoo Hae-jin. He is <span class=\"hl-expr\">very famous in Korea</span>. People love his <span class=\"hl-expr\">natural acting</span>.",
+            ko: "최근에 제가 가장 좋아하는 배우 유해진 씨 뉴스를 봤습니다. 한국에서 아주 유명합니다. 사람들은 그의 자연스러운 연기를 좋아합니다."
+          },
+          {
+            step: "전개",
+            summary: "새 영화의 역사 논쟁과 자택 앞 시위 뉴스",
+            enHtml: "The news was about his new movie. Some people argued about <span class=\"hl-expr\">history facts</span> in the movie. Because he was the main actor, he had a <span class=\"hl-expr\">hard time</span>. Some angry people even protested outside his house.",
+            ko: "뉴스는 그의 새 영화에 관한 것이었습니다. 어떤 사람들이 영화 속 역사적 사실에 대해 다투었습니다. 그가 주연 배우여서 힘든 시간을 보냈습니다. 화난 일부 사람들은 그의 집 밖에서 시위까지 했습니다."
+          },
+          {
+            step: "결론",
+            summary: "배우를 탓하는 건 불공평하다는 생각",
+            enHtml: "Many people felt <span class=\"hl-expr\">bad for him</span>. I think blaming the actor for the story is <span class=\"hl-expr\">not fair</span>.",
+            ko: "많은 사람들이 그를 안타깝게 생각했습니다. 이야기 때문에 배우를 탓하는 것은 공평하지 않다고 생각합니다."
+          }
+        ],
+        aEnPlain: "Recently, I saw news about my favorite actor, Yoo Hae-jin. He is very famous in Korea. People love his natural acting. The news was about his new movie. Some people argued about history facts in the movie. Because he was the main actor, he had a hard time. Some angry people even protested outside his house. Many people felt bad for him. I think blaming the actor for the story is not fair."
+      },
+      30: {
+        aKeywords: "💑 Spend home vacation w/ wife (both busy weekdays) ➔ 🎯 Try to focus on her (movies & cooking) ➔ 💪 Talk & laugh more → closer together ➔ ❤️ Great time to rest & stay happy",
+        aSections: [
+          {
+            step: "도입",
+            summary: "평일에 바빠서 휴가엔 아내와 집에 함께 있음",
+            enHtml: "When I have a vacation at home, I spend time with my wife. On weekdays, we are both <span class=\"hl-expr\">busy at work</span>. So we do not have much time to <span class=\"hl-expr\">talk together</span>. During vacation, I try to <span class=\"hl-expr\">focus on her</span>.",
+            ko: "집에서 휴가를 보낼 때 저는 아내와 시간을 보냅니다. 평일에는 둘 다 일 때문에 바쁩니다. 그래서 같이 이야기할 시간이 많지 않습니다. 휴가 동안에는 아내에게 집중하려고 노력합니다."
+          },
+          {
+            step: "전개",
+            summary: "영화 보고 요리하며 함께 웃고 더 가까워짐",
+            enHtml: "We watch movies, cook good food, and <span class=\"hl-expr\">rest at home</span>. When we do these things, we laugh more and <span class=\"hl-expr\">feel closer</span>. It helps us <span class=\"hl-expr\">forget work stress</span>.",
+            ko: "우리는 영화를 보고 맛있는 음식을 요리하고 집에서 쉽니다. 이렇게 하면 더 많이 웃고 더 가까워집니다. 일 스트레스를 잊는 데도 도움이 됩니다."
+          },
+          {
+            step: "결론",
+            summary: "아내와 최대한 많은 시간을 보내려는 다짐",
+            enHtml: "<span class=\"hl-filler\">So,</span> I try to spend <span class=\"hl-expr\">as much time as possible</span> with my wife.",
+            ko: "그래서 아내와 가능한 한 많은 시간을 보내려고 노력합니다."
+          }
+        ],
+        aEnPlain: "When I have a vacation at home, I spend time with my wife. On weekdays, we are both busy at work. So we do not have much time to talk together. During vacation, I try to focus on her. We watch movies, cook good food, and rest at home. When we do these things, we laugh more and feel closer. It helps us forget work stress. So, I try to spend as much time as possible with my wife."
+      },
+      31: {
+        aKeywords: "📺 At home w/ wife: Netflix, cooking & coffee+music ➔ 🗣️ Talk happily over dinner ➔ 🌳 Walk in park & drink coffee on grass ➔ 😌 Fun, easy & stress-free vacation",
+        aSections: [
+          {
+            step: "도입",
+            summary: "아내와 집에서 넷플릭스·요리·커피 즐기기",
+            enHtml: "During my home vacation with my wife, we do <span class=\"hl-expr\">fun and easy things</span>. We watch dramas and movies on Netflix. We also <span class=\"hl-expr\">cook nice meals</span> together and drink coffee with music. We like to <span class=\"hl-expr\">talk a lot</span> while eating dinner.",
+            ko: "아내와 집에서 휴가를 보낼 때 우리는 재미있고 편한 일들을 합니다. 넷플릭스로 드라마와 영화를 봅니다. 함께 맛있는 식사도 만들고 음악을 들으며 커피도 마십니다. 저녁을 먹으면서 이야기를 많이 나누는 걸 좋아합니다."
+          },
+          {
+            step: "전개",
+            summary: "아파트 근처 공원 산책과 벤치 대화·피크닉",
+            enHtml: "We also go to a <span class=\"hl-expr\">park near our home</span>. We walk together, enjoy the fresh air, and sit on a bench. Sometimes we bring coffee and snacks to <span class=\"hl-expr\">eat on the grass</span>. Going outside makes us feel <span class=\"hl-expr\">happy and fresh</span>.",
+            ko: "집 근처 공원에도 갑니다. 함께 산책하고 상쾌한 공기를 마시며 벤치에 앉습니다. 가끔은 커피와 간식을 가져가 잔디밭에서 먹기도 합니다. 밖에 나가면 기분이 좋고 상쾌해집니다."
+          },
+          {
+            step: "결론",
+            summary: "스트레스 없이 편안한 집 휴가 마무리",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> these are the things we usually do at home.",
+            ko: "전반적으로 이것이 우리가 집에서 주로 하는 일들입니다."
+          }
+        ],
+        aEnPlain: "During my home vacation with my wife, we do fun and easy things. We watch dramas and movies on Netflix. We also cook nice meals together and drink coffee with music. We like to talk a lot while eating dinner. We also go to a park near our home. We walk together, enjoy the fresh air, and sit on a bench. Sometimes we bring coffee and snacks to eat on the grass. Going outside makes us feel happy and fresh. Overall, these are the things we usually do at home."
+      },
+      32: {
+        aKeywords: "🚇 Easy locations near subway, modern & bright ➔ 🚪 Big Korean/English signs & auto doors ➔ 🤖 Clean lobby, kind staff & fast kiosks ➔ ☕ Free Wi-Fi & soft music (nice stay)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "교통 편리하고 현대적이며 밝은 한국 호텔 외관",
+            enHtml: "Most hotels in Korea are in <span class=\"hl-expr\">convenient places</span> near subway stations. They look <span class=\"hl-expr\">modern and clean</span>. They have big signs in Korean and English. The front door is bright, so it is <span class=\"hl-expr\">easy to find</span> at night.",
+            ko: "한국의 대부분 호텔은 지하철역 근처 편리한 곳에 있습니다. 현대적이고 깔끔해 보입니다. 한국어와 영어로 된 큰 간판이 있습니다. 입구가 밝아서 밤에도 찾기 쉽습니다."
+          },
+          {
+            step: "전개",
+            summary: "깔끔한 로비, 친절한 직원, 무인 키오스크·와이파이",
+            enHtml: "Inside, the lobby is very clean. The staff are <span class=\"hl-expr\">kind and helpful</span>. Many hotels also have <span class=\"hl-expr\">self-check-in machines</span>, so you do not wait long. Plus, there is free Wi-Fi, soft chairs, and nice music.",
+            ko: "안으로 들어가면 로비가 아주 깨끗합니다. 직원들은 친절하고 도움을 잘 줍니다. 많은 호텔에 셀프 체크인 기기도 있어서 오래 기다리지 않습니다. 무료 와이파이, 편한 의자, 좋은 음악도 있습니다."
+          },
+          {
+            step: "결론",
+            summary: "편리하고 이용하기 좋은 한국 호텔 요약",
+            enHtml: "<span class=\"hl-filler\">Overall,</span> Korean hotels are <span class=\"hl-expr\">easy and nice</span> to stay in.",
+            ko: "전반적으로 한국 호텔은 머물기에 편하고 좋습니다."
+          }
+        ],
+        aEnPlain: "Most hotels in Korea are in convenient places near subway stations. They look modern and clean. They have big signs in Korean and English. The front door is bright, so it is easy to find at night. Inside, the lobby is very clean. The staff are kind and helpful. Many hotels also have self-check-in machines, so you do not wait long. Plus, there is free Wi-Fi, soft chairs, and nice music. Overall, Korean hotels are easy and nice to stay in."
+      },
+      33: {
+        aKeywords: "🌳 Favorite: Lake Park (short walk from home) ➔ 🅿️ Small & a bit old, has parking & benches ➔ 😌 Quiet & relaxed vibe (never rushed) ➔ 👍 Great place to visit often",
+        aSections: [
+          {
+            step: "도입",
+            summary: "집에서 걸어서 금방 가는 가까운 호수공원",
+            enHtml: "<span class=\"hl-filler\">Well,</span> my favorite park is Lake Park. I go there very often. The best thing is that it is <span class=\"hl-expr\">close to my home</span>. I can <span class=\"hl-expr\">walk there</span> in just a few minutes, even on busy days.",
+            ko: "음, 제가 가장 좋아하는 공원은 호수공원입니다. 거기에 아주 자주 갑니다. 가장 좋은 점은 집에서 가깝다는 것입니다. 바쁜 날에도 몇 분 만에 걸어갈 수 있습니다."
+          },
+          {
+            step: "전개",
+            summary: "작지만 주차장·벤치가 있고 조용하고 여유로운 분위기",
+            enHtml: "The park is small and a little old, <span class=\"hl-filler\">but</span> it <span class=\"hl-expr\">has everything I need</span>. There is a parking lot and many benches. Most of all, I <span class=\"hl-expr\">feel very relaxed</span> there. It is quiet, so I can <span class=\"hl-expr\">take my time</span> and rest.",
+            ko: "공원이 작고 조금 오래되었지만 필요한 것은 다 있습니다. 주차장도 있고 벤치도 많습니다. 무엇보다 거기 있으면 마음이 아주 편해집니다. 조용해서 여유롭게 쉴 수 있습니다."
+          },
+          {
+            step: "결론",
+            summary: "언제든 가기 좋은 공원으로 마무리",
+            enHtml: "<span class=\"hl-filler\">All in all,</span> Lake Park is a <span class=\"hl-expr\">great place</span> to visit.",
+            ko: "전반적으로 호수공원은 가기에 정말 좋은 곳입니다."
+          }
+        ],
+        aEnPlain: "Well, my favorite park is Lake Park. I go there very often. The best thing is that it is close to my home. I can walk there in just a few minutes, even on busy days. The park is small and a little old, but it has everything I need. There is a parking lot and many benches. Most of all, I feel very relaxed there. It is quiet, so I can take my time and rest. All in all, Lake Park is a great place to visit."
+      },
+      34: {
+        aKeywords: "✈️ Visited China (Shanghai & Hong Kong, 2-hr flight) ➔ 🌃 Crowded streets, tall buildings & bright lights ➔ 🌙 People stay out late (lively night) ➔ 🍢 Lots of tasty street food (exciting)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "비행기로 2시간 거리의 중국 대도시 소개",
+            enHtml: "<span class=\"hl-filler\">Well,</span> I want to talk about China. I visited big cities like Shanghai and Hong Kong. China is <span class=\"hl-expr\">close to Korea</span>. It takes only <span class=\"hl-expr\">two hours by plane</span>.",
+            ko: "음, 중국에 대해 이야기하고 싶습니다. 상하이와 홍콩 같은 대도시를 방문했습니다. 중국은 한국과 가깝습니다. 비행기로 2시간밖에 안 걸립니다."
+          },
+          {
+            step: "전개",
+            summary: "화려한 밤거리와 많은 사람·길거리 음식",
+            enHtml: "The big cities are <span class=\"hl-expr\">full of energy</span>. There are tall buildings, bright lights, and busy streets. At night, many people <span class=\"hl-expr\">eat, shop, and hang out</span> outside. Also, there is a lot of <span class=\"hl-expr\">street food</span> everywhere, and it smells delicious.",
+            ko: "대도시들은 에너지가 넘칩니다. 높은 건물, 밝은 불빛, 붐비는 거리가 있습니다. 밤에는 많은 사람들이 밖에서 먹고 쇼핑하고 어울립니다. 또한 어디에나 길거리 음식이 많고 맛있는 냄새가 납니다."
+          },
+          {
+            step: "결론",
+            summary: "여행하기 재미있는 곳이라는 소감",
+            enHtml: "<span class=\"hl-filler\">So,</span> China is a <span class=\"hl-expr\">very exciting place</span> to visit.",
+            ko: "그래서 중국은 여행하기에 정말 신나는 곳입니다."
+          }
+        ],
+        aEnPlain: "Well, I want to talk about China. I visited big cities like Shanghai and Hong Kong. China is close to Korea. It takes only two hours by plane. The big cities are full of energy. There are tall buildings, bright lights, and busy streets. At night, many people eat, shop, and hang out outside. Also, there is a lot of street food everywhere, and it smells delicious. So, China is a very exciting place to visit."
+      },
+      35: {
+        aKeywords: "💪 Best friend Jake (known long, meet often) ➔ 😎 Strong body, bright face & lots of energy ➔ 🏃 Exercises daily (run, gym, or yoga) ➔ 🥗 Eats home-cooked veggies & protein (great role model)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "오랜 절친 제이크의 건강한 외모와 넘치는 에너지",
+            enHtml: "<span class=\"hl-filler\">Let me tell you about</span> my best friend, Jake. We have been friends for a long time and meet often. He looks <span class=\"hl-expr\">very healthy</span>. He has a strong body, clear skin, and <span class=\"hl-expr\">lots of energy</span>. He never looks tired after work.",
+            ko: "제 가장 친한 친구 제이크에 대해 말씀드릴게요. 오래된 친구이고 자주 만납니다. 그는 아주 건강해 보입니다. 몸이 탄탄하고 피부가 맑으며 에너지가 넘칩니다. 퇴근 후에도 피곤해 보이지 않습니다."
+          },
+          {
+            step: "전개",
+            summary: "매일 운동과 채소·단백질 위주 집밥 식습관",
+            enHtml: "He has <span class=\"hl-expr\">great habits</span>. He exercises almost every day. He goes running, goes to the gym, or does yoga at home. Also, he eats <span class=\"hl-expr\">healthy home-cooked food</span> with lots of vegetables instead of fast food.",
+            ko: "그는 좋은 습관을 가지고 있습니다. 거의 매일 운동합니다. 달리기를 하거나 헬스장에 가거나 집에서 요가를 합니다. 또한 패스트푸드 대신 채소가 많은 건강한 집밥을 먹습니다."
+          },
+          {
+            step: "결론",
+            summary: "긍정적 에너지를 주는 본받고 싶은 친구",
+            enHtml: "<span class=\"hl-filler\">So,</span> I really <span class=\"hl-expr\">learn a lot from him</span>. He always gives me good energy.",
+            ko: "그래서 저는 그에게 정말 많이 배웁니다. 그는 항상 저에게 좋은 에너지를 줍니다."
+          }
+        ],
+        aEnPlain: "Let me tell you about my best friend, Jake. We have been friends for a long time and meet often. He looks very healthy. He has a strong body, clear skin, and lots of energy. He never looks tired after work. He has great habits. He exercises almost every day. He goes running, goes to the gym, or does yoga at home. Also, he eats healthy home-cooked food with lots of vegetables instead of fast food. So, I really learn a lot from him. He always gives me good energy."
+      },
+      36: {
+        aKeywords: "🏨 Stay on vacations → check in & unpack bag ➔ 🧭 Walk around to check restaurants & pool ➔ 🏊 Swim, eat dinner or rest in lounge ➔ 🥐 Always eat breakfast buffet (delicious)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "휴가 때 호텔 체크인 후 방에서 짐 풀기",
+            enHtml: "I usually go to a hotel during my vacations. First, I <span class=\"hl-expr\">check in</span> at the front desk and get my room key. Then I go to my room and <span class=\"hl-expr\">unpack my bag</span>. It helps me feel relaxed.",
+            ko: "저는 주로 휴가 때 호텔에 갑니다. 먼저 프런트 데스크에서 체크인하고 방 키를 받습니다. 그런 다음 방에 가서 짐을 풉니다. 마음이 편해집니다."
+          },
+          {
+            step: "전개",
+            summary: "식당·카페·편의시설 위치 확인하며 구경",
+            enHtml: "Second, I <span class=\"hl-expr\">walk around the hotel</span>. I check where the restaurants, cafes, and swimming pool are.",
+            ko: "둘째로 호텔을 둘러봅니다. 식당, 카페, 수영장이 어디 있는지 확인합니다."
+          },
+          {
+            step: "결론",
+            summary: "수영·휴식과 조식 뷔페 즐기기",
+            enHtml: "After that, I swim, eat dinner, or rest in the lounge. Also, I <span class=\"hl-expr\">always eat breakfast</span> at the hotel buffet. It is <span class=\"hl-expr\">easy and delicious</span>.",
+            ko: "그다음에는 수영을 하거나 저녁을 먹거나 라운지에서 쉽니다. 또한 호텔 뷔페에서 항상 아침을 먹습니다. 편하고 맛있습니다."
+          }
+        ],
+        aEnPlain: "I usually go to a hotel during my vacations. First, I check in at the front desk and get my room key. Then I go to my room and unpack my bag. It helps me feel relaxed. Second, I walk around the hotel. I check where the restaurants, cafes, and swimming pool are. After that, I swim, eat dinner, or rest in the lounge. Also, I always eat breakfast at the hotel buffet. It is easy and delicious."
+      },
+      37: {
+        aKeywords: "🏦 Go to bank for money or papers → take number ticket ➔ 📱 Check phone or drink water while waiting ➔ 💬 Called to desk → finish in a few min ➔ 💳 Use ATM if simple (faster)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "은행 도착 후 번호표 뽑고 기다리기",
+            enHtml: "I sometimes go to the bank to move money or <span class=\"hl-expr\">do paperwork</span>. First, I take a <span class=\"hl-expr\">number ticket</span> and wait for my turn. While waiting, I check my phone or drink water.",
+            ko: "돈을 옮기거나 서류 일을 하러 가끔 은행에 갑니다. 먼저 번호표를 뽑고 제 차례를 기다립니다. 기다리는 동안 휴대폰을 보거나 물을 마십니다."
+          },
+          {
+            step: "전개",
+            summary: "번호 호출 후 창구 직원과 업무 처리",
+            enHtml: "When they <span class=\"hl-expr\">call my number</span>, I go to the desk and tell the worker what I need. Usually it takes <span class=\"hl-expr\">just a few minutes</span>, unless I have many papers to sign.",
+            ko: "제 번호를 부르면 창구로 가서 직원에게 필요한 일을 말합니다. 서명할 서류가 많지 않으면 보통 몇 분밖에 안 걸립니다."
+          },
+          {
+            step: "결론",
+            summary: "간단한 업무는 빠른 ATM 이용",
+            enHtml: "If my job is simple, I just <span class=\"hl-expr\">use the ATM</span>. It is much <span class=\"hl-expr\">faster and easier</span>.",
+            ko: "일이 간단하면 그냥 ATM을 씁니다. 훨씬 빠르고 쉽습니다."
+          }
+        ],
+        aEnPlain: "I sometimes go to the bank to move money or do paperwork. First, I take a number ticket and wait for my turn. While waiting, I check my phone or drink water. When they call my number, I go to the desk and tell the worker what I need. Usually it takes just a few minutes, unless I have many papers to sign. If my job is simple, I just use the ATM. It is much faster and easier."
+      },
+      38: {
+        aKeywords: "💻 First search job info & company sites online ➔ 📋 Check needed skills & visit job fairs ➔ 🎓 Take classes, write resume & practice interviews ➔ 💼 Step-by-step to get good job",
+        aSections: [
+          {
+            step: "도입",
+            summary: "온라인으로 채용 정보와 회사 홈페이지 찾기",
+            enHtml: "<span class=\"hl-filler\">These days,</span> people start looking for a job online. First, they <span class=\"hl-expr\">search job websites</span> and check company pages.",
+            ko: "요즘 사람들은 온라인에서 구직을 시작합니다. 먼저 구인 사이트를 검색하고 회사 홈페이지를 확인합니다."
+          },
+          {
+            step: "전개",
+            summary: "필요 조건 확인 및 취업 박람회 방문",
+            enHtml: "Next, they check what <span class=\"hl-expr\">skills they need</span>. Many people also go to <span class=\"hl-expr\">job fairs</span>. There, they can meet company workers and ask questions.",
+            ko: "다음으로 어떤 능력이 필요한지 확인합니다. 많은 사람들이 취업 박람회에도 갑니다. 거기서 회사 직원들을 만나 질문할 수 있습니다."
+          },
+          {
+            step: "결론",
+            summary: "수업 수강·이력서·면접·영어 준비로 마무리",
+            enHtml: "Finally, they take classes, write a resume, and <span class=\"hl-expr\">practice for interviews</span>. Many people also study English. These steps help them <span class=\"hl-expr\">get a good job</span>.",
+            ko: "마지막으로 수업을 듣고, 이력서를 쓰고, 면접을 연습합니다. 많은 사람들이 영어도 공부합니다. 이런 단계들이 좋은 직장을 얻는 데 도움이 됩니다."
+          }
+        ],
+        aEnPlain: "These days, people start looking for a job online. First, they search job websites and check company pages. Next, they check what skills they need. Many people also go to job fairs. There, they can meet company workers and ask questions. Finally, they take classes, write a resume, and practice for interviews. Many people also study English. These steps help them get a good job."
+      },
+      39: {
+        aKeywords: "🌐 People use Internet differently by age ➔ 👴 Older people: read news, check weather & health ➔ 📱 Younger people: Instagram, YouTube, shopping & banking ➔ 👥 Use by age & needs",
+        aSections: [
+          {
+            step: "도입",
+            summary: "연령대별 차이 및 어르신들의 뉴스·날씨 확인",
+            enHtml: "People use the Internet differently <span class=\"hl-expr\">by age</span>. For example, older people usually do simple things. They <span class=\"hl-expr\">read the news</span>, check the weather, or look up health tips.",
+            ko: "사람들은 나이에 따라 인터넷을 다르게 사용합니다. 예를 들어 어르신들은 보통 간단한 일을 합니다. 뉴스를 읽거나 날씨를 확인하거나 건강 정보를 찾아봅니다."
+          },
+          {
+            step: "전개",
+            summary: "젊은 세대의 SNS·유튜브·쇼핑·뱅킹 활용",
+            enHtml: "On the other hand, younger people are <span class=\"hl-expr\">good with technology</span>. They use Instagram, watch YouTube videos, and listen to music. They also <span class=\"hl-expr\">shop online</span>, use mobile banking, and chat with friends.",
+            ko: "반면 젊은 사람들은 기술을 잘 다룹니다. 인스타그램을 쓰고, 유튜브 영상을 보고, 음악을 듣습니다. 온라인 쇼핑, 모바일 뱅킹, 친구들과 채팅도 많이 합니다."
+          },
+          {
+            step: "결론",
+            summary: "나이와 필요에 따른 다양한 인터넷 사용",
+            enHtml: "<span class=\"hl-filler\">So,</span> people use the Internet in different ways <span class=\"hl-expr\">for their own needs</span>.",
+            ko: "그래서 사람들은 각자의 필요에 따라 다른 방식으로 인터넷을 사용합니다."
+          }
+        ],
+        aEnPlain: "People use the Internet differently by age. For example, older people usually do simple things. They read the news, check the weather, or look up health tips. On the other hand, younger people are good with technology. They use Instagram, watch YouTube videos, and listen to music. They also shop online, use mobile banking, and chat with friends. So, people use the Internet in different ways for their own needs."
+      },
+      40: {
+        aKeywords: "🏃 Vacation: ran w/ wife in park after lunch ➔ 🐕 Saw giant black dog (no leash, no owner) ➔ 😱 Wife scared, froze → I laughed & filmed her ➔ 🤣 Dog left, wife got mad at me (funny memory)",
+        aSections: [
+          {
+            step: "도입",
+            summary: "휴가 중 점심 식사 후 아내와 공원 달리기",
+            enHtml: "This happened a few years ago during my vacation. After lunch, my wife and I <span class=\"hl-expr\">went running</span> in a park near our home.",
+            ko: "몇 년 전 휴가 때 있었던 일입니다. 점심을 먹은 뒤 아내와 집 근처 공원에서 달리기를 했습니다."
+          },
+          {
+            step: "전개",
+            summary: "목줄 없는 큰 검은 개 보고 굳어버린 아내를 찍음",
+            enHtml: "Soon, we saw a <span class=\"hl-expr\">huge black dog</span> in front of us. It had no leash, and no owner was there. My wife is <span class=\"hl-expr\">really scared of dogs</span>. She could not even move! I thought her face was funny, so I laughed and <span class=\"hl-expr\">recorded a video</span>. Luckily, the nice dog just walked away.",
+            ko: "곧 우리 앞에서 아주 큰 검은 개를 봤습니다. 목줄도 없었고 주인도 없었습니다. 아내는 개를 정말 무서워합니다. 꼼짝도 못 했습니다! 저는 아내의 표정이 웃겨서 웃으며 영상을 찍었습니다. 다행히 착한 개는 그냥 걸어갔습니다."
+          },
+          {
+            step: "결론",
+            summary: "아내에게 혼난 웃픈 반전과 재미있는 추억",
+            enHtml: "Later, my wife <span class=\"hl-expr\">got mad at me</span> for filming her. The dog's owner was wrong, <span class=\"hl-filler\">but</span> I got in trouble! Now it is our <span class=\"hl-expr\">funniest memory</span>.",
+            ko: "나중에 아내는 영상을 찍었다며 저에게 화를 냈습니다. 개 주인이 잘못했는데 제가 혼났습니다! 지금은 우리의 가장 웃긴 추억이 되었습니다."
+          }
+        ],
+        aEnPlain: "This happened a few years ago during my vacation. After lunch, my wife and I went running in a park near our home. Soon, we saw a huge black dog in front of us. It had no leash, and no owner was there. My wife is really scared of dogs. She could not even move! I thought her face was funny, so I laughed and recorded a video. Luckily, the nice dog just walked away. Later, my wife got mad at me for filming her. The dog's owner was wrong, but I got in trouble! Now it is our funniest memory."
+      }
+    };
+
+    const OPIC_DATA_AL = JSON.parse(JSON.stringify(OPIC_DATA));
+    const OPIC_DATA_IM = OPIC_DATA_AL.map(item => {
+      const imPatch = IM_ANSWERS[item.id];
+      if (!imPatch) return JSON.parse(JSON.stringify(item));
+      return {
+        ...JSON.parse(JSON.stringify(item)),
+        aKeywords: imPatch.aKeywords,
+        aSections: JSON.parse(JSON.stringify(imPatch.aSections)),
+        aEnPlain: imPatch.aEnPlain
+      };
+    });
+    const DEFAULT_DATA_BY_LEVEL = {
+      AL: JSON.parse(JSON.stringify(OPIC_DATA_AL)),
+      IM: JSON.parse(JSON.stringify(OPIC_DATA_IM))
+    };
+
     const DEFAULT_OPIC_DATA = JSON.parse(JSON.stringify(OPIC_DATA));
 
     // Per-block sentence start timestamps (sec) extracted from edge-tts SentenceBoundary events
-    const SENTENCE_TIMINGS = {"1_A": [0.1, 3.04, 8.78, 13.61, 17.06, 23.7, 26.64, 29.91, 34.04, 35.95, 40.2, 44.67], "1_Q": [0.1, 4.24, 6.7, 9.43], "2_A": [0.1, 3.86, 6.55, 11.38, 15.89, 17.91, 22.76, 25.32, 27.69, 31.59, 35.26, 38.4, 41.49], "2_Q": [0.1, 3.64, 5.14], "3_A": [0.1, 1.5, 2.71, 4.61, 8.38, 12.07, 15.38, 19.09, 22.01, 23.73, 27.76, 29.5, 32.2], "3_Q": [0.1, 3.7, 7.91, 10.36], "4_A": [0.1, 1.91, 5.84, 7.0, 7.88, 10.62, 12.68, 14.19, 15.93, 17.23, 21.21, 24.0, 28.12], "4_Q": [0.1, 3.65, 6.39], "5_A": [0.1, 2.11, 5.75, 8.26, 10.76, 14.19, 16.18, 19.07, 22.62, 25.74, 30.52, 32.0, 33.8], "5_Q": [0.1, 3.7, 7.14, 13.2], "6_A": [0.1, 2.05, 4.86, 10.16, 13.85, 17.43, 19.46, 22.91, 24.48, 27.62, 30.73, 33.05, 34.75], "6_Q": [0.1, 3.65, 5.65], "7_A": [0.1, 2.9, 5.99, 8.11, 13.16, 15.95, 19.02, 21.46, 23.15, 26.55, 30.05, 31.73], "7_Q": [0.1, 3.7, 9.64], "8_A": [0.1, 2.1, 5.41, 8.93, 12.18, 14.4, 17.59, 19.62, 22.71, 24.27, 26.5, 29.68, 32.0, 33.7], "8_Q": [0.1, 3.65, 9.24], "9_A": [0.1, 3.34, 9.56, 12.36, 15.76, 21.43, 24.6, 26.41, 31.46, 38.71], "9_Q": [0.1, 2.2, 7.66, 8.86, 10.62], "10_A": [0.1, 6.7, 11.35, 16.68, 20.74, 24.69, 27.86, 33.09, 40.83, 45.14, 49.45], "10_Q": [0.1, 5.14], "11_A": [0.1, 4.0, 10.36, 15.18, 21.21, 25.45, 31.14, 37.95, 41.36], "11_Q": [0.1, 2.64, 3.84], "12_A": [0.1, 4.28, 8.0, 13.21, 16.66, 24.98, 28.45, 33.29, 41.9, 44.42, 48.92], "12_Q": [0.1], "13_A": [0.1, 3.2, 8.69, 14.41, 18.74, 23.24, 25.54, 27.71, 32.2, 36.85, 40.81, 43.39], "13_Q": [0.1, 2.39, 3.91, 5.69], "14_A": [0.1, 3.19, 6.55, 9.74, 13.8, 20.43, 23.55, 29.43, 33.23, 38.09, 43.2], "14_Q": [0.1, 2.2, 4.31, 8.57], "15_A": [0.1, 3.51, 7.01, 12.35, 16.74, 19.62, 22.44, 26.7, 30.26, 34.44, 38.42, 43.73], "15_Q": [0.1, 3.16, 5.6, 6.6, 7.74, 8.9, 10.07, 11.28], "16_A": [0.1, 4.22, 9.78, 15.75, 19.95, 22.88, 24.18, 27.15, 32.24, 35.42, 42.35, 51.4, 55.15], "16_Q": [0.1, 4.33, 8.3, 9.61, 11.44], "17_A": [0.1, 3.19, 7.97, 10.22, 14.12, 19.68, 21.69, 23.86, 25.8, 30.6, 34.55], "17_Q": [0.1, 2.2, 4.31, 9.22, 10.43], "18_A": [0.1, 5.34, 8.88, 13.91, 18.05, 22.23, 26.6, 30.62, 35.7, 40.89, 45.15], "18_Q": [0.1], "19_A": [0.1, 2.91, 8.86, 12.04, 18.07, 23.32, 25.48, 30.74, 35.49, 40.35], "19_Q": [0.1, 2.4, 5.3, 6.62, 8.22], "20_A": [0.1, 2.17, 7.46, 12.2, 15.59, 20.64, 28.5, 33.01], "20_Q": [0.1, 4.03, 6.7], "21_A": [0.1, 4.46, 11.4, 18.46, 24.75, 29.02, 32.91, 37.67, 40.62], "21_Q": [0.1, 3.25, 6.91], "22_A": [0.1, 4.15, 9.56, 12.86, 18.99, 21.77, 25.18, 28.64, 30.66, 34.54], "22_Q": [0.1, 3.71, 6.51], "23_A": [0.1, 8.38, 11.05, 16.94, 22.43, 26.18, 30.21, 34.19, 40.49], "23_Q": [0.1], "24_A": [0.1, 6.45, 11.88, 16.91, 21.66, 25.96, 30.99, 35.6], "24_Q": [0.1, 3.98, 5.7], "25_A": [0.1, 4.55, 8.89, 14.1, 17.8, 23.52, 29.96, 33.83], "25_Q": [0.1, 2.92], "26_A": [0.1, 4.14, 6.46, 12.89, 20.86, 25.64, 31.4, 34.89], "26_Q": [0.1, 2.49, 5.88], "27_A": [0.1, 4.04, 7.03, 11.5, 15.79, 22.11, 28.55, 32.06], "27_Q": [0.1, 2.5, 4.59], "28_A": [0.1, 6.95, 9.18, 15.16, 18.39, 22.75, 27.19, 33.12, 38.51], "28_Q": [0.1, 2.88, 5.3], "29_A": [0.1, 4.31, 9.29, 11.28, 20.74, 25.81, 29.44, 32.39], "29_Q": [0.1, 4.91], "30_A": [0.1, 4.2, 9.96, 14.95, 26.55, 31.71, 35.59, 40.45], "30_Q": [0.1, 3.33], "31_A": [0.1, 5.94, 14.71, 20.1, 26.16, 29.68, 34.92, 39.41, 46.44], "31_Q": [0.1], "32_A": [0.1, 7.89, 13.15, 18.96, 22.91, 27.4, 32.83, 39.46, 46.83], "32_Q": [0.1, 2.21, 3.98], "33_A": [0.1, 4.06, 7.21, 10.78, 15.19, 19.55, 23.02, 26.04, 28.93, 32.52, 34.61, 37.23], "33_Q": [0.1, 3.14, 5.44], "34_A": [0.1, 6.58, 12.2, 17.32, 22.29, 30.73, 35.02, 42.51, 46.69], "34_Q": [0.1, 3.76, 6.46], "35_A": [0.1, 2.75, 7.64, 11.71, 16.4, 20.84, 27.02, 30.16, 36.65, 39.09, 45.12], "35_Q": [0.1, 2.95, 5.09], "36_A": [0.1, 6.04, 10.21, 15.3, 18.38, 22.84, 27.66, 31.15, 37.05, 40.33, 42.86], "36_Q": [0.1, 2.19, 4.69], "37_A": [0.1, 6.53, 11.75, 15.64, 19.77, 23.84, 28.21, 34.71, 37.21], "37_Q": [0.1, 2.8], "38_A": [0.1, 4.49, 10.93, 16.82, 23.75, 27.82, 34.11], "38_Q": [0.1, 3.51, 6.06], "39_A": [0.1, 4.25, 11.1, 17.02, 21.98, 27.9, 32.75], "39_Q": [0.1, 2.39, 3.77, 5.61], "40_A": [0.1, 3.1, 8.69, 13.76, 18.5, 21.54, 26.52, 29.48, 35.81, 40.04, 45.35, 50.48], "40_Q": [0.1, 3.65, 8.3, 13.09]};
+    const SENTENCE_TIMINGS = {"1_A":[0.1,3.04,8.78,13.61,17.06,23.7,26.64,29.91,34.04,35.95,40.2,44.67],"1_Q":[0.1,4.24,6.7,9.43],"2_A":[0.1,3.86,6.55,11.38,15.89,17.91,22.76,25.32,27.69,31.59,35.26,38.4,41.49],"2_Q":[0.1,3.64,5.14],"3_A":[0.1,1.49,2.66,4.56,8.32,12.03,15.32,19.04,21.96,23.68,27.71,29.45,32.15],"3_Q":[0.1,3.7,7.91,10.36],"4_A":[0.1,1.95,5.88,7.04,7.91,10.66,12.71,14.22,15.96,17.26,21.25,24.04,28.16],"4_Q":[0.1,3.65,6.39],"5_A":[0.1,2.15,5.79,8.3,10.8,14.22,16.21,19.11,22.66,25.77,30.56,32.04,33.84],"5_Q":[0.1,3.7,7.14,13.2],"6_A":[0.1,2.05,4.86,10.16,13.85,17.43,19.46,22.91,24.48,27.62,30.73,33.05,34.75],"6_Q":[0.1,3.65,5.65],"7_A":[0.1,2.9,5.99,8.11,13.16,15.95,19.02,21.46,23.15,26.55,30.05,31.73],"7_Q":[0.1,3.7,9.64],"8_A":[0.1,2.25,5.56,9.07,12.32,14.55,17.74,19.77,22.86,24.43,26.65,29.82,32.15,33.85],"8_Q":[0.1,3.65,9.24],"9_A":[0.1,3.34,9.56,12.36,15.76,21.43,24.6,26.41,31.46,38.71],"9_Q":[0.1,2.2,7.66,8.86,10.62],"10_A":[0.1,6.7,11.35,16.68,20.74,24.69,27.86,33.09,40.83,45.14,49.45],"10_Q":[0.1,5.14],"11_A":[0.1,4,10.36,15.18,21.21,25.45,31.14,37.95,41.36],"11_Q":[0.1,2.64,3.84],"12_A":[0.1,4.28,8,13.21,16.66,24.98,28.45,33.29,41.9,44.42,48.92],"12_Q":[0.1],"13_A":[0.1,3.2,8.69,14.41,18.74,23.24,25.54,27.71,32.2,36.85,40.81,43.39],"13_Q":[0.1,2.39,3.91,5.69],"14_A":[0.1,3.19,6.55,9.74,13.8,20.43,23.55,29.43,33.23,38.09,43.2],"14_Q":[0.1,2.2,4.31,8.57],"15_A":[0.1,3.51,7.01,12.35,16.74,19.62,22.44,26.7,30.26,34.44,38.42,43.73],"15_Q":[0.1,3.16,5.6,6.6,7.74,8.9,10.07,11.28],"16_A":[0.1,4.22,9.78,15.75,19.95,22.88,24.18,27.15,32.24,35.42,42.35,51.4,55.15],"16_Q":[0.1,4.33,8.3,9.61,11.44],"17_A":[0.1,3.19,7.97,10.22,14.12,19.68,21.69,23.86,25.8,30.6,34.55],"17_Q":[0.1,2.2,4.31,9.22,10.43],"18_A":[0.1,5.34,8.88,13.91,18.05,22.23,26.6,30.62,35.7,40.89,45.15],"18_Q":[0.1],"19_A":[0.1,2.91,8.86,12.04,18.07,23.32,25.48,30.74,35.49,40.35],"19_Q":[0.1,2.4,5.3,6.62,8.22],"20_A":[0.1,2.17,7.46,12.2,15.59,20.64,28.5,33.01],"20_Q":[0.1,4.03,6.7],"21_A":[0.1,4.46,11.4,18.46,24.75,29.02,32.91,37.67,40.62],"21_Q":[0.1,3.25,6.91],"22_A":[0.1,4.15,9.56,12.86,18.99,21.77,25.18,28.64,30.66,34.54],"22_Q":[0.1,3.71,6.51],"23_A":[0.1,8.38,11.05,16.94,22.43,26.18,30.21,34.19,40.49],"23_Q":[0.1],"24_A":[0.1,6.45,11.88,16.91,21.66,25.96,30.99,35.6],"24_Q":[0.1,3.98,5.7],"25_A":[0.1,4.55,8.89,14.1,17.8,23.52,29.96,33.83],"25_Q":[0.1,2.92],"26_A":[0.1,4.14,6.46,12.89,20.86,25.64,31.4,34.89],"26_Q":[0.1,2.49,5.88],"27_A":[0.1,4.04,7.03,11.5,15.79,22.11,28.55,32.06],"27_Q":[0.1,2.5,4.59],"28_A":[0.1,6.95,9.18,15.16,18.39,22.75,27.19,33.12,38.51],"28_Q":[0.1,2.88,5.3],"29_A":[0.1,4.31,9.29,11.28,20.74,25.81,29.44,32.39],"29_Q":[0.1,4.91],"30_A":[0.1,4.2,9.96,14.95,26.55,31.71,35.59,40.45],"30_Q":[0.1,3.33],"31_A":[0.1,5.94,14.71,20.1,26.16,29.68,34.92,39.41,46.44],"31_Q":[0.1],"32_A":[0.1,7.89,13.15,18.96,22.91,27.4,32.83,39.46,46.83],"32_Q":[0.1,2.21,3.98],"33_A":[0.1,4.06,7.21,10.78,15.19,19.55,23.02,26.04,28.93,32.52,34.61,37.23],"33_Q":[0.1,3.14,5.44],"34_A":[0.1,6.58,12.2,17.32,22.29,30.73,35.02,42.51,46.69],"34_Q":[0.1,3.76,6.46],"35_A":[0.1,2.75,7.64,11.71,16.4,20.84,27.02,30.16,36.65,39.09,45.12],"35_Q":[0.1,2.95,5.09],"36_A":[0.1,6.04,10.21,15.3,18.38,22.84,27.66,31.15,37.05,40.33,42.86],"36_Q":[0.1,2.19,4.69],"37_A":[0.1,6.53,11.75,15.64,19.77,23.84,28.21,34.71,37.21],"37_Q":[0.1,2.8],"38_A":[0.1,4.49,10.93,16.82,23.75,27.82,34.11],"38_Q":[0.1,3.51,6.06],"39_A":[0.1,4.25,11.1,17.02,21.98,27.9,32.75],"39_Q":[0.1,2.39,3.77,5.61],"40_A":[0.1,3.1,8.69,13.76,18.5,21.54,26.52,29.48,35.81,40.04,45.35,50.48],"40_Q":[0.1,3.65,8.3,13.09]};
+    const SENTENCE_TIMINGS_IM = {"1_A":[0.1,3.02,5.29,9.64,12.49,15.53,19.05,22.25],"2_A":[0.1,2.1,4.38,5.76,9.69,11.4,15.79,17.34,20.6,23.25,25.49],"3_A":[0.1,2.16,4.17,7.12,9.99,12.45,14.84,17.6,19.21,20.65],"4_A":[0.1,3.4,5.12,6.51,7.39,9.49,10.95,14.61,17.14,20.01],"5_A":[0.1,1.86,4.34,6.83,9.14,11.04,13.01,15.74,17.57,19.21],"6_A":[0.1,2.05,4.38,6.38,8.34,10.8,12.34,14.62,16.39,17.8],"7_A":[0.1,3.29,5.99,8.91,12.1,13.7,15.39,17.01,19.91],"8_A":[0.1,1.86,5.24,7.79,10.6,14.09,16.34,17.66,19.57,21.98,23.49,24.71],"9_A":[0.1,2.65,4.45,6.65,9.29,12.59,14.09,15.97,19.59,21.31,23.61],"10_A":[0.1,2.41,5.28,8.2,11.47,14.97,17.99,21.29],"11_A":[0.1,3.73,8.3,10.51,13.56,16.34,20.48,24.12,25.8],"12_A":[0.1,2.86,5.64,7.97,12.3,16.01,18.5,22.15,25.56],"13_A":[0.1,2.62,5.76,7.94,11.45,13.7,17.66,20.14,23.99],"14_A":[0.1,2.77,5.9,8.79,13.57,15.75,19.36,22.15],"15_A":[0.1,3.02,5.46,9.64,11.65,14.14,17.1,19.65,22.11,26.21],"16_A":[0.1,3.7,6.1,9.12,11.74,14.05,16.79,20.14,23.9],"17_A":[0.1,2.81,5.64,8.91,12.4,14.61,16.05,19.52,22.27],"18_A":[0.1,3.98,6.62,9.5,12.32,15.85,18.25,21.75],"19_A":[0.1,2.99,7.42,10.93,14.68,16.82,19.6,22.66,25.84],"20_A":[0.1,1.82,4.8,8.14,11.03,14.03,16.91,20.25,24.88],"21_A":[0.1,3.79,7.89,10.84,15.15,17.89,20.02],"22_A":[0.1,3.83,6.31,9.24,12.28,15.44,18.59,21.79,24.44],"23_A":[0.1,4.38,6.84,11.6,14.28,18.55,21.75],"24_A":[0.1,2.88,6.15,8.91,11.11,15.28,18.07,20.01],"25_A":[0.1,4.39,6.67,8.89,12.03,15.88,17.96,20.3,22.91],"26_A":[0.1,3.27,4.99,9.29,13.56,18.04,21.48],"27_A":[0.1,2.56,4.91,8.65,11.64,14.8,19.43,22.27],"28_A":[0.1,2.21,6.34,8.81,11.54,16.51,18.81,22.48],"29_A":[0.1,3.74,5.75,7.88,9.86,12.8,16.06,19.68,21.77],"30_A":[0.1,3.77,6.71,9.28,12.2,15.9,20.05,22.16],"31_A":[0.1,4.69,7.54,11.35,13.7,15.82,19.88,23.61,26.68],"32_A":[0.1,4.42,6.38,9.11,12.59,15.57,17.73,21.96,26.11],"33_A":[0.1,2.75,4.58,7.12,10.56,14.95,17.6,20.29,23.39],"34_A":[0.1,2.17,5.53,7.7,10.28,12.78,16.4,20.7,25.16],"35_A":[0.1,2.75,5.9,7.67,11.51,13.74,15.45,18.05,22.21,27.12,29.77],"36_A":[0.1,3.12,6.36,9.34,11.15,13.74,17.93,22.31,25.6],"37_A":[0.1,3.83,6.84,9.81,14.14,18.61,21.8],"38_A":[0.1,3.21,7.35,9.84,12.3,15.84,20.84,23.21],"39_A":[0.1,2.58,6.3,9.99,13.96,18.41,22.82],"40_A":[0.1,3.02,6.92,10.34,13.14,15.94,17.75,21.95,24.85,27.95,31.11]};
 
     const STORAGE_KEYS = {
       starred: "opic_study_starred_v1",
       done: "opic_study_done_v1",
       prefs: "opic_study_prefs_v2",
-      edits: "opic_study_edits_v1"
+      edits: "opic_study_edits_v1",
+      editsIm: "opic_study_edits_im_v1",
+      level: "opic_study_level_v1"
     };
 
     const RATES = [0.85, 1.0, 1.15];
@@ -2743,6 +3850,7 @@
         tapTimer: null
       },
       prefs: {
+        level: "AL", // 'IM' | 'AL'
         showKo: false,
         blindMode: false,
         playMode: "qa", // 'qa' | 'a' | 'q'
@@ -2847,48 +3955,40 @@
       if (typeof patch.aEnPlain === "string") item.aEnPlain = patch.aEnPlain;
     }
 
-    function loadState() {
+    function getActiveEditsStorageKey(level = state.prefs.level) {
+      return level === "IM" ? STORAGE_KEYS.editsIm : STORAGE_KEYS.edits;
+    }
+
+    function applyLevelDataset(level = state.prefs.level) {
+      const safeLevel = level === "IM" ? "IM" : "AL";
+      const srcDefaults = DEFAULT_DATA_BY_LEVEL[safeLevel] || DEFAULT_DATA_BY_LEVEL.AL;
+      DEFAULT_OPIC_DATA.splice(0, DEFAULT_OPIC_DATA.length, ...JSON.parse(JSON.stringify(srcDefaults)));
+      OPIC_DATA.splice(0, OPIC_DATA.length, ...JSON.parse(JSON.stringify(srcDefaults)));
+
+      const nextFillers = safeLevel === "IM" ? FILLER_GROUPS_IM : FILLER_GROUPS_AL;
+      FILLER_GROUPS.splice(0, FILLER_GROUPS.length, ...nextFillers);
+
+      state.edits = {};
       try {
-        const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.starred) || "[]");
-        if (Array.isArray(s)) state.starredIds = new Set(s);
-      } catch {}
-      try {
-        const d = JSON.parse(localStorage.getItem(STORAGE_KEYS.done) || "[]");
-        if (Array.isArray(d)) state.doneIds = new Set(d);
-      } catch {}
-      try {
-        const p = JSON.parse(localStorage.getItem(STORAGE_KEYS.prefs) || "{}");
-        if (p && typeof p === "object") {
-          if (typeof p.showKo === "boolean") state.prefs.showKo = p.showKo;
-          if (typeof p.blindMode === "boolean") state.prefs.blindMode = p.blindMode;
-          if (["qa", "a", "q"].includes(p.playMode)) state.prefs.playMode = p.playMode;
-          if (RATES.includes(p.rate)) state.prefs.rate = p.rate;
-          if (typeof p.voiceName === "string") state.prefs.voiceName = p.voiceName;
-          if (typeof p.popupFontSize === "number" && p.popupFontSize >= 13 && p.popupFontSize <= 26) {
-            state.prefs.popupFontSize = p.popupFontSize;
-          }
-          if (p.audioSource === "file" || p.audioSource === "web") {
-            state.prefs.audioSource = p.audioSource;
-          }
-        }
-      } catch {}
-      try {
-        const e = JSON.parse(localStorage.getItem(STORAGE_KEYS.edits) || "{}");
+        const raw = localStorage.getItem(getActiveEditsStorageKey(safeLevel)) || "{}";
+        const e = JSON.parse(raw);
         if (e && typeof e === "object") {
           let migrated = false;
-          for (const [idStr, sig] of Object.entries(LEGACY_SCRIPT_SIGNATURES)) {
-            const patch = e[idStr];
-            if (patch && typeof patch.aEnPlain === "string" && patch.aEnPlain.includes(sig)) {
-              const defItem = DEFAULT_OPIC_DATA.find(x => x.id === Number(idStr));
-              const qUnchanged = !defItem || !patch.qEn || patch.qEn.trim() === defItem.qEn.trim();
-              if (qUnchanged) {
-                delete e[idStr];
-              } else {
-                delete patch.aKeywords;
-                delete patch.aSections;
-                delete patch.aEnPlain;
+          if (safeLevel === "AL") {
+            for (const [idStr, sig] of Object.entries(LEGACY_SCRIPT_SIGNATURES)) {
+              const patch = e[idStr];
+              if (patch && typeof patch.aEnPlain === "string" && patch.aEnPlain.includes(sig)) {
+                const defItem = DEFAULT_OPIC_DATA.find(x => x.id === Number(idStr));
+                const qUnchanged = !defItem || !patch.qEn || patch.qEn.trim() === defItem.qEn.trim();
+                if (qUnchanged) {
+                  delete e[idStr];
+                } else {
+                  delete patch.aKeywords;
+                  delete patch.aSections;
+                  delete patch.aEnPlain;
+                }
+                migrated = true;
               }
-              migrated = true;
             }
           }
           state.edits = e;
@@ -2918,6 +4018,75 @@
       } catch {}
     }
 
+    function setDifficultyLevel(nextLevel, options = {}) {
+      const safeLevel = nextLevel === "IM" ? "IM" : "AL";
+      const { silent = false } = options;
+      if (state.playback.active) {
+        stopPlayback();
+      }
+      state.prefs.level = safeLevel;
+      applyLevelDataset(safeLevel);
+      savePrefs();
+
+      if (state.popup.isOpen) {
+        state.popup.isEditing = false;
+      }
+      renderPrefsUI();
+      renderTabs();
+      renderStarFilters();
+      renderCards();
+      renderFillerModal();
+      if (state.popup.isOpen) {
+        renderScriptPopup();
+      }
+      updatePlaybackUI();
+      if (!silent) {
+        showToast(safeLevel === "IM"
+          ? "🌱 IM (쉬운 스크립트) 모드로 전환되었습니다."
+          : "🎯 AL (고득점 스크립트) 모드로 전환되었습니다.");
+      }
+    }
+
+    function toggleDifficultyLevel() {
+      const next = state.prefs.level === "IM" ? "AL" : "IM";
+      setDifficultyLevel(next);
+    }
+
+    function loadState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORAGE_KEYS.starred) || "[]");
+        if (Array.isArray(s)) state.starredIds = new Set(s);
+      } catch {}
+      try {
+        const d = JSON.parse(localStorage.getItem(STORAGE_KEYS.done) || "[]");
+        if (Array.isArray(d)) state.doneIds = new Set(d);
+      } catch {}
+      try {
+        const p = JSON.parse(localStorage.getItem(STORAGE_KEYS.prefs) || "{}");
+        if (p && typeof p === "object") {
+          if (p.level === "IM" || p.level === "AL") state.prefs.level = p.level;
+          if (typeof p.showKo === "boolean") state.prefs.showKo = p.showKo;
+          if (typeof p.blindMode === "boolean") state.prefs.blindMode = p.blindMode;
+          if (["qa", "a", "q"].includes(p.playMode)) state.prefs.playMode = p.playMode;
+          if (RATES.includes(p.rate)) state.prefs.rate = p.rate;
+          if (typeof p.voiceName === "string") state.prefs.voiceName = p.voiceName;
+          if (typeof p.popupFontSize === "number" && p.popupFontSize >= 13 && p.popupFontSize <= 26) {
+            state.prefs.popupFontSize = p.popupFontSize;
+          }
+          if (p.audioSource === "file" || p.audioSource === "web") {
+            state.prefs.audioSource = p.audioSource;
+          }
+        }
+      } catch {}
+      try {
+        const sharedLvl = localStorage.getItem(STORAGE_KEYS.level);
+        if (sharedLvl === "IM" || sharedLvl === "AL") {
+          state.prefs.level = sharedLvl;
+        }
+      } catch {}
+      applyLevelDataset(state.prefs.level);
+    }
+
     function saveStarred() {
       localStorage.setItem(STORAGE_KEYS.starred, JSON.stringify([...state.starredIds]));
     }
@@ -2928,10 +4097,11 @@
 
     function savePrefs() {
       localStorage.setItem(STORAGE_KEYS.prefs, JSON.stringify(state.prefs));
+      localStorage.setItem(STORAGE_KEYS.level, state.prefs.level);
     }
 
     function saveEdits() {
-      localStorage.setItem(STORAGE_KEYS.edits, JSON.stringify(state.edits));
+      localStorage.setItem(getActiveEditsStorageKey(), JSON.stringify(state.edits));
     }
 
     // --- Helpers ---
@@ -3219,14 +4389,17 @@
         .replace(/\s+/g, "_");
     }
 
-    function getTtsAudioUrl(itemId, part) {
+    function getTtsAudioUrl(itemId, part, level = state.prefs.level) {
       const defItem = DEFAULT_OPIC_DATA.find(x => x.id === itemId);
       if (!defItem) return null;
 
       const numStr = String(defItem.id).padStart(2, "0");
       const safeTitle = sanitizeAudioFilename(defItem.title);
-      const fileName = part === "Q" ? `${numStr}_Q_${safeTitle}.mp3` : `${numStr}_${safeTitle}.mp3`;
-      return `tts/${encodeURIComponent(fileName)}`;
+      if (part === "Q") {
+        return `tts/${encodeURIComponent(`${numStr}_Q_${safeTitle}.mp3`)}`;
+      }
+      const prefix = level === "IM" ? "tts/im/" : "tts/";
+      return `${prefix}${encodeURIComponent(`${numStr}_${safeTitle}.mp3`)}`;
     }
 
     function clearDelayTimer() {
@@ -3376,7 +4549,8 @@
         if (curText !== defText) return null;
       }
       const key = `${block.itemId}_${block.part}`;
-      const timings = SENTENCE_TIMINGS[key];
+      const timingMap = (block.part === "A" && state.prefs.level === "IM") ? SENTENCE_TIMINGS_IM : SENTENCE_TIMINGS;
+      const timings = timingMap[key];
       if (!Array.isArray(timings) || timings.length !== block.sentences.length) return null;
       return timings;
     }
@@ -4230,6 +5404,10 @@
       badgeEl.classList.toggle("is-answer", part === "A");
 
       document.getElementById("popupTitle").textContent = item.title;
+      const popLevelBtn = document.getElementById("btnPopupToggleLevel");
+      if (popLevelBtn) {
+        popLevelBtn.textContent = state.prefs.level === "IM" ? "🌱 IM" : "🎯 AL";
+      }
       document.getElementById("btnPopupSwitchPart").textContent = part === "Q" ? "A 답변 보기" : "Q 질문 보기";
       document.getElementById("btnPopupTranslate").classList.toggle("is-active", state.prefs.showKo);
       document.getElementById("btnPopupEdit").classList.toggle("is-active", state.popup.isEditing);
@@ -4811,8 +5989,18 @@
     }
 
     function renderPrefsUI() {
+      const isIm = state.prefs.level === "IM";
+      document.body.classList.toggle("level-im", isIm);
       document.body.classList.toggle("hide-ko", !state.prefs.showKo);
       document.body.classList.toggle("blind-on", state.prefs.blindMode);
+
+      const btnLevel = document.getElementById("btnToggleLevel");
+      if (btnLevel) {
+        btnLevel.setAttribute("aria-pressed", String(isIm));
+        btnLevel.querySelectorAll(".lvl-opt").forEach(el => {
+          el.classList.toggle("is-selected", el.dataset.lvl === state.prefs.level);
+        });
+      }
 
       const btnKo = document.getElementById("btnToggleKo");
       btnKo.textContent = state.prefs.showKo ? "한글 ON" : "한글 OFF";
@@ -4922,6 +6110,12 @@
     }
 
     function renderFillerModal() {
+      const sheetTitle = document.getElementById("sheetTitle");
+      if (sheetTitle) {
+        sheetTitle.textContent = state.prefs.level === "IM"
+          ? "💡 IM 필수 만능 필러 & 감정표현"
+          : "💡 AL 오픽 만능 필러 & 감정표현";
+      }
       const body = document.getElementById("fillerSheetBody");
       body.innerHTML = FILLER_GROUPS.map(g => `
         <div>
@@ -4943,6 +6137,16 @@
 
     // --- Event Bindings ---
     function bindEvents() {
+      const btnToggleLevel = document.getElementById("btnToggleLevel");
+      if (btnToggleLevel) {
+        btnToggleLevel.addEventListener("click", () => toggleDifficultyLevel());
+      }
+
+      const btnPopupToggleLevel = document.getElementById("btnPopupToggleLevel");
+      if (btnPopupToggleLevel) {
+        btnPopupToggleLevel.addEventListener("click", () => toggleDifficultyLevel());
+      }
+
       // Utility Bar
       document.getElementById("btnToggleKo").addEventListener("click", () => {
         state.prefs.showKo = !state.prefs.showKo;
